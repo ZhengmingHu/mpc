@@ -35,6 +35,45 @@ package mpc_types;
         MPC_OP_STORE = 3'd1
     } mpc_command_e;
 
+    typedef enum logic [2:0] {
+        CACHE_OP_LOAD  = 3'd0,
+        CACHE_OP_STORE = 3'd1,
+        CACHE_OP_RAE   = 3'd2,
+        CACHE_OP_WAE   = 3'd3 
+    } internal_command_e;
+
+    typedef enum logic [2:0] {
+        MEM_OP_LOAD  = 3'd0,
+        MEM_OP_STORE = 3'd1
+    } external_command_e;
+
+    typedef enum logic [1:0] {
+        MPC_META_INVALID = 2'd0,
+        MPC_META_SHARE   = 2'd1;
+        MPC_META_UNIQUE  = 2'd2;
+    } mpc_meta_e;
+
+    function automatic logic is_invalid(input [1:0] meta);
+        case (meta)
+            MPC_META_INVALID: return 1'b1;
+            default:          return 1'b0;
+        endcase
+    endfunction
+
+    function automatic logic is_share(input [1:0] meta);
+        case (meta)
+            MPC_META_SHARE  : return 1'b1;
+            default:          return 1'b0;
+        endcase
+    endfunction
+
+    function automatic logic is_unique(input [1:0] meta);
+        case (meta)
+            MPC_META_UNIQUE : return 1'b1;
+            default:          return 1'b0;
+        endcase
+    endfunction
+
     function automatic logic is_load(input [2:0] op);
         case (op)
             MPC_OP_LOAD: return 1'b1;
@@ -45,6 +84,20 @@ package mpc_types;
     function automatic logic is_store(input [2:0] op);
         case (op)
             MPC_OP_STORE: return 1'b1;
+            default:           return 1'b0;
+        endcase
+    endfunction
+
+    function automatic logic is_rae(input [2:0] op);
+        case (op)
+            CACHE_OP_RAE: return 1'b1;
+            default:           return 1'b0;
+        endcase
+    endfunction
+
+    function automatic logic is_rae(input [2:0] op);
+        case (op)
+            CACHE_OP_WAE: return 1'b1;
             default:           return 1'b0;
         endcase
     endfunction
@@ -76,7 +129,9 @@ package mpc_types;
         int unsigned setWidth;
         int unsigned bankWidth;
         int unsigned tagWidth;
+        int unsigned metaWidth;
         int unsigned nlineWidth;
+        int unsigned wayNum;
         int unsigned wayIndexWidth;
         int unsigned wbufWidth;
     } mpc_cfg_t;
@@ -90,9 +145,11 @@ package mpc_types;
         ret.offsetWidth = $clog2(p.clWidth / p.clWordWidth);
         ret.setWidth = $clog2(p.sets);
         ret.bankWidth = $clog2(p.banks);
-        ret.tagWidth = 32 - ret.setWidth - ret.offsetWidth - ret.byteWidth;
+        ret.tagWidth = 32 - ret.bankWidth - ret.setWidth - ret.offsetWidth - ret.byteWidth;
+        ret.metaWidth = 2;
+        ret.wayNum = p.ways;
         ret.wayIndexWidth = (p.ways > 1) ? $clog2(p.ways) : 1;
-        ret.nlineWidth = ret.setWidth + ret.offsetWidth + ret.wayIndexWidth;
+        ret.nlineWidth = ret.setWidth + ret.wayIndexWidth;
         ret.wbufWidth = $clog2(wbufSize);       
 
         return ret;
