@@ -1,7 +1,6 @@
-*.*
-*
 !/filelist/*
 !/rtl/*
+/smoke_test/*
 !/smoke_test/Makefile
 !/tb/*
 !setup.sh
