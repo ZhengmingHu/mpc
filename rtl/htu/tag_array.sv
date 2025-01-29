@@ -1,27 +1,16 @@
 module tag_array
     import mpc_types::*;
-
-    localparam mpc_user_cfg_t UserCfg = '{
-        clWidth:256,
-        clWordWidth:128,
-        sets:8,
-        banks:4,
-        ways:4,
-        kobSize:16,
-        wbufSize:128
-    },
-
-    localparam mpc_cfg_t Cfg = mpcBuildConfig(UserCfg),
-   
-    localparam type setWidth_t      = logic [Cfg.setWidth-1:0],
-    localparam type tagWidth_t      = logic [Cfg.tagWidth-1:0],
-    localparam type wayIndexWidth_t = logic [Cfg.wayIndexWidth-1:0],
-    localparam type wbufWidth_t     = logic [Cfg.wbufWidth-1:0],
-    localparam type wayNum_t        = logic [Cfg.wayNum-1:0],
-    localparam type nlineWidth_t    = logic [Cfg.nlineWidth-1:0],
-    localparam type offsetWidth_t   = logic [Cfg.offsetWidth-1:0],
-    localparam type metaWidth_t     = logic [Cfg.metaWidth-1:0],
-
+#(
+    parameter mpc_cfg_t Cfg = '0,
+    parameter type setWidth_t      = logic,
+    parameter type tagWidth_t      = logic,
+    parameter type wayIndexWidth_t = logic,
+    parameter type wbufWidth_t     = logic,
+    parameter type wayNum_t        = logic,
+    parameter type nlineWidth_t    = logic,
+    parameter type offsetWidth_t   = logic,
+    parameter type metaWidth_t     = logic
+)
 (
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,

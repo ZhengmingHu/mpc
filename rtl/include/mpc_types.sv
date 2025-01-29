@@ -49,8 +49,8 @@ package mpc_types;
 
     typedef enum logic [1:0] {
         MPC_META_INVALID = 2'd0,
-        MPC_META_SHARE   = 2'd1;
-        MPC_META_UNIQUE  = 2'd2;
+        MPC_META_SHARE   = 2'd1,
+        MPC_META_UNIQUE  = 2'd2
     } mpc_meta_e;
 
     function automatic logic is_invalid(input [1:0] meta);
@@ -84,13 +84,6 @@ package mpc_types;
     function automatic logic is_store(input [2:0] op);
         case (op)
             MPC_OP_STORE: return 1'b1;
-            default:           return 1'b0;
-        endcase
-    endfunction
-
-    function automatic logic is_rae(input [2:0] op);
-        case (op)
-            CACHE_OP_RAE: return 1'b1;
             default:           return 1'b0;
         endcase
     endfunction
@@ -150,7 +143,7 @@ package mpc_types;
         ret.wayNum = p.ways;
         ret.wayIndexWidth = (p.ways > 1) ? $clog2(p.ways) : 1;
         ret.nlineWidth = ret.setWidth + ret.wayIndexWidth;
-        ret.wbufWidth = $clog2(wbufSize);       
+        ret.wbufWidth = $clog2(p.wbufSize);       
 
         return ret;
     endfunction

@@ -1,27 +1,16 @@
 module meta_array
     import mpc_types::*;
-
-    localparam mpc_user_cfg_t UserCfg = '{
-        clWidth:256,
-        clWordWidth:128,
-        sets:8,
-        banks:4,
-        ways:4,
-        kobSize:16,
-        wbufSize:128
-    },
-
-    localparam mpc_cfg_t Cfg = mpcBuildConfig(UserCfg),
-   
-    localparam type setWidth_t      = logic [Cfg.setWidth-1:0],
-    localparam type tagWidth_t      = logic [Cfg.tagWidth-1:0],
-    localparam type wayIndexWidth_t = logic [Cfg.wayIndexWidth-1:0],
-    localparam type wbufWidth_t     = logic [Cfg.wbufWidth-1:0],
-    localparam type wayNum_t        = logic [Cfg.wayNum-1:0],
-    localparam type nlineWidth_t    = logic [Cfg.nlineWidth-1:0],
-    localparam type offsetWidth_t   = logic [Cfg.offsetWidth-1:0],
-    localparam type metaWidth_t     = logic [Cfg.metaWidth-1:0],
-
+#(
+    parameter mpc_cfg_t Cfg = '0,
+    parameter type setWidth_t      = logic,
+    parameter type tagWidth_t      = logic,
+    parameter type wayIndexWidth_t = logic,
+    parameter type wbufWidth_t     = logic,
+    parameter type wayNum_t        = logic,
+    parameter type nlineWidth_t    = logic,
+    parameter type offsetWidth_t   = logic,
+    parameter type metaWidth_t     = logic
+)
 (
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
@@ -39,11 +28,15 @@ module meta_array
 
 );
 
+localparam setNum       = 2 ** Cfg.setWidth;
+
 wayNum_t                                meta_cs;
 wayNum_t                                meta_we;
 setWidth_t                              meta_addr;
 metaWidth_t                             meta_wentry;
 metaWidth_t                             meta_rentry [Cfg.wayNum-1:0];
+metaWidth_t                             meta_sram [Cfg.wayNum-1:0][setNum-1:0];
+logic [setNum-1:0]                      meta_en [Cfg.wayNum-1:0];
 
 assign meta_read_ready = !meta_write_valid;
 assign meta_write_ready = 1'b1;
@@ -63,18 +56,18 @@ assign meta_read_rsp = meta_rentry;
 generate 
     for (genvar meta_w = 0; meta_w < int'(Cfg.wayNum); meta_w++)
     begin : meta_sram_gen
-        mpc_sram #(
-            .DATA_SIZE (Cfg.metaWidth),
-            .ADDR_SIZE (Cfg.setWidth)
-        ) meta_sram (
-            .clk       (clk                ),
-            .rst_n     (rst_n              ),
-            .cs        (meta_cs[meta_w]    ),
-            .we        (meta_we[meta_w]    ),
-            .addr      (meta_addr          ),
-            .wdata     (meta_wentry        ),
-            .rdata     (meta_rentry[meta_w])
-        );
+        for (genvar meta_s = 0; meta_s < setNum; meta_s++)
+        begin : meta_sram_gen
+            assign meta_en[meta_w][meta_s] = meta_write_set == meta_s & meta_we[meta_w] & meta_cs[meta_w];
+            ns_gnrl_dfflr # (Cfg.metaWidth) meta_sram_dfflr (meta_en[meta_w][meta_s], meta_wentry, meta_sram[meta_w][meta_s], clk, rst_n);
+        end
+    end
+endgenerate
+
+generate
+    for (genvar meta_w = 0; meta_w < int'(Cfg.wayNum); meta_w++)
+    begin : meta_rsp_gen
+        ns_gnrl_dfflr # (Cfg.metaWidth) meta_rsp_dfflr (meta_cs[meta_w] & !meta_we[meta_w], meta_sram[meta_w][meta_read_set], meta_rentry[meta_w], clk, rst_n);
     end
 endgenerate
 

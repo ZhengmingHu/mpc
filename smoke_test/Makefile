@@ -18,7 +18,7 @@ endif
 # TEST_CASE ?= arbiter
 # TEST_CASE ?= xbar_core
 # TEST_CASE ?= prio_enc
-TEST_CASE ?= kob
+TEST_CASE ?= htu
 # TEST_CASE ?= mux1h
 # TEST_CASE ?= srb
 

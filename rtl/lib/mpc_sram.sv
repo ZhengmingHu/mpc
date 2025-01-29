@@ -30,7 +30,7 @@ module mpc_sram
 
 endmodule
 
-module hpdcache_sram_1rw
+module mpc_sram_1rw
 #(
     parameter int unsigned ADDR_SIZE = 0,
     parameter int unsigned DATA_SIZE = 0,
