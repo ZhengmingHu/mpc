@@ -110,6 +110,8 @@ package mpc_types;
         int unsigned kobSize;
         //  Size of Write Buffer
         int unsigned wbufSize;
+        //  Size of Reorder Buffer
+        int unsigned robSize;
     } mpc_user_cfg_t;
 
     typedef struct packed {
@@ -127,6 +129,7 @@ package mpc_types;
         int unsigned wayNum;
         int unsigned wayIndexWidth;
         int unsigned wbufWidth;
+        int unsigned robWidth;
     } mpc_cfg_t;
 
     function automatic mpc_cfg_t mpcBuildConfig(input mpc_user_cfg_t p);
@@ -144,7 +147,7 @@ package mpc_types;
         ret.wayIndexWidth = (p.ways > 1) ? $clog2(p.ways) : 1;
         ret.nlineWidth = ret.setWidth + ret.wayIndexWidth;
         ret.wbufWidth = $clog2(p.wbufSize);       
-
+        ret.robWidth = $clog2(p.robSize);
         return ret;
     endfunction
 
