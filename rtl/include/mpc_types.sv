@@ -134,7 +134,7 @@ package mpc_types;
 
         ret.u = p;
 
-        ret.byteWidth = $clog2(p.clWordWidth);
+        ret.byteWidth = $clog2(p.clWordWidth / 8);
         ret.offsetWidth = $clog2(p.clWidth / p.clWordWidth);
         ret.setWidth = $clog2(p.sets);
         ret.bankWidth = $clog2(p.banks);

@@ -1,0 +1,107 @@
+Magic 271485
+Revision Verdi_O-2018.09-SP2
+
+; Window Layout <x> <y> <width> <height> <signalwidth> <valuewidth>
+viewPort 0 27 2548 651 295 171
+
+; File list:
+; openDirFile [-d delimiter] [-s time_offset] [-rf auto_bus_rule_file] path_name file_name
+openDirFile -d / "" "/home/zcy/workspace/mpc/smoke_test/build/result/init_test/htu.fsdb"
+
+; file time scale:
+; fileTimeScale ### s|ms|us|ns|ps
+
+; signal spacing:
+signalSpacing 5
+
+; windowTimeUnit is used for zoom, cursor & marker
+; waveform viewport range
+zoom 396.063513 1772.936670
+cursor 810.000000
+marker 0.000000
+
+; user define markers
+; userMarker time_pos marker_name color linestyle
+; visible top row signal index
+top 28
+; marker line index
+markerPos 50
+
+; event list
+; addEvent event_name event_expression
+; curEvent event_name
+
+
+
+COMPLEX_EVENT_BEGIN
+
+
+COMPLEX_EVENT_END
+
+
+
+; toolbar current search type
+; curSTATUS search_type
+curSTATUS ByChange
+
+
+addGroup "G1"
+activeDirFile "" "/home/zcy/workspace/mpc/smoke_test/build/result/init_test/htu.fsdb"
+addSignal -h 15 /tb_htu/u_htu_wrapper/u_htu_pipe/u_bank_req_valid
+addSignal -h 15 -holdScope u_bank_req_ready
+addSignal -h 15 -holdScope u_bank_req
+addGroup "s0"
+addSignal -h 15 /tb_htu/u_htu_wrapper/u_htu_pipe/s0_valid
+addSignal -h 15 -holdScope s0_ready
+addSignal -h 15 -holdScope s0_set[2:0]
+addSignal -h 15 -holdScope s0_tag[21:0]
+addSignal -h 15 -holdScope s0_hsked
+addGroup "s1"
+addSignal -h 15 /tb_htu/u_htu_wrapper/u_htu_pipe/s1_valid
+addSignal -h 15 -holdScope s1_ready
+addSignal -h 15 -holdScope s1_hsked
+addSignal -h 15 -holdScope s1_tag_rsp[3:0]
+addSignal -h 15 -holdScope s1_meta_rsp[3:0]
+addSignal -h 15 -holdScope s1_hit
+addGroup "s2"
+addSignal -h 15 /tb_htu/u_htu_wrapper/u_htu_pipe/s2_valid
+addSignal -h 15 -holdScope s2_ready
+addSignal -h 15 -holdScope s2_hsked
+addSignal -h 15 -holdScope s2_ref_cnt[3:0]
+addSignal -h 15 -holdScope s2_replace_way[1:0]
+addSignal -h 15 -holdScope s2_way[1:0]
+addSignal -h 15 -holdScope s2_new_meta[1:0]
+addSignal -h 15 -holdScope s2_bank_req.op[2:0]
+addSignal -h 15 -holdScope s2_meta[3:0]
+addGroup "meta_array"
+addSignal -h 15 /tb_htu/u_htu_wrapper/u_meta_array/meta_write_valid
+addSignal -h 15 -holdScope meta_write_ready
+addSignal -h 15 -holdScope meta_write_set[2:0]
+addSignal -h 15 -holdScope meta_write_way_en[3:0]
+addSignal -h 15 -holdScope meta_write_data[1:0]
+addSignal -h 15 -UNSIGNED -HEX -holdScope meta_sram[3:0]
+addGroup "tag_array"
+addSignal -h 15 /tb_htu/u_htu_wrapper/u_tag_array/tag_write_valid
+addSignal -h 15 -holdScope tag_write_ready
+addSignal -h 15 -holdScope tag_write_set[2:0]
+addSignal -h 15 -holdScope tag_write_way_en[3:0]
+addSignal -h 15 -holdScope tag_write_data[21:0]
+addGroup "replacer"
+addSignal -h 15 /tb_htu/u_htu_wrapper/u_replacer/replace_set[2:0]
+addSignal -h 15 -holdScope replace_meta[3:0]
+addSignal -h 15 -holdScope replace_way[1:0]
+addSignal -h 15 -holdScope replace_way_nxt[1:0]
+addSignal -h 15 -UNSIGNED -BIN -holdScope way_is_valid[3:0]
+addSignal -h 15 -holdScope all_way_valid
+addSignal -h 15 -holdScope replace_access_valid
+addSignal -h 15 -holdScope replace_access_set[2:0]
+addSignal -h 15 -holdScope replace_access_way[1:0]
+addSignal -h 15 -UNSIGNED -BIN -holdScope plru_tree[7:0]
+addGroup "G8"
+addSignal -h 15 /tb_htu/u_htu_wrapper/u_htu_pipe/d_isu_op[2:0]
+addSignal -h 15 -holdScope d_memctl_op[2:0]
+addGroup "G9"
+
+; getSignalForm Scope Hierarchy Status
+; active file of getSignalForm
+

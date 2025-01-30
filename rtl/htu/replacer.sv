@@ -25,7 +25,7 @@ module replacer
 
 );
 
-localparam setNum = 2 ** Cfg.setWidth;
+localparam setNum = 1 << Cfg.setWidth;
 localparam wayIdx = Cfg.wayIndexWidth;
 
 logic [Cfg.wayNum-2:0] plru_tree     [setNum-1:0];
@@ -59,9 +59,9 @@ logic                  all_way_valid             ;
 
 
 generate
-    if (Cfg.wayNum == 8) begin
+    if (int'(Cfg.wayNum) == 8) begin
         for (genvar i = 0; i < setNum; i++)
-        begin : plru_tree_touch_set
+        begin : plru_tree_touch_set_8_way
             assign plru_tree_nxt[i] = replace_access_valid & replace_access_set == i ? 
                                       replace_access_way == 'd0 ? {1'b1, plru_tree[i][5], plru_tree[i][4], plru_tree[i][3], 1'b1, plru_tree[i][1], 1'b1} :
                                       replace_access_way == 'd1 ? {1'b1, plru_tree[i][5], plru_tree[i][4], plru_tree[i][3], 1'b1, plru_tree[i][1], 1'b0} :
@@ -75,9 +75,9 @@ generate
             ns_gnrl_dfflr # (Cfg.wayNum-1) plru_tree_dfflr (plru_tree_en[i], plru_tree_nxt[i], plru_tree[i], clk, rst_n);
         end
     end
-    else if (Cfg.wayNum == 4) begin
+    else if (int'(Cfg.wayNum) == 4) begin
         for (genvar i = 0; i < setNum; i++)
-        begin : plru_tree_touch_set
+        begin : plru_tree_touch_set_4_way
             assign plru_tree_nxt[i] = replace_access_valid & replace_access_set == i ? 
                                       replace_access_way == 'd0 ? {1'b1, plru_tree[i][1], 1'b1} :
                                       replace_access_way == 'd1 ? {1'b1, plru_tree[i][1], 1'b0} :
@@ -90,7 +90,7 @@ generate
     end 
     else begin
         for (genvar i = 0; i < setNum; i++)
-        begin : plru_tree_touch_set
+        begin : plru_tree_touch_set_2_way
             assign plru_tree_nxt[i] = (plru_tree[i] + 1) << plru_tree[i];
             assign plru_tree_en[i]  = replace_access_valid & replace_access_set == i;
             ns_gnrl_dfflr # (Cfg.wayNum-1) plru_tree_dfflr (plru_tree_en[i], plru_tree_nxt[i], plru_tree[i], clk, rst_n);
@@ -108,14 +108,15 @@ endgenerate
 assign all_way_valid = &way_is_valid;
 
 generate
-    if (Cfg.wayNum==8) begin
+    if (int'(Cfg.wayNum)==8) begin
         always_comb begin
             replace_way_nxt = 'd0;
             if (!all_way_valid) begin
-                for (int i = int'(Cfg.wayNum)-1; i >= 0; i++)
+                for (int i = 0; i < int'(Cfg.wayNum); i++)
                 begin
                     if (!way_is_valid[i]) begin
                         replace_way_nxt = i;
+                        break;
                     end
                 end
             end
@@ -139,14 +140,15 @@ generate
             end 
         end
     end
-    else if (Cfg.wayNum == 4) begin
+    else if (int'(Cfg.wayNum) == 4) begin
         always_comb begin
             replace_way_nxt = 'd0;
             if (!all_way_valid) begin
-                for (int i = int'(Cfg.wayNum)-1; i >= 0; i++)
+                for (int i = 0; i < int'(Cfg.wayNum); i++)
                 begin
                     if (!way_is_valid[i]) begin
                         replace_way_nxt = i;
+                        break;
                     end
                 end
             end

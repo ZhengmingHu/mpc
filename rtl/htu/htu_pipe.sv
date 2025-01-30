@@ -92,6 +92,16 @@ localparam offsetMSB    = 31 - Cfg.tagWidth - Cfg.bankWidth - Cfg.setWidth;
 localparam offsetLSB    = Cfg.byteWidth;
 localparam bankReqWidth = $bits(u_bank_req);
 
+
+always @ (posedge rst_n) begin
+    $display("tagWidth:%d", Cfg.tagWidth);
+    $display("bankWidth:%d", Cfg.bankWidth);
+    $display("setWidth:%d", Cfg.setWidth);
+    $display("offsetWidth:%d", Cfg.offsetWidth);
+    $display("byteWidth:%d", Cfg.byteWidth);
+    $display("wayNum:%d", Cfg.wayNum);
+end
+
 logic                                   s0_valid;
 logic                                   s0_ready;
 setWidth_t                              s0_set;
@@ -126,6 +136,7 @@ logic            [  2: 0]               s2_ref_cnt_sel;
 logic                                   s2_ref_cnt_max;
 logic                                   s2_ref_cnt_not_zero;
 logic                                   s2_ref_cnt_not_ready;
+logic                                   s2_memctl_not_ready;
 wayNum_t                                s2_hit_way_en;
 wayIndexWidth_t                         s2_hit_way;
 wayNum_t                                s2_replace_way_en;
@@ -196,7 +207,7 @@ assign s1_ready        = !s1_valid || s2_ready;
 
 /* stage 1 <==> stage 2 pipeline connect */
 
-assign s2_hsked          = s2_valid & (!s2_ref_cnt_not_ready & d_isu_ready & tag_write_ready & meta_write_ready);
+assign s2_hsked          = s2_valid & (!s2_ref_cnt_not_ready & !s2_memctl_not_ready & d_isu_ready & tag_write_ready & meta_write_ready);
 assign s2_valid_nxt      = s1_hsked | ~(s2_hsked);
 ns_gnrl_dfflr # (1) s2_valid_dfflr (s1_hsked | s2_hsked, s2_valid_nxt, s2_valid, clk, rst_n);
 ns_gnrl_dfflr # (bankReqWidth) s2_bank_req_dfflr (s1_hsked, s1_bank_req, s2_bank_req, clk, rst_n);
@@ -244,7 +255,8 @@ assign s2_new_meta =           is_store(s2_bank_req.op) ? MPC_META_UNIQUE :
                      !s2_hit &  is_load(s2_bank_req.op) ? MPC_META_SHARE  : s2_meta[s2_way];
 
 assign s2_ref_cnt_not_ready = s2_ref_cnt_max | (!s2_hit & s2_ref_cnt_not_zero);
-assign s2_ready = !s2_valid || (!s2_ref_cnt_not_ready & d_isu_ready & tag_write_ready & meta_write_ready);
+assign s2_memctl_not_ready = !s2_hit & !d_memctl_ready;
+assign s2_ready = !s2_valid || (!s2_ref_cnt_not_ready & !s2_memctl_not_ready & d_isu_ready & tag_write_ready & meta_write_ready);
 
 /* downstream connect */
 assign d_isu_valid            = s2_hsked;

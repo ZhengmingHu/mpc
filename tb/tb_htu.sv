@@ -80,14 +80,37 @@ initial begin
     u_bank_req.op = 'd0;
     u_bank_req.addr = 'd0;
     u_bank_req.wdata = 'd0;
+    d_isu_ready = 'd1;
+    d_memctl_ready = 'd1;
+    d_isu_crdt_valid = 'd0;
+    d_isu_crdt_way_set = 'd0;
     #500;
     @(posedge clk)
     u_bank_req_valid <= 'd1;
-    u_bank_req.addr <= 32'h0000_0010;
+    u_bank_req.op <= 'd1;
+    u_bank_req.addr <= 32'hff00_0020;
     @(posedge clk)
-    u_bank_req_valid <= 'd0;
-    u_bank_req.addr <= 32'h0;
-    
+    u_bank_req_valid <= 'd1;
+    u_bank_req.addr <= 32'hfe00_0020;
+    @(posedge clk)
+    @(posedge clk)
+    @(posedge clk)
+    u_bank_req_valid <= 'd1;
+    u_bank_req.addr <= 32'hfd00_0020;
+    @(posedge clk)
+    @(posedge clk)
+    @(posedge clk)
+    u_bank_req_valid <= 'd1;
+    u_bank_req.addr <= 32'hfc00_0020;
+    @(posedge clk)
+    d_isu_crdt_valid <= 'd1;
+    d_isu_crdt_way_set <= {2'd0, 3'd1};
+    @(posedge clk)
+    d_isu_crdt_valid <= 'd0;
+    d_isu_crdt_way_set <= 'd0;
+    @(posedge clk)
+    u_bank_req_valid <= 'd1;
+    u_bank_req.addr <= 32'hfb00_0020;
 end
 
 htu_wrapper
