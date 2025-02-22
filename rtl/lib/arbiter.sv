@@ -100,7 +100,7 @@ module ns_gnrl_weight_with_ref # (
 )
 (
   input                               clk                        ,
-  input                               rst_n
+  input                               rst_n                      ,
 
   output     [$clog2(ARBT_NUM)-1: 0]  grt_id                     ,
   input              [ARBT_NUM-1: 0]  req_vec                    ,
@@ -111,7 +111,7 @@ module ns_gnrl_weight_with_ref # (
 logic [        ARBT_NUM-1:0] req_vec_circular_sft;
 logic [$clog2(ARBT_NUM)-1:0] grt_id_sft; 
 
-assign req_vec_circular_sft = ~|ref_weight ? req_vec : {req_vec[ref_weight-1:0], req_vec[ARBT_NUM-1:ref_weight]};
+assign req_vec_circular_sft = (req_vec << ref_weight) | (req_vec >> (ARBT_NUM - ref_weight));
 
 priority_encoder # (ARBT_NUM) req_vec_priority_encoder (req_vec_circular_sft, grt_id_sft);
 

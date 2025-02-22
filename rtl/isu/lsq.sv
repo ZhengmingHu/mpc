@@ -17,8 +17,6 @@ module lsq_entry
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
 
-    input  lsqWidth_t                   lsq_id                     ,
-
     input  logic                        enq_valid                  ,
     output logic                        enq_ready                  ,
     input  logic                        enq_inflight_flg           ,
@@ -40,6 +38,7 @@ module lsq_entry
 
     output logic                        deq_valid                  ,
     input  logic                        deq_ready                  ,
+    output logic                        deq_real_valid             ,
     output logic            [  2: 0]    deq_channel_1hot_id        ,
     output robWidth_t                   deq_rob_id                 ,
     output logic            [  2: 0]    deq_op                     ,
@@ -93,12 +92,13 @@ ns_gnrl_dfflr # (    Cfg.wbufWidth)           entry_wbuf_id_dfflr (enq_valid, en
 
 ns_1hot2bin # (3) entry_channel_1hot2bin (entry_channel_1hot_id, entry_channel_id);
 
-assign enq_ready                = !entry_valid;
+assign enq_ready                = !entry_vld;
 
-assign status_valid             = entry_valid;
+assign status_valid             = entry_vld;
 assign status_channel_id        = entry_channel_id;
 
 assign deq_valid                = entry_vld & !entry_inflight & entry_can_execute;
+assign deq_real_valid           = entry_vld & !entry_inflight & entry_can_execute & !(is_rae(entry_op) | is_wae(entry_op));
 assign deq_channel_1hot_id      = entry_channel_1hot_id;
 assign deq_rob_id               = entry_rob_id;
 assign deq_op                   = is_rae(entry_op) | is_wae(entry_op) ? CACHE_OP_WB : entry_op;
@@ -146,6 +146,8 @@ module lsq
     // 5. from memory interface
     input  logic                        memctl_refill_valid        ,
     input  nlineWidth_t                 memctl_refill_id           ,
+    // 6. to refill buffer
+    output logic                        refill_buf_confirm         ,
     // 6. to sram controller interface
     output logic                        d_rc_valid                 ,
     input  logic                        d_rc_ready                 ,
@@ -182,6 +184,8 @@ logic            [Cfg.u.lsqSize-1:0]    lsq_entry_rdy              ;
 logic            [              1:0]    lsq_entry_channel_id [Cfg.u.lsqSize-1:0];
 
 logic            [Cfg.u.lsqSize-1:0]    lsq_deq_vld                ;
+logic            [Cfg.u.lsqSize-1:0]    lsq_deq_real_valid         ;
+logic            [Cfg.u.lsqSize-1:0]    lsq_deq_real_sel           ;
 logic            [  2: 0]               lsq_deq_channel_1hot_id [Cfg.u.lsqSize-1:0];
 robWidth_t                              lsq_deq_rob_id          [Cfg.u.lsqSize-1:0];
 logic            [  2: 0]               lsq_deq_op              [Cfg.u.lsqSize-1:0];
@@ -191,7 +195,7 @@ wbufWidth_t                             lsq_deq_wbuf_id         [Cfg.u.lsqSize-1
 
 logic            [Cfg.u.lsqSize-1:0]    entry_can_execute          ;
 
-logic                                   d_rc_hsked                 ;
+logic                                   lsq_deq_confirm            ;
 
 assign u_htu_ready = |lsq_entry_rdy;
 assign u_htu_hsked = u_htu_valid & u_htu_ready;
@@ -203,18 +207,27 @@ assign memctl_refill_set = memctl_refill_id [setMSB:setLSB];
 
 assign rob_id_gen_valid = u_htu_valid & u_htu_ready & (is_load(u_htu_op) | is_rae(u_htu_op));
 
-assign d_rc_hsked = d_rc_valid & d_rc_ready;
+assign lsq_deq_confirm = |lsq_deq_real_sel & d_rc_ready;
+assign refill_buf_confirm = |lsq_deq_real_sel;
 
-assign d_rc_valid = |lsq_entry_vld;
-assign d_rc_channel_1hot_id = lsq_deq_channel_1hot_id[r_req_ptr];
-assign d_rc_rob_id = lsq_deq_rob_id[r_req_ptr];
-assign d_rc_op = lsq_deq_op[r_req_ptr];
-assign d_rc_set = lsq_deq_set[r_req_ptr];
-assign d_rc_way = lsq_deq_way[r_req_ptr];
-assign d_rc_wbuf_id = lsq_deq_wbuf_id[r_req_ptr];
+assign d_rc_valid = |lsq_deq_vld;
+assign d_rc_channel_1hot_id = lsq_deq_channel_1hot_id[lsq_r_ptr];
+assign d_rc_rob_id = lsq_deq_rob_id[lsq_r_ptr];
+assign d_rc_op = lsq_deq_op[lsq_r_ptr];
+assign d_rc_set = lsq_deq_set[lsq_r_ptr];
+assign d_rc_way = lsq_deq_way[lsq_r_ptr];
+assign d_rc_wbuf_id = lsq_deq_wbuf_id[lsq_r_ptr];
 
-assign u_htu_crdt_valid = d_rc_hsked;
+assign u_htu_crdt_valid = lsq_deq_confirm;
 assign u_htu_crdt_id = {d_rc_way, d_rc_set};
+
+generate
+    for (genvar i = 0; i < int'(Cfg.u.lsqSize);i++)
+    begin: lsq_deq_real_sel_gen
+        assign lsq_deq_real_sel[i] = lsq_deq_real_valid[i] & lsq_r_ptr == i;
+    end
+endgenerate
+
 
 rob_id_gen # (
     .Cfg                               (Cfg                       ),
@@ -268,10 +281,11 @@ lsq_ptr_gen # (
     .clk                               (clk                       ),    
     .rst_n                             (rst_n                     ),
     .w_req_valid                       (u_htu_hsked               ),
-    .r_req_valid                       (d_rc_hsked                ),
+    .r_req_valid                       (lsq_deq_confirm           ),
     .r_req_ptr                         (lsq_r_ptr                 ),
     .entry_valid                       (lsq_entry_vld             ),
-    .bottom_ptr                        (lsq_btm_ptr               )
+    .bottom_ptr                        (lsq_btm_ptr               ),
+    .w_ptr                             (lsq_w_ptr                 )
 
 );
 
@@ -281,13 +295,13 @@ ns_gnrl_weight_with_ref # (
     .clk                               (clk                       ),
     .rst_n                             (rst_n                     ),
     .grt_id                            (lsq_r_ptr                 ),
-    .req_vec                           (lsq_entry_vld             ),
+    .req_vec                           (lsq_deq_confirm           ),
     .ref_weight                        (lsq_btm_ptr               )
 );
 
 generate
     for (genvar i = 0; i < int'(Cfg.u.lsqSize); i++) 
-    begin
+    begin: lsq_entry_gen
         lsq_entry # (
             .Cfg                               (Cfg                       ),
             .setWidth_t                        (setWidth_t                ),
@@ -303,7 +317,6 @@ generate
         ) u_lsq_entry (
             .clk                               (clk                       ),
             .rst_n                             (rst_n                     ),
-            .lsq_id                            (i                         ),
             .enq_valid                         (u_htu_hsked & lsq_w_ptr == i),
             .enq_ready                         (lsq_entry_rdy[i]          ),
             .enq_inflight_flg                  (u_inflight_flg            ),
@@ -311,6 +324,7 @@ generate
             .enq_rob_id                        (rob_id                    ),
             .enq_op                            (u_htu_op                  ),
             .enq_set                           (u_htu_set                 ),
+            .enq_way                           (u_htu_way                 ),
             .enq_wbuf_id                       (u_htu_wbuf_id             ),
             .memctl_refill_valid               (memctl_refill_valid       ),
             .memctl_refill_way                 (memctl_refill_way         ),
@@ -320,6 +334,7 @@ generate
             .entry_can_execute                 (entry_can_execute[i]      ),
             .deq_valid                         (lsq_deq_vld[i]            ),
             .deq_ready                         (d_rc_ready & lsq_r_ptr == i),
+            .deq_real_valid                    (lsq_deq_real_valid[i]     ),
             .deq_channel_1hot_id               (lsq_deq_channel_1hot_id[i]),
             .deq_rob_id                        (lsq_deq_rob_id[i]         ),
             .deq_op                            (lsq_deq_op[i]             ),

@@ -1,0 +1,17 @@
+../rtl/include/mpc_types.sv
+../rtl/isu/credit_manager.sv
+../rtl/isu/inflight_array.sv
+../rtl/isu/isu_wrapper.sv
+../rtl/isu/lsq_ptr_gen.sv
+../rtl/isu/lsq.sv
+../rtl/isu/refill_buffer.sv
+../rtl/isu/rob_id_gen.sv
+../rtl/lib/1hot2bin.sv
+../rtl/lib/arbiter_mask.sv
+../rtl/lib/arbiter.sv
+../rtl/lib/mpc_sram.sv
+../rtl/lib/mux1h.sv
+../rtl/lib/ns_gnrl_dfflr.sv
+../rtl/lib/ns_gnrl_dfflrs.sv
+../rtl/lib/priority_encoder.sv
+../tb/tb_isu.sv

@@ -43,8 +43,6 @@ wayIndexWidth_t                                    memctl_refill_way;
 logic                                              entry_valid_set;
 logic                                              entry_valid_nxt;
 
-setWidth_t                                         entry_set;
-wayIndexWidth_t                                    entry_way;
 logic                            [127: 0]          entry_data;
 
 logic                                              deq_hsked;
@@ -52,7 +50,7 @@ logic                                              deq_hsked;
 assign memctl_refill_set = memctl_refill_id[setMSB:setLSB];
 assign memctl_refill_way = memctl_refill_id[wayMSB:wayLSB];
 
-assign entry_valid_set   = memctl_refill_valid & deq_hsked;
+assign entry_valid_set   = memctl_refill_valid | deq_hsked;
 assign entry_valid_nxt   = memctl_refill_valid;
 
 assign deq_hsked         = deq_valid & deq_ready;
@@ -60,7 +58,7 @@ assign deq_hsked         = deq_valid & deq_ready;
 ns_gnrl_dfflr # (                1) entry_valid_dfflr (entry_valid_set, entry_valid_nxt, entry_valid, clk, rst_n);
 ns_gnrl_dfflr # (     Cfg.setWidth) entry_set_dfflr (memctl_refill_valid, memctl_refill_set, entry_set, clk, rst_n);
 ns_gnrl_dfflr # (Cfg.wayIndexWidth) entry_way_dfflr (memctl_refill_valid, memctl_refill_way, entry_way, clk, rst_n);
-ns_gnrl_dfflr # (              128) entry_data_dfflr (memctl_refill_valid, memctl_refill_data, entry_way, clk, rst_n);
+ns_gnrl_dfflr # (              128) entry_data_dfflr (memctl_refill_valid, memctl_refill_data, entry_data, clk, rst_n);
 
 assign deq_valid         = entry_valid;
 assign deq_data          = entry_data;
@@ -94,12 +92,13 @@ module refill_buffer
     input  logic                   [127: 0]        memctl_refill_data         ,
 
     // 2. lsq intf
-    input  logic                                   lsq_deq_valid              ,                                   
+    input  logic                                   lsq_deq_confirm            ,                                   
     input  setWidth_t                              lsq_deq_set                ,
     input  wayIndexWidth_t                         lsq_deq_way                ,
 
     // 3. downstream rc intf
     output logic                                   d_rc_hit_refill_buf        ,
+    input  logic                                   d_rc_ready                 ,
     output logic                  [127: 0]         d_rc_refill_data                     
 );
 
@@ -120,11 +119,12 @@ assign entry_rdy_vec = ~entry_vld_vec;
 assign memctl_refill_ready = |entry_rdy_vec;
 
 priority_encoder # (Cfg.u.rfbufSize) enq_ptr_prio_enc (entry_rdy_vec, enq_ptr);
+priority_encoder # (Cfg.u.rfbufSize) deq_ptr_prio_enc (hit_refill_buf_vec, deq_ptr);
 
 generate
     for (genvar i = 0; i < int'(Cfg.u.rfbufSize); i++)
     begin: hit_refill_buf_gen
-        assign hit_refill_buf_vec[i] = entry_set_vec[i] == lsq_deq_set && entry_way_vec[i] == lsq_deq_way[i];
+        assign hit_refill_buf_vec[i] = entry_set_vec[i] == lsq_deq_set && entry_way_vec[i] == lsq_deq_way && lsq_deq_confirm && entry_vld_vec[i];
     end
 
     for (genvar i = 0; i < int'(Cfg.u.rfbufSize); i++)
@@ -155,7 +155,7 @@ generate
             .entry_way                         (entry_way_vec[i]          ),
 
             .deq_valid                         (deq_valid_vec[i]          ),
-            .deq_ready                         (deq_ptr == i              ),
+            .deq_ready                         (d_rc_ready && deq_ptr == i && lsq_deq_confirm),
             .deq_data                          (deq_data_vec[i]           ) 
         );
     end

@@ -79,7 +79,7 @@ generate
         // iterate through all pending instructions in each channel
         always_comb begin
             pending_entry_decouple[i] = pending_entry;
-            for (j = 0; j < int'(Cfg.u.lsqSize); j++)
+            for (int j = 0; j < int'(Cfg.u.lsqSize); j++)
             begin: pending_instruction_gen
                 if (lsq_entry_channel_id[j] != i)
                     pending_entry_decouple[i] = 1'b0;

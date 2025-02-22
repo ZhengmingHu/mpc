@@ -10,7 +10,8 @@ module rob_id_gen
     parameter type nlineWidth_t    = logic,
     parameter type offsetWidth_t   = logic,
     parameter type metaWidth_t     = logic,
-    parameter type robWidth_t      = logic
+    parameter type robWidth_t      = logic,
+    parameter type lsqWidth_t      = logic
 )
 (
     input  logic                        clk                        ,

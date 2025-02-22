@@ -112,13 +112,6 @@ package mpc_types;
         endcase
     endfunction
 
-    function automatic logic is_wb(input [2:0] op);
-        case (op)
-            CACHE_OP_WB: return 1'b1;
-            default:           return 1'b0;
-        endcase
-    endfunction
-
     function automatic logic is_load_refill(input [2:0] op);
         case (op)
             CACHE_OP_LOAD_REFILL: return 1'b1;
