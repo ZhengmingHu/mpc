@@ -73,7 +73,7 @@ assign deq_hsked = deq_valid & deq_ready;
 assign entry_vld_en  = enq_valid | deq_hsked;
 assign entry_vld_nxt = enq_valid | (deq_hsked & (is_rae(entry_op) | is_wae(entry_op)));
 
-assign entry_inflight_en =  (enq_valid & enq_inflight_flg) | 
+assign entry_inflight_en =  (enq_valid & enq_inflight_flg & !(memctl_refill_valid & memctl_refill_set == enq_set & memctl_refill_way == enq_way)) | 
                             (memctl_refill_valid & memctl_refill_set == entry_set & memctl_refill_way == entry_way);
 assign entry_inflight_nxt =  enq_valid & enq_inflight_flg;
 
@@ -295,7 +295,7 @@ ns_gnrl_weight_with_ref # (
     .clk                               (clk                       ),
     .rst_n                             (rst_n                     ),
     .grt_id                            (lsq_r_ptr                 ),
-    .req_vec                           (lsq_deq_confirm           ),
+    .req_vec                           (lsq_deq_vld               ),
     .ref_weight                        (lsq_btm_ptr               )
 );
 

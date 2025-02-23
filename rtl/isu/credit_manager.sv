@@ -72,7 +72,7 @@ generate
         // calculate in each channel, whether there is pending instr can be granted credits
         // 1> pending instr exists
         // 2> remain several credits
-        assign have_pending_entry_decouple[i] = |pending_entry_cnt_decouple[u_htu_channel_id];
+        assign have_pending_entry_decouple[i] = |pending_entry_cnt_decouple[i];
         assign remain_crdt_decouple[i] = |remain_crdt_cnt_decouple[i];
         assign have_pending_entry_can_grt_crdt_decouple[i] = have_pending_entry_decouple[i] &&
                                                          (remain_crdt_decouple[i] || |u_xbar_crdt_rtn[i]);
@@ -82,7 +82,7 @@ generate
             for (int j = 0; j < int'(Cfg.u.lsqSize); j++)
             begin: pending_instruction_gen
                 if (lsq_entry_channel_id[j] != i)
-                    pending_entry_decouple[i] = 1'b0;
+                    pending_entry_decouple[i][j] = 1'b0;
             end
         end
         // pick out the oldest pending entry
@@ -100,7 +100,7 @@ always_comb begin
             // when there is an instruction comming to isu in a certain channel, check whether there is credits remaining
             // 1> no other pending entries && remain credits
             if (no_pending_entry_in_access_channel && remain_crdt_in_access_channel) begin
-                n_entry_can_execute[u_htu_channel_id] = 1'b1;
+                n_entry_can_execute[lsq_w_ptr] = 1'b1;
                 n_remain_crdt_cnt_decouple[u_htu_channel_id] = remain_crdt_cnt_decouple[u_htu_channel_id] - 'b1;
                 n_pending_entry_cnt_decouple[u_htu_channel_id] = pending_entry_cnt_decouple[u_htu_channel_id];
             end
@@ -127,7 +127,7 @@ always_comb begin
             if (have_pending_entry_can_grt_crdt_decouple[u_htu_channel_id]) begin
                 n_entry_can_execute[oldest_pending_entry_decouple[u_htu_channel_id]] = 1'b1;
                 n_remain_crdt_cnt_decouple[u_htu_channel_id] = remain_crdt_cnt_decouple[u_htu_channel_id] - 'b1;
-                n_pending_entry_cnt_decouple[u_htu_channel_id] = pending_entry_cnt_decouple[u_htu_channel_id];
+                n_pending_entry_cnt_decouple[u_htu_channel_id] = pending_entry_cnt_decouple[u_htu_channel_id] - 'b1;
             end
             // the channel related to new instr doesn't have pending entry that can be granted credit
             else begin
@@ -175,22 +175,22 @@ always_comb begin
                 n_pending_entry_cnt_decouple[0] = pending_entry_cnt_decouple[0] - 'b1;
             end
         end
-        else begin
-            if (have_pending_entry_can_grt_crdt_decouple[0]) begin
-                n_entry_can_execute[oldest_pending_entry_decouple[0]] = 1'b1;
-                n_remain_crdt_cnt_decouple[0] = remain_crdt_cnt_decouple[0] - 'b1;
-                n_pending_entry_cnt_decouple[0] = pending_entry_cnt_decouple[0] - 'b1;
-            end
-            if (have_pending_entry_can_grt_crdt_decouple[1]) begin
-                n_entry_can_execute[oldest_pending_entry_decouple[1]] = 1'b1;
-                n_remain_crdt_cnt_decouple[1] = remain_crdt_cnt_decouple[1] - 'b1;
-                n_pending_entry_cnt_decouple[1] = pending_entry_cnt_decouple[1] - 'b1;
-            end
-            if (have_pending_entry_can_grt_crdt_decouple[2]) begin
-                n_entry_can_execute[oldest_pending_entry_decouple[2]] = 1'b1;
-                n_remain_crdt_cnt_decouple[2] = remain_crdt_cnt_decouple[2] - 'b1;
-                n_pending_entry_cnt_decouple[2] = pending_entry_cnt_decouple[2] - 'b1;
-            end
+    end
+    else begin
+        if (have_pending_entry_can_grt_crdt_decouple[0]) begin
+            n_entry_can_execute[oldest_pending_entry_decouple[0]] = 1'b1;
+            n_remain_crdt_cnt_decouple[0] = remain_crdt_cnt_decouple[0] - 'b1;
+            n_pending_entry_cnt_decouple[0] = pending_entry_cnt_decouple[0] - 'b1;
+        end
+        if (have_pending_entry_can_grt_crdt_decouple[1]) begin
+            n_entry_can_execute[oldest_pending_entry_decouple[1]] = 1'b1;
+            n_remain_crdt_cnt_decouple[1] = remain_crdt_cnt_decouple[1] - 'b1;
+            n_pending_entry_cnt_decouple[1] = pending_entry_cnt_decouple[1] - 'b1;
+        end
+        if (have_pending_entry_can_grt_crdt_decouple[2]) begin
+            n_entry_can_execute[oldest_pending_entry_decouple[2]] = 1'b1;
+            n_remain_crdt_cnt_decouple[2] = remain_crdt_cnt_decouple[2] - 'b1;
+            n_pending_entry_cnt_decouple[2] = pending_entry_cnt_decouple[2] - 'b1;
         end
     end
 end
@@ -211,7 +211,7 @@ generate
         always @ (posedge clk or negedge rst_n) begin
             if (!rst_n) begin
                 pending_entry_cnt_decouple[i] <= 'd0;
-                remain_crdt_cnt_decouple[i] <= 'd0;
+                remain_crdt_cnt_decouple[i] <= {{Cfg.robWidth{1'b1}}};
             end
             else begin
                 pending_entry_cnt_decouple[i] <= n_pending_entry_cnt_decouple[i] + u_xbar_crdt_rtn[i];

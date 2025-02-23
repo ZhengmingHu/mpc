@@ -16,16 +16,18 @@ signalSpacing 5
 
 ; windowTimeUnit is used for zoom, cursor & marker
 ; waveform viewport range
-zoom 411.772184 722.573932
-cursor 570.000000
+zoom 459.359338 763.244156
+cursor 590.000000
 marker 0.000000
 
 ; user define markers
 ; userMarker time_pos marker_name color linestyle
+userMarker 570.076 M1 ID_GREEN5 long_dashed
+
 ; visible top row signal index
-top 58
+top 98
 ; marker line index
-markerPos 71
+markerPos 110
 
 ; event list
 ; addEvent event_name event_expression
@@ -87,10 +89,18 @@ addSignal -h 15 -holdScope memctl_refill_way[1:0]
 addSignal -h 15 -holdScope memctl_refill_set[2:0]
 addSignal -h 15 -holdScope entry_can_execute[31:0]
 addSignal -h 15 -holdScope d_rc_ready
-addSignal -h 15 -holdScope lsq_r_ptr[4:0]
 addGroup "G5"
-addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/lsq_deq_vld[31:0]
-addSignal -h 15 -holdScope lsq_deq_rob_id[31:0]
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/memctl_refill_valid
+addSignal -h 15 -holdScope memctl_refill_way[1:0]
+addSignal -h 15 -holdScope memctl_refill_set[2:0]
+addSignal -h 15 -holdScope lsq_deq_vld[31:0]
+addSignal -h 15 -holdScope lsq_deq_vld[31:0]
+addSignal -h 15 -holdScope lsq_r_ptr[4:0]
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/u_oldest_deq_lsq_entry/req_vec[31:0]
+addSignal -h 15 -holdScope req_vec_circular_sft[31:0]
+addSignal -h 15 -holdScope ref_weight[4:0]
+addSignal -h 15 -holdScope grt_id[4:0]
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/lsq_deq_rob_id[31:0]
 addSignal -h 15 -holdScope lsq_deq_op[31:0]
 addSignal -h 15 -holdScope lsq_deq_set[31:0]
 addSignal -h 15 -holdScope lsq_deq_way[31:0]
@@ -109,16 +119,48 @@ addSignal -h 15 -holdScope memctl_refill_ready
 addSignal -h 15 -holdScope memctl_refill_id[4:0]
 addSignal -h 15 -holdScope memctl_refill_data[127:0]
 addSignal -h 15 -holdScope d_rc_hit_refill_buf
-addSignal -h 15 -holdScope hit_refill_buf_vec[31:0]
-addSignal -h 15 -holdScope lsq_deq_valid
 addSignal -h 15 -holdScope entry_vld_vec[31:0]
 addSignal -h 15 -holdScope d_rc_refill_data[127:0]
-addSignal -h 15 /tb_isu/u_isu_wrapper/hit_refill_buf
-addSignal -h 15 -holdScope lsq_deq_op[2:0]
+addSignal -h 15 /tb_isu/u_isu_wrapper/lsq_deq_op[2:0]
 addSignal -h 15 -holdScope lsq_deq_op[2:0]
 addSignal -h 15 -holdScope d_rc_op[2:0]
 addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/lsq_deq_op[31:0]
 addGroup "G7"
+addSignal -h 15 /tb_isu/u_isu_wrapper/d_rc_valid
+addSignal -h 15 -holdScope d_rc_ready
+addSignal -h 15 -holdScope hit_refill_buf
+addSignal -h 15 -holdScope d_rc_channel_1hot_id[2:0]
+addSignal -h 15 -holdScope d_rc_rob_id[3:0]
+addSignal -h 15 -holdScope d_rc_op[2:0]
+addSignal -h 15 -holdScope d_rc_set[2:0]
+addSignal -h 15 -holdScope d_rc_way[1:0]
+addSignal -h 15 -holdScope d_rc_wbuf_id[6:0]
+addSignal -h 15 -holdScope d_rc_refill_data[127:0]
+addGroup "G8"
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/u_credit_manager/entry_can_execute[31:0]
+addSignal -h 15 -holdScope u_htu_channel_id[1:0]
+addSignal -h 15 -holdScope remain_crdt_in_access_channel
+addSignal -h 15 -holdScope no_pending_entry_in_access_channel
+addSignal -h 15 -holdScope remain_crdt_cnt_decouple[2:0]
+addGroup "G9"
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_inflight_array/htu_refill_valid
+addSignal -h 15 -holdScope htu_refill_set[2:0]
+addSignal -h 15 -holdScope htu_refill_way[1:0]
+addSubGroup "u_inflight_array"
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_inflight_array/clk
+addSignal -h 15 -holdScope rst_n
+addSignal -h 15 -holdScope htu_refill_valid
+addSignal -h 15 -holdScope htu_refill_set[2:0]
+addSignal -h 15 -holdScope htu_refill_way[1:0]
+addSignal -h 15 -holdScope inflight_flg
+addSignal -h 15 -holdScope memctl_refill_valid
+addSignal -h 15 -holdScope memctl_refill_id[4:0]
+addSignal -h 15 -holdScope inflight_flg
+addSignal -h 15 -holdScope inflight_cl[3:0]
+addSignal -h 15 -holdScope htu_way[1:0]
+addSignal -h 15 -holdScope htu_set[2:0]
+endSubGroup "u_inflight_array"
+addGroup "G10"
 
 ; getSignalForm Scope Hierarchy Status
 ; active file of getSignalForm
