@@ -7,6 +7,7 @@ module priority_encoder #(
 );
 
 always_comb begin
+  out = 'd0;
   for (int i = 0; i < WIDTH; i++)
   begin
     if (in[i]) begin

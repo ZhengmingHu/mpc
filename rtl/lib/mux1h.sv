@@ -14,6 +14,7 @@ always_comb begin
      for (int i = 0; i < SEL_WIDTH; i++) begin
        if (one_hot_flg[i])
          data_sel = data_grp[i];
+         break;
      end
    end
 

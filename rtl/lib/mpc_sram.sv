@@ -1,7 +1,7 @@
 module mpc_sram
 #(
-    parameter int unsigned ADDR_SIZE = 0,
-    parameter int unsigned DATA_SIZE = 0,
+    parameter int unsigned ADDR_SIZE = 2,
+    parameter int unsigned DATA_SIZE = 2,
     parameter int unsigned DEPTH = 2**ADDR_SIZE
 )
 (

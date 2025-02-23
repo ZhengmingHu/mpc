@@ -1,0 +1,167 @@
+Magic 271485
+Revision Verdi_O-2018.09-SP2
+
+; Window Layout <x> <y> <width> <height> <signalwidth> <valuewidth>
+viewPort 0 27 1908 403 295 171
+
+; File list:
+; openDirFile [-d delimiter] [-s time_offset] [-rf auto_bus_rule_file] path_name file_name
+openDirFile -d / "" "/home/zcy/workspace/mpc/smoke_test/build/result/init_test/isu.fsdb"
+
+; file time scale:
+; fileTimeScale ### s|ms|us|ns|ps
+
+; signal spacing:
+signalSpacing 5
+
+; windowTimeUnit is used for zoom, cursor & marker
+; waveform viewport range
+zoom 459.359338 763.244156
+cursor 590.000000
+marker 0.000000
+
+; user define markers
+; userMarker time_pos marker_name color linestyle
+userMarker 570.076 M1 ID_GREEN5 long_dashed
+
+; visible top row signal index
+top 98
+; marker line index
+markerPos 110
+
+; event list
+; addEvent event_name event_expression
+; curEvent event_name
+
+
+
+COMPLEX_EVENT_BEGIN
+
+
+COMPLEX_EVENT_END
+
+
+
+; toolbar current search type
+; curSTATUS search_type
+curSTATUS ByChange
+
+
+addGroup "G1"
+activeDirFile "" "/home/zcy/workspace/mpc/smoke_test/build/result/init_test/isu.fsdb"
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_htu_valid
+addSignal -h 15 -holdScope u_htu_ready
+addSignal -h 15 -holdScope u_htu_channel_1hot_id[2:0]
+addSignal -h 15 -holdScope u_htu_op[2:0]
+addSignal -h 15 -holdScope u_htu_id[4:0]
+addSignal -h 15 -holdScope u_htu_offset[0:0]
+addSignal -h 15 -holdScope u_htu_wbuf_id[6:0]
+addSignal -h 15 -holdScope u_htu_refill_valid
+addSignal -h 15 -holdScope u_htu_refill_set[2:0]
+addSignal -h 15 -holdScope u_htu_refill_way[1:0]
+addSignal -h 15 -holdScope memctl_refill_valid
+addSignal -h 15 -holdScope memctl_refill_ready
+addSignal -h 15 -holdScope memctl_refill_id[4:0]
+addSignal -h 15 -holdScope memctl_refill_data[127:0]
+addGroup "G2"
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_inflight_array/htu_refill_valid
+addSignal -h 15 -holdScope htu_refill_set[2:0]
+addSignal -h 15 -holdScope htu_refill_way[1:0]
+addGroup "G3"
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/u_htu_valid
+addSignal -h 15 -holdScope u_htu_channel_1hot_id[2:0]
+addSignal -h 15 -holdScope u_htu_op[2:0]
+addSignal -h 15 -holdScope u_htu_id[4:0]
+addSignal -h 15 -holdScope u_htu_offset[0:0]
+addSignal -h 15 -holdScope u_htu_wbuf_id[6:0]
+addSignal -h 15 -holdScope lsq_r_ptr[4:0]
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/u_oldest_deq_lsq_entry/req_vec_priority_encoder/out[4:0]
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/u_oldest_deq_lsq_entry/grt_id_sft[4:0]
+addSignal -h 15 -holdScope ref_weight[4:0]
+addSignal -h 15 -holdScope req_vec[31:0]
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/lsq_entry_vld[31:0]
+addSignal -h 15 -holdScope u_htu_hsked
+addSignal -h 15 -holdScope lsq_w_ptr[4:0]
+addGroup "G4"
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/u_lsq_ptr_gen/entry_valid[31:0]
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/memctl_refill_valid
+addSignal -h 15 -holdScope memctl_refill_way[1:0]
+addSignal -h 15 -holdScope memctl_refill_set[2:0]
+addSignal -h 15 -holdScope entry_can_execute[31:0]
+addSignal -h 15 -holdScope d_rc_ready
+addGroup "G5"
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/memctl_refill_valid
+addSignal -h 15 -holdScope memctl_refill_way[1:0]
+addSignal -h 15 -holdScope memctl_refill_set[2:0]
+addSignal -h 15 -holdScope lsq_deq_vld[31:0]
+addSignal -h 15 -holdScope lsq_deq_vld[31:0]
+addSignal -h 15 -holdScope lsq_r_ptr[4:0]
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/u_oldest_deq_lsq_entry/req_vec[31:0]
+addSignal -h 15 -holdScope req_vec_circular_sft[31:0]
+addSignal -h 15 -holdScope ref_weight[4:0]
+addSignal -h 15 -holdScope grt_id[4:0]
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/lsq_deq_rob_id[31:0]
+addSignal -h 15 -holdScope lsq_deq_op[31:0]
+addSignal -h 15 -holdScope lsq_deq_set[31:0]
+addSignal -h 15 -holdScope lsq_deq_way[31:0]
+addSignal -h 15 -holdScope lsq_deq_wbuf_id[31:0]
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/u_lsq_ptr_gen/r_req_valid
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/d_rc_valid
+addSignal -h 15 -holdScope d_rc_ready
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/u_lsq_ptr_gen/btm_ptr_ena
+addSignal -h 15 -holdScope btm_ptr_nxt[4:0]
+addSignal -h 15 -holdScope btm_ptr[4:0]
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/u_lsq_ptr_gen/btm_ptr_mux1h/data_grp[31:0]
+addSignal -h 15 -holdScope one_hot_flg[31:0]
+addGroup "G6"
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_refill_buffer/memctl_refill_valid
+addSignal -h 15 -holdScope memctl_refill_ready
+addSignal -h 15 -holdScope memctl_refill_id[4:0]
+addSignal -h 15 -holdScope memctl_refill_data[127:0]
+addSignal -h 15 -holdScope d_rc_hit_refill_buf
+addSignal -h 15 -holdScope entry_vld_vec[31:0]
+addSignal -h 15 -holdScope d_rc_refill_data[127:0]
+addSignal -h 15 /tb_isu/u_isu_wrapper/lsq_deq_op[2:0]
+addSignal -h 15 -holdScope lsq_deq_op[2:0]
+addSignal -h 15 -holdScope d_rc_op[2:0]
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/lsq_deq_op[31:0]
+addGroup "G7"
+addSignal -h 15 /tb_isu/u_isu_wrapper/d_rc_valid
+addSignal -h 15 -holdScope d_rc_ready
+addSignal -h 15 -holdScope hit_refill_buf
+addSignal -h 15 -holdScope d_rc_channel_1hot_id[2:0]
+addSignal -h 15 -holdScope d_rc_rob_id[3:0]
+addSignal -h 15 -holdScope d_rc_op[2:0]
+addSignal -h 15 -holdScope d_rc_set[2:0]
+addSignal -h 15 -holdScope d_rc_way[1:0]
+addSignal -h 15 -holdScope d_rc_wbuf_id[6:0]
+addSignal -h 15 -holdScope d_rc_refill_data[127:0]
+addGroup "G8"
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_lsq/u_credit_manager/entry_can_execute[31:0]
+addSignal -h 15 -holdScope u_htu_channel_id[1:0]
+addSignal -h 15 -holdScope remain_crdt_in_access_channel
+addSignal -h 15 -holdScope no_pending_entry_in_access_channel
+addSignal -h 15 -holdScope remain_crdt_cnt_decouple[2:0]
+addGroup "G9"
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_inflight_array/htu_refill_valid
+addSignal -h 15 -holdScope htu_refill_set[2:0]
+addSignal -h 15 -holdScope htu_refill_way[1:0]
+addSubGroup "u_inflight_array"
+addSignal -h 15 /tb_isu/u_isu_wrapper/u_inflight_array/clk
+addSignal -h 15 -holdScope rst_n
+addSignal -h 15 -holdScope htu_refill_valid
+addSignal -h 15 -holdScope htu_refill_set[2:0]
+addSignal -h 15 -holdScope htu_refill_way[1:0]
+addSignal -h 15 -holdScope inflight_flg
+addSignal -h 15 -holdScope memctl_refill_valid
+addSignal -h 15 -holdScope memctl_refill_id[4:0]
+addSignal -h 15 -holdScope inflight_flg
+addSignal -h 15 -holdScope inflight_cl[3:0]
+addSignal -h 15 -holdScope htu_way[1:0]
+addSignal -h 15 -holdScope htu_set[2:0]
+endSubGroup "u_inflight_array"
+addGroup "G10"
+
+; getSignalForm Scope Hierarchy Status
+; active file of getSignalForm
+

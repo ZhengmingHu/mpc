@@ -36,10 +36,13 @@ package mpc_types;
     } mpc_command_e;
 
     typedef enum logic [2:0] {
-        CACHE_OP_LOAD  = 3'd0,
-        CACHE_OP_STORE = 3'd1,
-        CACHE_OP_RAE   = 3'd2,
-        CACHE_OP_WAE   = 3'd3 
+        CACHE_OP_LOAD         = 3'd0,
+        CACHE_OP_STORE        = 3'd1,
+        CACHE_OP_RAE          = 3'd2,
+        CACHE_OP_WAE          = 3'd3,
+        CACHE_OP_WB           = 3'd4,
+        CACHE_OP_LOAD_REFILL  = 3'd5,
+        CACHE_OP_STORE_REFILL = 3'd6 
     } internal_command_e;
 
     typedef enum logic [2:0] {
@@ -90,7 +93,35 @@ package mpc_types;
 
     function automatic logic is_rae(input [2:0] op);
         case (op)
+            CACHE_OP_RAE: return 1'b1;
+            default:           return 1'b0;
+        endcase
+    endfunction
+
+    function automatic logic is_wae(input [2:0] op);
+        case (op)
             CACHE_OP_WAE: return 1'b1;
+            default:           return 1'b0;
+        endcase
+    endfunction
+
+    function automatic logic is_wb(input [2:0] op);
+        case (op)
+            CACHE_OP_WB: return 1'b1;
+            default:           return 1'b0;
+        endcase
+    endfunction
+
+    function automatic logic is_load_refill(input [2:0] op);
+        case (op)
+            CACHE_OP_LOAD_REFILL: return 1'b1;
+            default:           return 1'b0;
+        endcase
+    endfunction
+
+    function automatic logic is_store_refill(input [2:0] op);
+        case (op)
+            CACHE_OP_STORE_REFILL: return 1'b1;
             default:           return 1'b0;
         endcase
     endfunction
@@ -112,6 +143,10 @@ package mpc_types;
         int unsigned wbufSize;
         //  Size of Reorder Buffer
         int unsigned robSize;
+        //  Size of Load Store Queue
+        int unsigned lsqSize;
+        //  Size of Refill Buffer
+        int unsigned rfbufSize;
     } mpc_user_cfg_t;
 
     typedef struct packed {
@@ -130,6 +165,8 @@ package mpc_types;
         int unsigned wayIndexWidth;
         int unsigned wbufWidth;
         int unsigned robWidth;
+        int unsigned lsqWidth;
+        int unsigned rfbufWidth;
     } mpc_cfg_t;
 
     function automatic mpc_cfg_t mpcBuildConfig(input mpc_user_cfg_t p);
@@ -148,6 +185,8 @@ package mpc_types;
         ret.nlineWidth = ret.setWidth + ret.wayIndexWidth;
         ret.wbufWidth = $clog2(p.wbufSize);       
         ret.robWidth = $clog2(p.robSize);
+        ret.lsqWidth = $clog2(p.lsqSize);
+        ret.rfbufWidth = $clog2(p.rfbufSize);
         return ret;
     endfunction
 

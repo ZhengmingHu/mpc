@@ -95,3 +95,27 @@ assign indic_next = grt_sel ? {ored_msked_vec1[ARBT_NUM-2:0], 1'b0} : {ored_mske
 
 endmodule
 
+module ns_gnrl_weight_with_ref # (
+  parameter ARBT_NUM = 4
+)
+(
+  input                               clk                        ,
+  input                               rst_n                      ,
+
+  output     [$clog2(ARBT_NUM)-1: 0]  grt_id                     ,
+  input              [ARBT_NUM-1: 0]  req_vec                    ,
+
+  input      [$clog2(ARBT_NUM)-1: 0]  ref_weight        
+);
+
+logic [        ARBT_NUM-1:0] req_vec_circular_sft;
+logic [$clog2(ARBT_NUM)-1:0] grt_id_sft; 
+
+assign req_vec_circular_sft = (req_vec >> ref_weight) | (req_vec << (ARBT_NUM - ref_weight));
+
+priority_encoder # (ARBT_NUM) req_vec_priority_encoder (req_vec_circular_sft, grt_id_sft);
+
+assign grt_id = grt_id_sft + ref_weight;
+
+endmodule
+
