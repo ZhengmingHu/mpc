@@ -147,14 +147,16 @@ logic                                   s2_hit;
 setWidth_t                              s2_set;
 tagWidth_t                              s2_tag;
 metaWidth_t                             s2_meta [Cfg.wayNum-1:0];
-metaWidth_t                             s2_new_meta;                                   
+metaWidth_t                             s2_new_meta;
+logic                                   s2_meta_wen;                                   
 logic                                   s2_hsked;
 
 logic                                   s0_s1_set_conflict, s0_s2_set_conflict;
 logic                                   set_conflict;
 
-assign s0_s1_set_conflict = s1_valid & s0_set == s1_set;
-assign s0_s2_set_conflict = s2_valid & s0_set == s2_set;
+//TODO: condition too strict, if s2/s1 is read instr or does not need to modify meta or tag, we don't need to block
+assign s0_s1_set_conflict = s1_valid & s0_set == s1_set & (is_store(s1_bank_req.op) | !s1_hit);
+assign s0_s2_set_conflict = s2_valid & s0_set == s2_set & ((s2_meta_wen & is_store(s2_bank_req.op)) | !s2_hit);
 assign set_conflict = s0_s1_set_conflict | s0_s2_set_conflict;
 
 /* stage 0: read tag/meta array */
@@ -253,6 +255,7 @@ assign s2_ref_cnt_max = &s2_ref_cnt_sel;
 assign s2_ref_cnt_not_zero = |s2_ref_cnt_sel;
 assign s2_new_meta =           is_store(s2_bank_req.op) ? MPC_META_UNIQUE :
                      !s2_hit &  is_load(s2_bank_req.op) ? MPC_META_SHARE  : s2_meta[s2_way];
+assign s2_meta_wen = s2_new_meta != s2_meta[s2_way];
 
 assign s2_ref_cnt_not_ready = s2_ref_cnt_max | (!s2_hit & s2_ref_cnt_not_zero);
 assign s2_memctl_not_ready = !s2_hit & !d_memctl_ready;
@@ -291,7 +294,7 @@ assign tag_write_data         = s2_tag;
 assign meta_read_valid        = u_bank_req_valid & s1_ready & !set_conflict;
 assign meta_read_set          = s0_set;
 
-assign meta_write_valid       = s2_hsked & !(s2_hit & is_load(s2_bank_req.op));
+assign meta_write_valid       = s2_hsked & !(s2_hit & is_load(s2_bank_req.op)) & s2_meta_wen;
 assign meta_write_set         = s2_set;
 assign meta_write_way_en      = s2_hit ? s2_hit_way_en : s2_replace_way_en;
 assign meta_write_data        = s2_new_meta;
