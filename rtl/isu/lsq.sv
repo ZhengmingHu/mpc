@@ -142,7 +142,7 @@ module lsq
     output logic                        u_htu_crdt_valid           ,
     output nlineWidth_t                 u_htu_crdt_id              ,
     // 4. from rob credit
-    input  robWidth_t                   u_xbar_crdt_rtn   [  2: 0] ,
+    input  logic            [  2: 0]    u_xbar_crdt_rtn            ,
     // 5. from memory interface
     input  logic                        memctl_refill_valid        ,
     input  nlineWidth_t                 memctl_refill_id           ,

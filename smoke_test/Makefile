@@ -23,7 +23,7 @@ endif
 # TEST_CASE ?= inflight_array
 # TEST_CASE ?= mux1h
 # TEST_CASE ?= srb
-TEST_CASE ?= isu
+TEST_CASE ?= rtn_xbar_core
 
 ##*****************************************************##
 ##													   ##

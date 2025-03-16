@@ -31,17 +31,17 @@ module kob
     input  logic                        u_channel_2_req_ready          ,
     input  channel_req_t                u_channel_2_req                ,
 
-    output logic                        d_ch_0_swb_req                 ,
-    input  logic                        d_ch_0_swb_ack                 ,
-    output logic           [  1: 0]     d_ch_0_swb_bank_id             ,
+    output logic                        d_ch_0_rob_req                 ,
+    input  logic                        d_ch_0_rob_ack                 ,
+    output logic           [  1: 0]     d_ch_0_rob_bank_id             ,
 
-    output logic                        d_ch_1_swb_req                 ,
-    input  logic                        d_ch_1_swb_ack                 ,
-    output logic           [  1: 0]     d_ch_1_swb_bank_id             ,
+    output logic                        d_ch_1_rob_req                 ,
+    input  logic                        d_ch_1_rob_ack                 ,
+    output logic           [  1: 0]     d_ch_1_rob_bank_id             ,
 
-    output logic                        d_ch_2_swb_req                 ,
-    input  logic                        d_ch_2_swb_ack                 ,
-    output logic           [  1: 0]     d_ch_2_swb_bank_id             ,
+    output logic                        d_ch_2_rob_req                 ,
+    input  logic                        d_ch_2_rob_ack                 ,
+    output logic           [  1: 0]     d_ch_2_rob_bank_id             ,
 
     output logic                        ch_0_kob_full                  ,
     output logic                        ch_1_kob_full                  ,
@@ -184,15 +184,15 @@ assign ch_2_ret_ptr_flg_ena = (ch_2_ret_ptr_r == 4'd15) & ch_2_ret_ptr_ena;
 assign ch_2_ret_ptr_flg_nxt = ~ch_2_ret_ptr_flg_r;
 ns_gnrl_dfflr #(1) ch_2_ret_ptr_flg_dfflr (ch_2_ret_ptr_flg_ena, ch_2_ret_ptr_flg_nxt, ch_2_ret_ptr_flg_r, clk, rst_n);
 
-assign ch_0_ret_ptr_ena     = d_ch_0_swb_req & d_ch_0_swb_ack;
+assign ch_0_ret_ptr_ena     = d_ch_0_rob_req & d_ch_0_rob_ack;
 assign ch_0_ret_ptr_nxt     = ch_0_ret_ptr_flg_ena ? 4'b0 : (ch_0_ret_ptr_r + 1'b1);
 ns_gnrl_dfflr #(4) ch_0_ret_ptr_dfflr(ch_0_ret_ptr_ena, ch_0_ret_ptr_nxt, ch_0_ret_ptr_r, clk, rst_n);
 
-assign ch_1_ret_ptr_ena     = d_ch_1_swb_req & d_ch_1_swb_ack;
+assign ch_1_ret_ptr_ena     = d_ch_1_rob_req & d_ch_1_rob_ack;
 assign ch_1_ret_ptr_nxt     = ch_1_ret_ptr_flg_ena ? 4'b0 : (ch_1_ret_ptr_r + 1'b1);
 ns_gnrl_dfflr #(4) ch_1_ret_ptr_dfflr(ch_1_ret_ptr_ena, ch_1_ret_ptr_nxt, ch_1_ret_ptr_r, clk, rst_n);
 
-assign ch_2_ret_ptr_ena     = d_ch_2_swb_req & d_ch_2_swb_ack;
+assign ch_2_ret_ptr_ena     = d_ch_2_rob_req & d_ch_2_rob_ack;
 assign ch_2_ret_ptr_nxt     = ch_2_ret_ptr_flg_ena ? 4'b0 : (ch_2_ret_ptr_r + 1'b1);
 ns_gnrl_dfflr #(4) ch_2_ret_ptr_dfflr(ch_2_ret_ptr_ena, ch_2_ret_ptr_nxt, ch_2_ret_ptr_r, clk, rst_n);
 
@@ -233,13 +233,13 @@ generate
     end
 endgenerate
 
-assign d_ch_0_swb_req = ch_0_vld_r[ch_0_ret_ptr_r];
-assign d_ch_1_swb_req = ch_1_vld_r[ch_1_ret_ptr_r];
-assign d_ch_2_swb_req = ch_2_vld_r[ch_2_ret_ptr_r];
+assign d_ch_0_rob_req = ch_0_vld_r[ch_0_ret_ptr_r];
+assign d_ch_1_rob_req = ch_1_vld_r[ch_1_ret_ptr_r];
+assign d_ch_2_rob_req = ch_2_vld_r[ch_2_ret_ptr_r];
 
-assign d_ch_0_swb_bank_id = ch_0_bank_id_entry[ch_0_ret_ptr_r];
-assign d_ch_1_swb_bank_id = ch_1_bank_id_entry[ch_1_ret_ptr_r];
-assign d_ch_2_swb_bank_id = ch_2_bank_id_entry[ch_2_ret_ptr_r];
+assign d_ch_0_rob_bank_id = ch_0_bank_id_entry[ch_0_ret_ptr_r];
+assign d_ch_1_rob_bank_id = ch_1_bank_id_entry[ch_1_ret_ptr_r];
+assign d_ch_2_rob_bank_id = ch_2_bank_id_entry[ch_2_ret_ptr_r];
 
 
 endmodule
