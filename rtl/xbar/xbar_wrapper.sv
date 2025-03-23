@@ -1,5 +1,18 @@
 module xbar_wrapper
     import mpc_types::*;
+#(
+    parameter mpc_cfg_t Cfg = '0,   
+    parameter type setWidth_t      = logic,
+    parameter type tagWidth_t      = logic,
+    parameter type wayIndexWidth_t = logic,
+    parameter type wbufWidth_t     = logic,
+    parameter type wayNum_t        = logic,
+    parameter type nlineWidth_t    = logic,
+    parameter type offsetWidth_t   = logic,
+    parameter type metaWidth_t     = logic,
+    parameter type robWidth_t      = logic,
+    parameter type lsqWidth_t      = logic
+)
 (
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
@@ -66,20 +79,46 @@ module xbar_wrapper
 
     input  logic                        d_bank_0_rc_rsp_valid      ,
     output logic                        d_bank_0_rc_rsp_ready      ,
-    input  rc_rsp_t                     d_bank_0_rc_rsp            ,
+    input  logic         [127: 0]       d_bank_0_rc_rsp_data       ,
+    input  robWidth_t                   d_bank_0_rc_rsp_rob_id     ,
+    input  logic         [  1: 0]       d_bank_0_rc_rsp_channel_id ,
     
     input  logic                        d_bank_1_rc_rsp_valid      ,
     output logic                        d_bank_1_rc_rsp_ready      ,
-    input  rc_rsp_t                     d_bank_1_rc_rsp            ,
+    input  logic         [127: 0]       d_bank_1_rc_rsp_data       ,
+    input  robWidth_t                   d_bank_1_rc_rsp_rob_id     ,
+    input  logic         [  1: 0]       d_bank_1_rc_rsp_channel_id ,
 
     input  logic                        d_bank_2_rc_rsp_valid      ,
     output logic                        d_bank_2_rc_rsp_ready      ,
-    input  rc_rsp_t                     d_bank_2_rc_rsp            ,
+    input  logic         [127: 0]       d_bank_2_rc_rsp_data       ,
+    input  robWidth_t                   d_bank_2_rc_rsp_rob_id     ,
+    input  logic         [  1: 0]       d_bank_2_rc_rsp_channel_id ,
 
     input  logic                        d_bank_3_rc_rsp_valid      ,
     output logic                        d_bank_3_rc_rsp_ready      ,
-    input  rc_rsp_t                     d_bank_3_rc_rsp            
+    input  logic         [127: 0]       d_bank_3_rc_rsp_data       ,
+    input  robWidth_t                   d_bank_3_rc_rsp_rob_id     ,
+    input  logic         [  1: 0]       d_bank_3_rc_rsp_channel_id 
 
+);
+
+logic       d_bank_0_req_valid                                     ;
+logic       d_bank_0_req_ready                                     ;
+bank_req_t  d_bank_0_req                                           ;
+logic       d_bank_1_req_valid                                     ;
+logic       d_bank_1_req_ready                                     ;
+bank_req_t  d_bank_1_req                                           ;
+logic       d_bank_2_req_valid                                     ;
+logic       d_bank_2_req_ready                                     ;
+bank_req_t  d_bank_2_req                                           ;
+logic       d_bank_3_req_valid                                     ;
+logic       d_bank_3_req_ready                                     ;
+bank_req_t  d_bank_3_req                                           ;
+
+
+xbar_core u_xbar_core(
+    .*
 );
 
 

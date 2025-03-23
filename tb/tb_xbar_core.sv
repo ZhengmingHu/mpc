@@ -1,30 +1,62 @@
 module tb_xbar_core;
     import mpc_types::*;
 
+    parameter mpc_user_cfg_t UserCfg = '{
+        clWidth:256,
+        clWordWidth:128,
+        sets:8,
+        banks:4,
+        ways:4,
+        kobSize:16,
+        wbufSize:128,
+        robSize:16,
+        lsqSize:32,
+        rfbufSize:32
+    };
+    parameter mpc_cfg_t Cfg = mpcBuildConfig(UserCfg);
+    parameter type setWidth_t      = logic [Cfg.setWidth-1:0];
+    parameter type tagWidth_t      = logic [Cfg.tagWidth-1:0];
+    parameter type wayIndexWidth_t = logic [Cfg.wayIndexWidth-1:0];
+    parameter type wbufWidth_t     = logic [Cfg.wbufWidth-1:0];
+    parameter type wayNum_t        = logic [Cfg.wayNum-1:0];
+    parameter type nlineWidth_t    = logic [Cfg.nlineWidth-1:0];
+    parameter type offsetWidth_t   = logic [Cfg.offsetWidth-1:0];
+    parameter type metaWidth_t     = logic [Cfg.metaWidth-1:0];
+    parameter type robWidth_t      = logic [Cfg.robWidth-1:0];
+    parameter type lsqWidth_t      = logic [Cfg.lsqWidth-1:0];
+    parameter type rfbufWidth_t    = logic [Cfg.rfbufWidth-1:0];
+
 logic                        clk                  ;
 logic                        rst_n                ;
 
 logic                        u_channel_0_req_valid;
 logic                        u_channel_0_req_ready;
 channel_req_t                u_channel_0_req      ;
+wbufWidth_t                  u_channel_0_req_wbuf_id;
 logic                        u_channel_1_req_valid;
 logic                        u_channel_1_req_ready;
 channel_req_t                u_channel_1_req      ;
+wbufWidth_t                  u_channel_1_req_wbuf_id;
 logic                        u_channel_2_req_valid;
 logic                        u_channel_2_req_ready;
 channel_req_t                u_channel_2_req      ;
+wbufWidth_t                  u_channel_2_req_wbuf_id;
 logic                        d_bank_0_req_valid   ;
 logic                        d_bank_0_req_ready   ;
 bank_req_t                   d_bank_0_req         ;
+wbufWidth_t                  d_bank_0_req_wbuf_id ;
 logic                        d_bank_1_req_valid   ;
 logic                        d_bank_1_req_ready   ;
 bank_req_t                   d_bank_1_req         ;
+wbufWidth_t                  d_bank_1_req_wbuf_id ;
 logic                        d_bank_2_req_valid   ;
 logic                        d_bank_2_req_ready   ;
 bank_req_t                   d_bank_2_req         ;
+wbufWidth_t                  d_bank_2_req_wbuf_id ;
 logic                        d_bank_3_req_valid   ;
 logic                        d_bank_3_req_ready   ;
 bank_req_t                   d_bank_3_req         ;
+wbufWidth_t                  d_bank_3_req_wbuf_id ;
 
 always# 10  clk = ~clk;
 
@@ -69,10 +101,12 @@ always @ (posedge clk or negedge rst_n) begin
         u_channel_0_req.op    <= '0;
         u_channel_0_req.addr  <= '0;
         u_channel_0_req.wdata <= '0;
+        u_channel_0_req_wbuf_id <= '0;
     end else if (u_channel_0_req_valid & u_channel_0_req_ready) begin
         u_channel_0_req.op    <= $random;
         u_channel_0_req.addr  <= $random;
         u_channel_0_req.wdata <= $random;
+        u_channel_0_req_wbuf_id <= $random;
     end
 end
 
@@ -81,10 +115,12 @@ always @ (posedge clk or negedge rst_n) begin
         u_channel_1_req.op    <= '0;
         u_channel_1_req.addr  <= '0;
         u_channel_1_req.wdata <= '0;
+        u_channel_1_req_wbuf_id <= '0;
     end else if (u_channel_1_req_valid & u_channel_1_req_ready) begin
         u_channel_1_req.op    <= $random;
         u_channel_1_req.addr  <= $random;
         u_channel_1_req.wdata <= $random;
+        u_channel_1_req_wbuf_id <= $random;
     end
 end
 
@@ -93,14 +129,26 @@ always @ (posedge clk or negedge rst_n) begin
         u_channel_2_req.op    <= '0;
         u_channel_2_req.addr  <= '0;
         u_channel_2_req.wdata <= '0;
+        u_channel_2_req_wbuf_id <= '0;
     end else if (u_channel_2_req_valid & u_channel_2_req_ready) begin
         u_channel_2_req.op    <= $random;
         u_channel_2_req.addr  <= $random;
         u_channel_2_req.wdata <= $random;
+        u_channel_2_req_wbuf_id <= $random;
     end
 end
 
-xbar_core u_xbar_core(
+xbar_core # (
+    .Cfg                               (Cfg                                ),
+    .setWidth_t                        (setWidth_t                         ),
+    .tagWidth_t                        (tagWidth_t                         ),
+    .wayIndexWidth_t                   (wayIndexWidth_t                    ),
+    .wbufWidth_t                       (wbufWidth_t                        ),
+    .wayNum_t                          (wayNum_t                           ),
+    .nlineWidth_t                      (nlineWidth_t                       ),
+    .offsetWidth_t                     (offsetWidth_t                      ),
+    .metaWidth_t                       (metaWidth_t                        )
+) u_xbar_core (
     .clk                                (clk                       ),
     .rst_n                              (rst_n                     ),
     .*

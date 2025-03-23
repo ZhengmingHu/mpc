@@ -12,7 +12,6 @@ package mpc_types;
 
     typedef struct packed {
                        logic [  2:0] channel_1hot_id;
-                       logic [  4:0] wbuffer_id;
                        logic [  2:0] op;
                        logic [ 31:0] addr;
                        logic [127:0] wdata;
