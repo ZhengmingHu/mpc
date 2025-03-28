@@ -32,31 +32,24 @@ logic                        rst_n                ;
 logic                        u_channel_0_req_valid;
 logic                        u_channel_0_req_ready;
 channel_req_t                u_channel_0_req      ;
-wbufWidth_t                  u_channel_0_req_wbuf_id;
 logic                        u_channel_1_req_valid;
 logic                        u_channel_1_req_ready;
 channel_req_t                u_channel_1_req      ;
-wbufWidth_t                  u_channel_1_req_wbuf_id;
 logic                        u_channel_2_req_valid;
 logic                        u_channel_2_req_ready;
 channel_req_t                u_channel_2_req      ;
-wbufWidth_t                  u_channel_2_req_wbuf_id;
 logic                        d_bank_0_req_valid   ;
 logic                        d_bank_0_req_ready   ;
 bank_req_t                   d_bank_0_req         ;
-wbufWidth_t                  d_bank_0_req_wbuf_id ;
 logic                        d_bank_1_req_valid   ;
 logic                        d_bank_1_req_ready   ;
 bank_req_t                   d_bank_1_req         ;
-wbufWidth_t                  d_bank_1_req_wbuf_id ;
 logic                        d_bank_2_req_valid   ;
 logic                        d_bank_2_req_ready   ;
 bank_req_t                   d_bank_2_req         ;
-wbufWidth_t                  d_bank_2_req_wbuf_id ;
 logic                        d_bank_3_req_valid   ;
 logic                        d_bank_3_req_ready   ;
 bank_req_t                   d_bank_3_req         ;
-wbufWidth_t                  d_bank_3_req_wbuf_id ;
 
 always# 10  clk = ~clk;
 
@@ -101,12 +94,10 @@ always @ (posedge clk or negedge rst_n) begin
         u_channel_0_req.op    <= '0;
         u_channel_0_req.addr  <= '0;
         u_channel_0_req.wdata <= '0;
-        u_channel_0_req_wbuf_id <= '0;
     end else if (u_channel_0_req_valid & u_channel_0_req_ready) begin
         u_channel_0_req.op    <= $random;
         u_channel_0_req.addr  <= $random;
         u_channel_0_req.wdata <= $random;
-        u_channel_0_req_wbuf_id <= $random;
     end
 end
 
@@ -115,12 +106,10 @@ always @ (posedge clk or negedge rst_n) begin
         u_channel_1_req.op    <= '0;
         u_channel_1_req.addr  <= '0;
         u_channel_1_req.wdata <= '0;
-        u_channel_1_req_wbuf_id <= '0;
     end else if (u_channel_1_req_valid & u_channel_1_req_ready) begin
         u_channel_1_req.op    <= $random;
         u_channel_1_req.addr  <= $random;
         u_channel_1_req.wdata <= $random;
-        u_channel_1_req_wbuf_id <= $random;
     end
 end
 
@@ -129,12 +118,10 @@ always @ (posedge clk or negedge rst_n) begin
         u_channel_2_req.op    <= '0;
         u_channel_2_req.addr  <= '0;
         u_channel_2_req.wdata <= '0;
-        u_channel_2_req_wbuf_id <= '0;
     end else if (u_channel_2_req_valid & u_channel_2_req_ready) begin
         u_channel_2_req.op    <= $random;
         u_channel_2_req.addr  <= $random;
         u_channel_2_req.wdata <= $random;
-        u_channel_2_req_wbuf_id <= $random;
     end
 end
 

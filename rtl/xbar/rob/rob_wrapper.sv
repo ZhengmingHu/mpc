@@ -30,14 +30,16 @@ module rob_wrapper
     input  logic                               u_ch_ready                 ,
     output logic           [127: 0]            u_ch_data                  ,
 
-    output logic                               u_xbar_crdt_rtn            
+    output logic                               d_bank_0_crdt_rtn          ,
+    output logic                               d_bank_1_crdt_rtn          ,
+    output logic                               d_bank_2_crdt_rtn          ,
+    output logic                               d_bank_3_crdt_rtn            
 );
 
 logic                      [  3: 0]            kob_rob_ack;
 logic                      [  3: 0]            ch_valid;
 logic                      [127: 0]            ch_data        [  3: 0];
-logic                      [  3: 0]            isu_crdt_rtn;      
-
+  
 rob # (
     .Cfg                               (Cfg                       ),
     .setWidth_t                        (setWidth_t                ),
@@ -65,7 +67,7 @@ rob # (
     .u_ch_ready                        (u_ch_ready                ),
     .u_ch_data                         (ch_data[0]                ),
     
-    .d_isu_crdt_rtn                    (isu_crdt_rtn[0]           )
+    .d_isu_crdt_rtn                    (d_bank_0_crdt_rtn         )
 );
 
 rob # (
@@ -94,7 +96,7 @@ rob # (
     .u_ch_ready                        (u_ch_ready                ),
     .u_ch_data                         (ch_data[1]                ),
     
-    .d_isu_crdt_rtn                    (isu_crdt_rtn[1]           )
+    .d_isu_crdt_rtn                    (d_bank_1_crdt_rtn         )
 );
 
 rob # (
@@ -123,7 +125,7 @@ rob # (
     .u_ch_ready                        (u_ch_ready                ),
     .u_ch_data                         (ch_data[2]                ),
     
-    .d_isu_crdt_rtn                    (isu_crdt_rtn[2]           )
+    .d_isu_crdt_rtn                    (d_bank_2_crdt_rtn         )
 );
 
 rob # (
@@ -152,13 +154,11 @@ rob # (
     .u_ch_ready                        (u_ch_ready                ),
     .u_ch_data                         (ch_data[3]                ),
     
-    .d_isu_crdt_rtn                    (isu_crdt_rtn[3]           )
+    .d_isu_crdt_rtn                    (d_bank_3_crdt_rtn         )
 );
 
 assign u_kob_rob_ack = |kob_rob_ack;
 assign u_ch_valid    = |ch_valid;
 assign u_ch_data     = ch_data[u_kob_rob_bank_id];
-assign d_isu_crdt_rtn = |isu_crdt_rtn;
-
 
 endmodule

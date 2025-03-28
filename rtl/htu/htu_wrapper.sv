@@ -1,28 +1,19 @@
 module htu_wrapper
     import mpc_types::*;
-#(
-    parameter mpc_user_cfg_t UserCfg = '{
-        clWidth:256,
-        clWordWidth:128,
-        sets:8,
-        banks:4,
-        ways:4,
-        kobSize:16,
-        wbufSize:128
-    },
-
-    parameter mpc_cfg_t Cfg = mpcBuildConfig(UserCfg),
-   
-    parameter type setWidth_t      = logic [Cfg.setWidth-1:0],
-    parameter type tagWidth_t      = logic [Cfg.tagWidth-1:0],
-    parameter type wayIndexWidth_t = logic [Cfg.wayIndexWidth-1:0],
-    parameter type wbufWidth_t     = logic [Cfg.wbufWidth-1:0],
-    parameter type wayNum_t        = logic [Cfg.wayNum-1:0],
-    parameter type nlineWidth_t    = logic [Cfg.nlineWidth-1:0],
-    parameter type offsetWidth_t   = logic [Cfg.offsetWidth-1:0],
-    parameter type metaWidth_t     = logic [Cfg.metaWidth-1:0]
+# (
+    parameter mpc_cfg_t Cfg = '0,   
+    parameter type setWidth_t      = logic,
+    parameter type tagWidth_t      = logic,
+    parameter type wayIndexWidth_t = logic,
+    parameter type wbufWidth_t     = logic,
+    parameter type wayNum_t        = logic,
+    parameter type nlineWidth_t    = logic,
+    parameter type offsetWidth_t   = logic,
+    parameter type metaWidth_t     = logic,
+    parameter type robWidth_t      = logic,
+    parameter type lsqWidth_t      = logic,
+    parameter type rfbufWidth_t    = logic
 )
-
 (
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
@@ -31,6 +22,7 @@ module htu_wrapper
     input  logic                        u_bank_req_valid           ,
     output logic                        u_bank_req_ready           ,
     input  bank_req_t                   u_bank_req                 ,
+    input  wbufWidth_t                  u_bank_req_wbuf_id         ,
     
     // 2. to downstream isu refill info
     output logic                        d_isu_refill_valid         ,
@@ -47,11 +39,15 @@ module htu_wrapper
     output wbufWidth_t                  d_isu_wbuf_id              ,
     
     // 4. to down stream memory interface
-    output logic                        d_memctl_valid             ,
-    input  logic                        d_memctl_ready             ,
-    output logic           [  2: 0]     d_memctl_op                ,
-    output nlineWidth_t                 d_memctl_id                ,
-    output logic           [ 31: 0]     d_memctl_addr              ,
+    output logic                        d_memctl_awvalid           ,
+    input  logic                        d_memctl_awready           ,
+    output nlineWidth_t                 d_memctl_awid              ,
+    output logic           [ 31: 0]     d_memctl_awaddr            ,
+    
+    output logic                        d_memctl_arvalid           ,
+    input  logic                        d_memctl_arready           ,
+    output nlineWidth_t                 d_memctl_arid              ,
+    output logic           [ 31: 0]     d_memctl_araddr            ,
 
     input  logic                        d_isu_crdt_valid           ,
     input  nlineWidth_t                 d_isu_crdt_way_set           
@@ -109,6 +105,7 @@ htu_pipe # (
     .u_bank_req_valid     ,
     .u_bank_req_ready     ,
     .u_bank_req           ,
+    .u_bank_req_wbuf_id   ,
 
     .d_isu_refill_valid   ,
     .d_isu_refill_set     ,
@@ -121,11 +118,15 @@ htu_pipe # (
     .d_isu_offset         ,
     .d_isu_wbuf_id        ,
 
-    .d_memctl_valid       ,
-    .d_memctl_ready       ,
-    .d_memctl_op          ,
-    .d_memctl_id          ,
-    .d_memctl_addr        ,
+    .d_memctl_awvalid     ,
+    .d_memctl_awready     ,
+    .d_memctl_awid        ,
+    .d_memctl_awaddr      ,
+
+    .d_memctl_arvalid     ,
+    .d_memctl_arready     ,
+    .d_memctl_arid        ,
+    .d_memctl_araddr      ,
 
     .tag_read_valid       ,       
     .tag_read_ready       ,
