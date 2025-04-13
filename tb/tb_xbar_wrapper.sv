@@ -118,10 +118,10 @@ logic         [127: 0]       d_bank_3_rsp_data          ;
 robWidth_t                   d_bank_3_rsp_rob_id        ;   
 logic         [  1: 0]       d_bank_3_rsp_channel_id    ;
 
-logic         [  1: 0]       d_bank_0_crdt_rtn          ;
-logic         [  1: 0]       d_bank_1_crdt_rtn          ;
-logic         [  1: 0]       d_bank_2_crdt_rtn          ;
-logic         [  1: 0]       d_bank_3_crdt_rtn          ;
+logic         [  2: 0]       d_bank_0_crdt_rtn          ;
+logic         [  2: 0]       d_bank_1_crdt_rtn          ;
+logic         [  2: 0]       d_bank_2_crdt_rtn          ;
+logic         [  2: 0]       d_bank_3_crdt_rtn          ;
 
 always# 10  clk = ~clk;
 

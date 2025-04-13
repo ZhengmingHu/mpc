@@ -25,6 +25,7 @@ module lsq_entry
     input  logic            [  2: 0]    enq_op                     ,
     input  setWidth_t                   enq_set                    ,
     input  wayIndexWidth_t              enq_way                    ,
+    input  offsetWidth_t                enq_offset                 ,
     input  wbufWidth_t                  enq_wbuf_id                ,
 
     input  logic                        memctl_refill_valid        ,
@@ -44,6 +45,7 @@ module lsq_entry
     output logic            [  2: 0]    deq_op                     ,
     output setWidth_t                   deq_set                    ,
     output wayIndexWidth_t              deq_way                    ,
+    output offsetWidth_t                deq_offset                 ,
     output wbufWidth_t                  deq_wbuf_id
 
 );
@@ -64,6 +66,7 @@ logic            [  2: 0]               entry_op_nxt               ;
 logic            [  2: 0]               entry_op                   ;
 setWidth_t                              entry_set                  ;
 wayIndexWidth_t                         entry_way                  ;
+offsetWidth_t                           entry_offset               ;
 wbufWidth_t                             entry_wbuf_id              ;
 
 logic                                   deq_hsked                  ;
@@ -88,6 +91,7 @@ ns_gnrl_dfflr # (     Cfg.robWidth)            entry_rob_id_dfflr (enq_valid, en
 ns_gnrl_dfflr # (                3)                entry_op_dfflr (entry_op_en, entry_op_nxt, entry_op, clk, rst_n);
 ns_gnrl_dfflr # (     Cfg.setWidth)               entry_set_dfflr (enq_valid, enq_set, entry_set, clk, rst_n);
 ns_gnrl_dfflr # (Cfg.wayIndexWidth)               entry_way_dfflr (enq_valid, enq_way, entry_way, clk, rst_n);
+ns_gnrl_dfflr # (  Cfg.offsetWidth)            entry_offset_dfflr (enq_valid, enq_offset, entry_offset, clk, rst_n);
 ns_gnrl_dfflr # (    Cfg.wbufWidth)           entry_wbuf_id_dfflr (enq_valid, enq_wbuf_id, entry_wbuf_id, clk, rst_n);
 
 ns_1hot2bin # (3) entry_channel_1hot2bin (entry_channel_1hot_id, entry_channel_id);
@@ -104,6 +108,7 @@ assign deq_rob_id               = entry_rob_id;
 assign deq_op                   = is_rae(entry_op) | is_wae(entry_op) ? CACHE_OP_WB : entry_op;
 assign deq_set                  = entry_set;
 assign deq_way                  = entry_way;
+assign deq_offset               = entry_offset;
 assign deq_wbuf_id              = entry_wbuf_id;
 
 
@@ -155,6 +160,7 @@ module lsq
     output robWidth_t                   d_rc_rob_id                ,
     output logic            [  2: 0]    d_rc_op                    ,
     output setWidth_t                   d_rc_set                   ,
+    output offsetWidth_t                d_rc_offset                ,
     output wayIndexWidth_t              d_rc_way                   ,
     output wbufWidth_t                  d_rc_wbuf_id         
       
@@ -191,6 +197,7 @@ robWidth_t                              lsq_deq_rob_id          [Cfg.u.lsqSize-1
 logic            [  2: 0]               lsq_deq_op              [Cfg.u.lsqSize-1:0];
 setWidth_t                              lsq_deq_set             [Cfg.u.lsqSize-1:0];
 wayIndexWidth_t                         lsq_deq_way             [Cfg.u.lsqSize-1:0];
+offsetWidth_t                           lsq_deq_offset          [Cfg.u.lsqSize-1:0];
 wbufWidth_t                             lsq_deq_wbuf_id         [Cfg.u.lsqSize-1:0];
 
 logic            [Cfg.u.lsqSize-1:0]    entry_can_execute          ;
@@ -216,6 +223,7 @@ assign d_rc_rob_id = lsq_deq_rob_id[lsq_r_ptr];
 assign d_rc_op = lsq_deq_op[lsq_r_ptr];
 assign d_rc_set = lsq_deq_set[lsq_r_ptr];
 assign d_rc_way = lsq_deq_way[lsq_r_ptr];
+assign d_rc_offset = lsq_deq_offset[lsq_r_ptr];
 assign d_rc_wbuf_id = lsq_deq_wbuf_id[lsq_r_ptr];
 
 assign u_htu_crdt_valid = lsq_deq_confirm;
@@ -325,6 +333,7 @@ generate
             .enq_op                            (u_htu_op                  ),
             .enq_set                           (u_htu_set                 ),
             .enq_way                           (u_htu_way                 ),
+            .enq_offset                        (u_htu_offset              ),
             .enq_wbuf_id                       (u_htu_wbuf_id             ),
             .memctl_refill_valid               (memctl_refill_valid       ),
             .memctl_refill_way                 (memctl_refill_way         ),
@@ -340,6 +349,7 @@ generate
             .deq_op                            (lsq_deq_op[i]             ),
             .deq_set                           (lsq_deq_set[i]            ),
             .deq_way                           (lsq_deq_way[i]            ),
+            .deq_offset                        (lsq_deq_offset[i]         ),
             .deq_wbuf_id                       (lsq_deq_wbuf_id[i]        )
         );
     end

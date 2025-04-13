@@ -26,6 +26,7 @@ TEST_CASE ?= xbar_wrapper
 # TEST_CASE ?= srb
 # TEST_CASE ?= rtn_xbar_core
 # TEST_CASE ?= kob
+# TEST_CASE = isu
 
 ##*****************************************************##
 ##													   ##

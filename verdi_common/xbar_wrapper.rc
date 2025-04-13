@@ -16,16 +16,16 @@ signalSpacing 5
 
 ; windowTimeUnit is used for zoom, cursor & marker
 ; waveform viewport range
-zoom 685.843486 933.944277
-cursor 0.000000
+zoom 760.769429 996.267143
+cursor 850.000000
 marker 0.000000
 
 ; user define markers
 ; userMarker time_pos marker_name color linestyle
 ; visible top row signal index
-top 51
+top 64
 ; marker line index
-markerPos 75
+markerPos 85
 
 ; event list
 ; addEvent event_name event_expression
@@ -123,6 +123,20 @@ addSignal -h 15 -holdScope u_channel_2_rsp_data[127:0]
 addSignal -h 15 -holdScope u_channel_2_rsp_bank_id[1:0]
 addSignal -h 15 -holdScope u_channel_2_rsp_rob_id[3:0]
 addGroup "G6"
+addSignal -h 15 /tb_xbar_wrapper/u_rtn_xbar_core/u_channel_0_rsp_bus_valid
+addSignal -h 15 -holdScope u_channel_0_rsp_bus_ready
+addSignal -h 15 -holdScope u_channel_0_rsp_bus_rdata[127:0]
+addSignal -h 15 -holdScope u_channel_1_rsp_bus_valid
+addSignal -h 15 -holdScope u_channel_1_rsp_bus_ready
+addSignal -h 15 -holdScope u_channel_1_rsp_bus_rdata[127:0]
+addSignal -h 15 -holdScope u_channel_2_rsp_bus_valid
+addSignal -h 15 -holdScope u_channel_2_rsp_bus_ready
+addSignal -h 15 -holdScope u_channel_2_rsp_bus_rdata[127:0]
+addSignal -h 15 -holdScope d_bank_0_crdt_rtn[2:0]
+addSignal -h 15 -holdScope d_bank_1_crdt_rtn[2:0]
+addSignal -h 15 -holdScope d_bank_2_crdt_rtn[2:0]
+addSignal -h 15 -holdScope d_bank_3_crdt_rtn[2:0]
+addGroup "G7"
 
 ; getSignalForm Scope Hierarchy Status
 ; active file of getSignalForm

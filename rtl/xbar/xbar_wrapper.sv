@@ -106,10 +106,10 @@ module xbar_wrapper
     input  robWidth_t                   d_bank_3_rsp_rob_id         ,
     input  logic         [  1: 0]       d_bank_3_rsp_channel_id     ,
 
-    output logic         [  1: 0]       d_bank_0_crdt_rtn           ,
-    output logic         [  1: 0]       d_bank_1_crdt_rtn           ,
-    output logic         [  1: 0]       d_bank_2_crdt_rtn           ,
-    output logic         [  1: 0]       d_bank_3_crdt_rtn                              
+    output logic         [  2: 0]       d_bank_0_crdt_rtn           ,
+    output logic         [  2: 0]       d_bank_1_crdt_rtn           ,
+    output logic         [  2: 0]       d_bank_2_crdt_rtn           ,
+    output logic         [  2: 0]       d_bank_3_crdt_rtn                              
 
 );
 
@@ -483,10 +483,10 @@ rob_wrapper # (
     .d_bank_3_crdt_rtn                 (d_bank_3_crdt_rtn_oh[2]            )
 );
 
-pop_count # (3) u_pop_count_d_bank_0_crdt_rtn (d_bank_0_crdt_rtn_oh, d_bank_0_crdt_rtn);
-pop_count # (3) u_pop_count_d_bank_1_crdt_rtn (d_bank_1_crdt_rtn_oh, d_bank_1_crdt_rtn);
-pop_count # (3) u_pop_count_d_bank_2_crdt_rtn (d_bank_2_crdt_rtn_oh, d_bank_2_crdt_rtn);
-pop_count # (3) u_pop_count_d_bank_3_crdt_rtn (d_bank_3_crdt_rtn_oh, d_bank_3_crdt_rtn);
+assign d_bank_0_crdt_rtn = d_bank_0_crdt_rtn_oh;
+assign d_bank_1_crdt_rtn = d_bank_1_crdt_rtn_oh;
+assign d_bank_2_crdt_rtn = d_bank_2_crdt_rtn_oh;
+assign d_bank_3_crdt_rtn = d_bank_3_crdt_rtn_oh;
 
 assign u_channel_0_rsp_bus_valid = u_ch_valid[0];
 assign u_channel_0_rsp_bus_rdata = u_ch_data[0];

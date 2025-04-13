@@ -50,7 +50,7 @@ logic                        memctl_refill_ready   ;
 nlineWidth_t                 memctl_refill_id      ;
 logic            [127: 0]    memctl_refill_data    ;
 
-robWidth_t                   u_xbar_crdt_rtn   [  2: 0];
+logic            [  2: 0]    u_xbar_crdt_rtn       ;
 
 logic                        d_rc_valid            ;
 logic                        d_rc_ready            ;
