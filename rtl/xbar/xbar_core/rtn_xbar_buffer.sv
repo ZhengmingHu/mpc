@@ -132,7 +132,7 @@ assign bank_r_entry_ch_2_1hot_id[3] = bank_3_ch_2_r_entry_1hot_id;
 generate
     for (genvar i = 0; i < 4; i++)
     begin : xbar_sub_buffer_gen
-        xbar_sub_buffer # (
+        rtn_xbar_sub_buffer # (
             .Cfg                               (Cfg                                ),
             .setWidth_t                        (setWidth_t                         ),
             .tagWidth_t                        (tagWidth_t                         ),
@@ -197,7 +197,7 @@ assign u_ch_2_bank_rsp_rob_id = ch_2_bank_1hot_id[0] ? ch_2_rsp_rob_id[0] :
 
 endmodule
 
-module xbar_sub_buffer
+module rtn_xbar_sub_buffer
     import mpc_types::*;
 #(
     parameter mpc_cfg_t Cfg = '0,   

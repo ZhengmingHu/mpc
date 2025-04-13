@@ -1,6 +1,6 @@
 module pop_count #(
     parameter INPUT_WIDTH = 4,
-    parameter OUTPUT_WIDTH = $clog2(INPUT_WIDTH) + 1
+    parameter OUTPUT_WIDTH = $clog2(INPUT_WIDTH)
 ) (
     input wire [INPUT_WIDTH-1:0] in,
     output reg [OUTPUT_WIDTH-1:0] count

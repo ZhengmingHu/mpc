@@ -11,7 +11,8 @@ module xbar_wrapper
     parameter type offsetWidth_t   = logic,
     parameter type metaWidth_t     = logic,
     parameter type robWidth_t      = logic,
-    parameter type lsqWidth_t      = logic
+    parameter type lsqWidth_t      = logic,
+    parameter type kobWidth_t      = logic
 )
 (
     input  logic                        clk                        ,
@@ -152,15 +153,15 @@ logic       ch_2_kob_full                                          ;
 
 assign u_channel_0_req_valid     = u_channel_0_req_bus_valid;
 assign u_channel_0_req_bus_ready = u_channel_0_req_ready & !ch_0_kob_full; 
-assign u_channel_0_req_bus       = u_channel_0_req_bus;
+assign u_channel_0_req           = u_channel_0_req_bus;
 
 assign u_channel_1_req_valid     = u_channel_1_req_bus_valid;
 assign u_channel_1_req_bus_ready = u_channel_1_req_ready & !ch_1_kob_full; 
-assign u_channel_1_req_bus       = u_channel_1_req_bus;
+assign u_channel_1_req           = u_channel_1_req_bus;
 
 assign u_channel_2_req_valid     = u_channel_2_req_bus_valid;
 assign u_channel_2_req_bus_ready = u_channel_2_req_ready & !ch_2_kob_full; 
-assign u_channel_2_req_bus       = u_channel_2_req_bus;
+assign u_channel_2_req           = u_channel_2_req_bus;
 
 xbar_core # (
     .Cfg                               (Cfg                                ),
@@ -191,7 +192,7 @@ wbuf_id_gen # (
     .rst_n                             (rst_n                              ),
     .alloc_valid                       (d_bank_0_req_valid & d_bank_0_htu_ready),
     .alloc_ready                       (d_bank_0_wbuf_req_ready            ),
-    .alloc_id                          (d_bank_0_htu_req_wbuf_id           ),
+    .alloc_id                          (d_bank_0_req_wbuf_id               ),
     .free_valid                        (d_bank_0_wbuf_rsp_free_valid       ),
     .free_id                           (d_bank_0_wbuf_rsp_free_id          )
 );
@@ -290,7 +291,7 @@ assign d_bank_3_wbuf_req.wbuf_id = d_bank_3_req_wbuf_id;
 
 assign d_bank_0_wbuf_req.wdata = d_bank_0_req.wdata;
 assign d_bank_1_wbuf_req.wdata = d_bank_1_req.wdata;
-assign d_bank_2_wbuf_req.wdata = d_bank_2_req.dd;
+assign d_bank_2_wbuf_req.wdata = d_bank_2_req.wdata;
 assign d_bank_3_wbuf_req.wdata = d_bank_3_req.wdata;
 
 
@@ -332,10 +333,14 @@ rtn_xbar_core # (
     .*
 );
 
+assign u_channel_0_rsp_ready = 'd1;
+assign u_channel_1_rsp_ready = 'd1;
+assign u_channel_2_rsp_ready = 'd1;
+
 /** 3. rob **/
 
 logic        [  2: 0]        kob_rob_req                                    ;    
-logic        [  2: 0]        kob_rob_ack       [  2: 0]                     ;  
+logic        [  2: 0]        kob_rob_ack                                    ;  
 logic        [  1: 0]        kob_rob_bank_id   [  2: 0]                     ;
 
 logic        [  2: 0]        u_ch_valid                                     ;
@@ -439,7 +444,7 @@ rob_wrapper # (
     .d_rc_data                         (u_channel_1_rsp_data               ),
     .d_rc_bank_id                      (u_channel_1_rsp_bank_id            ),
     .u_ch_valid                        (u_ch_valid[1]                      ),
-    .u_ch_ready                        (u_channel_1_resp_ready             ),
+    .u_ch_ready                        (u_channel_1_rsp_bus_ready          ),
     .u_ch_data                         (u_ch_data[1]                       ),
     .d_bank_0_crdt_rtn                 (d_bank_0_crdt_rtn_oh[1]            ),
     .d_bank_1_crdt_rtn                 (d_bank_1_crdt_rtn_oh[1]            ),
@@ -478,10 +483,10 @@ rob_wrapper # (
     .d_bank_3_crdt_rtn                 (d_bank_3_crdt_rtn_oh[2]            )
 );
 
-pop_count # (4) u_pop_count_d_bank_0_crdt_rtn (d_bank_0_crdt_rtn_oh, d_bank_0_crdt_rtn);
-pop_count # (4) u_pop_count_d_bank_1_crdt_rtn (d_bank_1_crdt_rtn_oh, d_bank_1_crdt_rtn);
-pop_count # (4) u_pop_count_d_bank_2_crdt_rtn (d_bank_2_crdt_rtn_oh, d_bank_2_crdt_rtn);
-pop_count # (4) u_pop_count_d_bank_3_crdt_rtn (d_bank_3_crdt_rtn_oh, d_bank_3_crdt_rtn);
+pop_count # (3) u_pop_count_d_bank_0_crdt_rtn (d_bank_0_crdt_rtn_oh, d_bank_0_crdt_rtn);
+pop_count # (3) u_pop_count_d_bank_1_crdt_rtn (d_bank_1_crdt_rtn_oh, d_bank_1_crdt_rtn);
+pop_count # (3) u_pop_count_d_bank_2_crdt_rtn (d_bank_2_crdt_rtn_oh, d_bank_2_crdt_rtn);
+pop_count # (3) u_pop_count_d_bank_3_crdt_rtn (d_bank_3_crdt_rtn_oh, d_bank_3_crdt_rtn);
 
 assign u_channel_0_rsp_bus_valid = u_ch_valid[0];
 assign u_channel_0_rsp_bus_rdata = u_ch_data[0];

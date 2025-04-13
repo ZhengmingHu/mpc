@@ -128,6 +128,7 @@ generate
             .rst_n                             (rst_n                     ),
             .enq_valid                         (d_rc_valid & d_rc_rob_id == i),
             .enq_ready                         (rob_entry_rdy[i]          ),
+            .enq_data                          (d_rc_data                 ),
             .deq_valid                         (rob_deq_vld[i]            ),
             .deq_ready                         (u_kob_rob_req & u_ch_ready & rob_r_ptr == i),
             .deq_data                          (rob_deq_data[i]           )
