@@ -140,6 +140,7 @@ lsq # (
     .d_rc_op                           (lsq_deq_op                         ),
     .d_rc_set                          (d_rc_set                           ),
     .d_rc_way                          (d_rc_way                           ),
+    .d_rc_offset                       (d_rc_offset                        ),
     .d_rc_wbuf_id                      (d_rc_wbuf_id                       )
 );
 
