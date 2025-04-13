@@ -1,6 +1,31 @@
 module tb_xbar_core;
     import mpc_types::*;
 
+    parameter mpc_user_cfg_t UserCfg = '{
+        clWidth:256,
+        clWordWidth:128,
+        sets:8,
+        banks:4,
+        ways:4,
+        kobSize:16,
+        wbufSize:128,
+        robSize:16,
+        lsqSize:32,
+        rfbufSize:32
+    };
+    parameter mpc_cfg_t Cfg = mpcBuildConfig(UserCfg);
+    parameter type setWidth_t      = logic [Cfg.setWidth-1:0];
+    parameter type tagWidth_t      = logic [Cfg.tagWidth-1:0];
+    parameter type wayIndexWidth_t = logic [Cfg.wayIndexWidth-1:0];
+    parameter type wbufWidth_t     = logic [Cfg.wbufWidth-1:0];
+    parameter type wayNum_t        = logic [Cfg.wayNum-1:0];
+    parameter type nlineWidth_t    = logic [Cfg.nlineWidth-1:0];
+    parameter type offsetWidth_t   = logic [Cfg.offsetWidth-1:0];
+    parameter type metaWidth_t     = logic [Cfg.metaWidth-1:0];
+    parameter type robWidth_t      = logic [Cfg.robWidth-1:0];
+    parameter type lsqWidth_t      = logic [Cfg.lsqWidth-1:0];
+    parameter type rfbufWidth_t    = logic [Cfg.rfbufWidth-1:0];
+
 logic                        clk                  ;
 logic                        rst_n                ;
 
@@ -100,7 +125,17 @@ always @ (posedge clk or negedge rst_n) begin
     end
 end
 
-xbar_core u_xbar_core(
+xbar_core # (
+    .Cfg                               (Cfg                                ),
+    .setWidth_t                        (setWidth_t                         ),
+    .tagWidth_t                        (tagWidth_t                         ),
+    .wayIndexWidth_t                   (wayIndexWidth_t                    ),
+    .wbufWidth_t                       (wbufWidth_t                        ),
+    .wayNum_t                          (wayNum_t                           ),
+    .nlineWidth_t                      (nlineWidth_t                       ),
+    .offsetWidth_t                     (offsetWidth_t                      ),
+    .metaWidth_t                       (metaWidth_t                        )
+) u_xbar_core (
     .clk                                (clk                       ),
     .rst_n                              (rst_n                     ),
     .*

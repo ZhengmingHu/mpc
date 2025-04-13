@@ -1,5 +1,16 @@
 module xbar_buffer
     import mpc_types::*;
+#(
+    parameter mpc_cfg_t Cfg = '0,   
+    parameter type setWidth_t      = logic,
+    parameter type tagWidth_t      = logic,
+    parameter type wayIndexWidth_t = logic,
+    parameter type wbufWidth_t     = logic,
+    parameter type wayNum_t        = logic,
+    parameter type nlineWidth_t    = logic,
+    parameter type offsetWidth_t   = logic,
+    parameter type metaWidth_t     = logic
+)
 (
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
@@ -71,6 +82,7 @@ assign u_ch_req_hsked    = {u_ch_2_req_hsked, u_ch_1_req_hsked, u_ch_0_req_hsked
 assign u_ch_req[0]       = u_channel_0_req;
 assign u_ch_req[1]       = u_channel_1_req;
 assign u_ch_req[2]       = u_channel_2_req;
+
 assign ch_w_entry_id[0]  = ch_0_w_ptr;
 assign ch_w_entry_id[1]  = ch_1_w_ptr;
 assign ch_w_entry_id[2]  = ch_2_w_ptr;
@@ -93,7 +105,18 @@ assign ch_r_entry_bank_3_1hot_id[2] = ch_2_bank_3_r_entry_1hot_id;
 generate
     for (genvar i = 0; i < 3; i++)
     begin : xbar_sub_buffer_gen
-        xbar_sub_buffer u_xbar_sub_buffer (
+        xbar_sub_buffer # (    
+            .Cfg                               (Cfg                                ),
+            .setWidth_t                        (setWidth_t                         ),
+            .tagWidth_t                        (tagWidth_t                         ),
+            .wayIndexWidth_t                   (wayIndexWidth_t                    ),
+            .wbufWidth_t                       (wbufWidth_t                        ),
+            .wayNum_t                          (wayNum_t                           ),
+            .nlineWidth_t                      (nlineWidth_t                       ),
+            .offsetWidth_t                     (offsetWidth_t                      ),
+            .metaWidth_t                       (metaWidth_t                        )
+        )
+        u_xbar_sub_buffer (
             .clk                                (clk                            ),
             .rst_n                              (rst_n                          ),
             .u_ch_req_hsked                     (u_ch_req_hsked[i]              ),
@@ -134,6 +157,17 @@ endmodule
 
 module xbar_sub_buffer
     import mpc_types::*;
+#(
+    parameter mpc_cfg_t Cfg = '0,   
+    parameter type setWidth_t      = logic,
+    parameter type tagWidth_t      = logic,
+    parameter type wayIndexWidth_t = logic,
+    parameter type wbufWidth_t     = logic,
+    parameter type wayNum_t        = logic,
+    parameter type nlineWidth_t    = logic,
+    parameter type offsetWidth_t   = logic,
+    parameter type metaWidth_t     = logic
+) 
 (
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
@@ -148,11 +182,10 @@ module xbar_sub_buffer
     input  logic           [  7: 0]     bank_2_r_entry_1hot_id     ,
     input  logic           [  7: 0]     bank_3_r_entry_1hot_id     ,
 
-    output channel_req_t                d_bank_0_req            ,
-    output channel_req_t                d_bank_1_req            ,
-    output channel_req_t                d_bank_2_req            ,
-    output channel_req_t                d_bank_3_req              
-
+    output channel_req_t                d_bank_0_req               ,
+    output channel_req_t                d_bank_1_req               ,
+    output channel_req_t                d_bank_2_req               ,
+    output channel_req_t                d_bank_3_req               
 
 );
 
@@ -190,7 +223,5 @@ assign d_bank_0_req = req_entry[bank_0_r_entry_id];
 assign d_bank_1_req = req_entry[bank_1_r_entry_id];
 assign d_bank_2_req = req_entry[bank_2_r_entry_id];
 assign d_bank_3_req = req_entry[bank_3_r_entry_id];
-
-
 
 endmodule

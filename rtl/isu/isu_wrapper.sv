@@ -39,7 +39,7 @@ module isu_wrapper
     input  logic            [127: 0]    memctl_refill_data         ,
 
     // 4. from upstream xbar credit return
-    input  robWidth_t                   u_xbar_crdt_rtn   [  2: 0] ,
+    input  logic            [  2: 0]    u_xbar_crdt_rtn            ,
 
     // 5. to sram controller interface
     output logic                        d_rc_valid                 ,

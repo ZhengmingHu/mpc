@@ -1,5 +1,6 @@
 ../rtl/include/mpc_types.sv
 ../rtl/lib/arbiter.sv
+../rtl/lib/priority_encoder.sv
 ../rtl/lib/mpc_sram.sv
 ../rtl/lib/arbiter_mask.sv
 ../rtl/lib/ns_gnrl_dfflr.sv

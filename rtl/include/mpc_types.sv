@@ -12,11 +12,16 @@ package mpc_types;
 
     typedef struct packed {
                        logic [  2:0] channel_1hot_id;
-                       logic [  4:0] wbuffer_id;
                        logic [  2:0] op;
                        logic [ 31:0] addr;
                        logic [127:0] wdata;
     } bank_req_t;
+
+    typedef struct packed {
+                   logic [  2:0] channel_1hot_id;
+                   logic [  2:0] op;
+                   logic [ 31:0] addr;
+    } htu_req_t;
 
     typedef struct packed {
                        logic [  1:0] channel_id;
@@ -25,7 +30,6 @@ package mpc_types;
     } rc_rsp_t;
 
     typedef struct packed {
-                       logic [  1:0] channel_id;
                        logic [  7:0] wbuf_id;
                        logic [127:0] wdata;
     } wbuf_req_t;
@@ -167,6 +171,7 @@ package mpc_types;
         int unsigned robWidth;
         int unsigned lsqWidth;
         int unsigned rfbufWidth;
+        int unsigned kobWidth;
     } mpc_cfg_t;
 
     function automatic mpc_cfg_t mpcBuildConfig(input mpc_user_cfg_t p);
@@ -187,6 +192,7 @@ package mpc_types;
         ret.robWidth = $clog2(p.robSize);
         ret.lsqWidth = $clog2(p.lsqSize);
         ret.rfbufWidth = $clog2(p.rfbufSize);
+        ret.kobWidth = $clog2(p.kobSize);
         return ret;
     endfunction
 

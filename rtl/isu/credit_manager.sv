@@ -32,7 +32,7 @@ module credit_manager
     output logic        [Cfg.u.lsqSize-1:0]        entry_can_execute          ,
 
     // 4. xbar credit return interface
-    input  robWidth_t                              u_xbar_crdt_rtn   [  2: 0] 
+    input  logic        [              2:0]        u_xbar_crdt_rtn   
 
 );
 
