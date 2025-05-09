@@ -178,6 +178,71 @@ initial begin
     u_isu_offset <= 'd0;
     wbuf_rsp_data <= 'd0;
     @(posedge clk)
+    u_isu_valid <= 'd1;
+    u_isu_channel_1hot_id <= 'd6;
+    u_isu_rob_id <= 'd7;
+    u_isu_op <= CACHE_OP_STORE_REFILL;
+    u_isu_set <= 'd1;
+    u_isu_way <= 'd2;
+    u_isu_offset <= 'd1;
+    u_isu_refill_data <= 'hffff_eeee_dddd_cccc;
+    @(posedge clk)
+    u_isu_valid <= 'd1;
+    u_isu_channel_1hot_id <= 'd6;
+    u_isu_rob_id <= 'd7;
+    u_isu_op <= CACHE_OP_STORE;
+    u_isu_set <= 'd1;
+    u_isu_way <= 'd2;
+    u_isu_offset <= 'd0;
+    wbuf_rsp_data <= 'hcccc_dddd_eeee_ffff;
+    u_isu_refill_data <= 'd0;
+    @(posedge clk)
+    u_isu_valid <= 'd1;
+    u_isu_channel_1hot_id <= 'd6;
+    u_isu_rob_id <= 'd7;
+    u_isu_op <= CACHE_OP_STORE;
+    u_isu_set <= 'd1;
+    u_isu_way <= 'd2;
+    u_isu_offset <= 'd0;
+    wbuf_rsp_data <= 'h0;
+     @(posedge clk)
+    u_isu_valid <= 'd1;
+    u_isu_channel_1hot_id <= 'd6;
+    u_isu_rob_id <= 'd7;
+    u_isu_op <= CACHE_OP_STORE;
+    u_isu_set <= 'd1;
+    u_isu_way <= 'd2;
+    u_isu_offset <= 'd0;
+    wbuf_rsp_data <= 'hcccc_dddd_eeee_ffff;
+    u_isu_refill_data <= 'd0;
+    @(posedge clk)
+    u_isu_valid <= 'd1;
+    u_isu_channel_1hot_id <= 'd6;
+    u_isu_rob_id <= 'd7;
+    u_isu_op <= CACHE_OP_STORE;
+    u_isu_set <= 'd1;
+    u_isu_way <= 'd2;
+    u_isu_offset <= 'd0;
+    wbuf_rsp_data <= 'h0;
+    @(posedge clk)
+    u_isu_valid <= 'd1;
+    u_isu_channel_1hot_id <= 'd6;
+    u_isu_rob_id <= 'd7;
+    u_isu_op <= CACHE_OP_LOAD;
+    u_isu_set <= 'd1;
+    u_isu_way <= 'd2;
+    u_isu_offset <= 'd0;
+    wbuf_rsp_data <= 'h1111_2222_3333_4444;
+    @(posedge clk)
+    u_isu_valid <= 'd1;
+    u_isu_channel_1hot_id <= 'd6;
+    u_isu_rob_id <= 'd7;
+    u_isu_op <= CACHE_OP_LOAD;
+    u_isu_set <= 'd1;
+    u_isu_way <= 'd2;
+    u_isu_offset <= 'd1;
+    wbuf_rsp_data <= 'h0;
+    @(posedge clk)
     u_isu_valid <= 1'b0;
     u_isu_channel_1hot_id <= 'd0;
     u_isu_rob_id <= 'd4;
