@@ -20,7 +20,7 @@ module refill_buffer_entry
 
     input  logic                                   memctl_refill_valid        ,
     input  nlineWidth_t                            memctl_refill_id           ,
-    input  logic                  [127: 0]         memctl_refill_data         ,
+    input  logic                  [255: 0]         memctl_refill_data         ,
 
     output logic                                   entry_valid                ,
     output setWidth_t                              entry_set                  ,
@@ -28,7 +28,7 @@ module refill_buffer_entry
 
     output logic                                   deq_valid                  ,
     input  logic                                   deq_ready                  ,
-    output logic                 [127: 0]          deq_data    
+    output logic                 [255: 0]          deq_data    
 
 );
 
@@ -43,7 +43,7 @@ wayIndexWidth_t                                    memctl_refill_way;
 logic                                              entry_valid_set;
 logic                                              entry_valid_nxt;
 
-logic                            [127: 0]          entry_data;
+logic                            [255: 0]          entry_data;
 
 logic                                              deq_hsked;
 
@@ -58,7 +58,7 @@ assign deq_hsked         = deq_valid & deq_ready;
 ns_gnrl_dfflr # (                1) entry_valid_dfflr (entry_valid_set, entry_valid_nxt, entry_valid, clk, rst_n);
 ns_gnrl_dfflr # (     Cfg.setWidth) entry_set_dfflr (memctl_refill_valid, memctl_refill_set, entry_set, clk, rst_n);
 ns_gnrl_dfflr # (Cfg.wayIndexWidth) entry_way_dfflr (memctl_refill_valid, memctl_refill_way, entry_way, clk, rst_n);
-ns_gnrl_dfflr # (              128) entry_data_dfflr (memctl_refill_valid, memctl_refill_data, entry_data, clk, rst_n);
+ns_gnrl_dfflr # (              256) entry_data_dfflr (memctl_refill_valid, memctl_refill_data, entry_data, clk, rst_n);
 
 assign deq_valid         = entry_valid;
 assign deq_data          = entry_data;
@@ -89,7 +89,7 @@ module refill_buffer
     input  logic                                   memctl_refill_valid        ,
     output logic                                   memctl_refill_ready        ,  
     input  nlineWidth_t                            memctl_refill_id           ,
-    input  logic                   [127: 0]        memctl_refill_data         ,
+    input  logic                   [255: 0]        memctl_refill_data         ,
 
     // 2. lsq intf
     input  logic                                   lsq_deq_confirm            ,                                   
@@ -99,7 +99,7 @@ module refill_buffer
     // 3. downstream rc intf
     output logic                                   d_rc_hit_refill_buf        ,
     input  logic                                   d_rc_ready                 ,
-    output logic                  [127: 0]         d_rc_refill_data                     
+    output logic                  [255: 0]         d_rc_refill_data                     
 );
 
 logic [Cfg.u.rfbufSize-1:0]                        entry_vld_vec;
@@ -110,7 +110,7 @@ setWidth_t                                         entry_set_vec [Cfg.u.rfbufSiz
 wayIndexWidth_t                                    entry_way_vec [Cfg.u.rfbufSize-1:0];
 
 logic [Cfg.u.rfbufSize-1:0]                        deq_valid_vec;
-logic [            128-1:0]                        deq_data_vec [Cfg.u.rfbufSize-1:0];
+logic [            256-1:0]                        deq_data_vec [Cfg.u.rfbufSize-1:0];
 rfbufWidth_t                                       deq_ptr;
 
 logic [Cfg.u.rfbufSize-1:0]                        hit_refill_buf_vec;

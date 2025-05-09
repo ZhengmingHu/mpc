@@ -48,7 +48,7 @@ wayIndexWidth_t              u_htu_refill_way      ;
 logic                        memctl_refill_valid   ;
 logic                        memctl_refill_ready   ;
 nlineWidth_t                 memctl_refill_id      ;
-logic            [127: 0]    memctl_refill_data    ;
+logic            [255: 0]    memctl_refill_data    ;
 
 logic            [  2: 0]    u_xbar_crdt_rtn       ;
 
@@ -59,8 +59,9 @@ robWidth_t                   d_rc_rob_id           ;
 logic            [  2: 0]    d_rc_op               ;
 setWidth_t                   d_rc_set              ;
 wayIndexWidth_t              d_rc_way              ;
+offsetWidth_t                d_rc_offset           ;
 wbufWidth_t                  d_rc_wbuf_id          ;
-logic            [127: 0]    d_rc_refill_data      ;
+logic            [255: 0]    d_rc_refill_data      ;
 
 logic                        u_htu_crdt_valid      ;
 nlineWidth_t                 u_htu_crdt_way_set    ;
