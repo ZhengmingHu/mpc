@@ -208,6 +208,6 @@ assign u_bank_rsp_data        = s0_drop ? (s0_offset ? s0_refill_data[255:128] :
 
 assign memctl_wvalid          = s1_wb;
 assign memctl_wid             = {s1_way, s1_set};
-assign memctl_wdata           = s1_data_array_rsp_data;
+assign memctl_wdata           = s1_wb ? s1_data_array_rsp_data : 'd0;
 
 endmodule
