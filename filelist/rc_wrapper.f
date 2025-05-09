@@ -1,0 +1,14 @@
+../rtl/include/mpc_types.sv
+../rtl/lib/arbiter.sv
+../rtl/lib/priority_encoder.sv
+../rtl/lib/arbiter_mask.sv
+../rtl/lib/ns_gnrl_dfflr.sv
+../rtl/lib/ns_gnrl_dfflrs.sv
+../rtl/lib/mux1h.sv
+../rtl/lib/1hot2bin.sv
+../rtl/lib/popcount.sv
+../rtl/lib/mpc_sram.sv
+../rtl/rc/data_array_sram.sv
+../rtl/rc/data_array.sv
+../rtl/rc/rc_wrapper.sv
+../tb/tb_rc_wrapper.sv

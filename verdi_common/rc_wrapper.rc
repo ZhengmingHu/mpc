@@ -1,0 +1,102 @@
+Magic 271485
+Revision Verdi_O-2018.09-SP2
+
+; Window Layout <x> <y> <width> <height> <signalwidth> <valuewidth>
+viewPort 0 27 2548 651 295 505
+
+; File list:
+; openDirFile [-d delimiter] [-s time_offset] [-rf auto_bus_rule_file] path_name file_name
+openDirFile -d / "" "/home/zcy/workspace/mpc/smoke_test/build/result/init_test/rc_wrapper.fsdb"
+
+; file time scale:
+; fileTimeScale ### s|ms|us|ns|ps
+
+; signal spacing:
+signalSpacing 5
+
+; windowTimeUnit is used for zoom, cursor & marker
+; waveform viewport range
+zoom 667.332008 754.822630
+cursor 690.000000
+marker 0.000000
+
+; user define markers
+; userMarker time_pos marker_name color linestyle
+; visible top row signal index
+top 23
+; marker line index
+markerPos 48
+
+; event list
+; addEvent event_name event_expression
+; curEvent event_name
+
+
+
+COMPLEX_EVENT_BEGIN
+
+
+COMPLEX_EVENT_END
+
+
+
+; toolbar current search type
+; curSTATUS search_type
+curSTATUS ByChange
+
+
+addGroup "u_isu"
+activeDirFile "" "/home/zcy/workspace/mpc/smoke_test/build/result/init_test/rc_wrapper.fsdb"
+addSignal -h 15 /tb_rc_wrapper/u_isu_valid
+addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/u_isu_ready
+addSignal -h 15 /tb_rc_wrapper/u_isu_channel_1hot_id[2:0]
+addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/u_isu_rob_id[3:0]
+addSignal -h 15 /tb_rc_wrapper/u_isu_op[2:0]
+addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/u_isu_set[2:0]
+addSignal -h 15 -holdScope u_isu_way[1:0]
+addSignal -h 15 -holdScope u_isu_offset[0:0]
+addSignal -h 15 -holdScope u_isu_wbuf_id[6:0]
+addSignal -h 15 -holdScope u_isu_refill_data[255:0]
+addGroup "s0"
+addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/s0_valid
+addSignal -h 15 -holdScope s0_ready
+addSignal -h 15 -holdScope s0_s1_conflict
+addSignal -h 15 -holdScope s0_rob_id[3:0]
+addSignal -h 15 -holdScope s0_set[2:0]
+addSignal -h 15 -holdScope s0_way[1:0]
+addSignal -h 15 -holdScope s0_offset[0:0]
+addSignal -h 15 -holdScope s0_refill_data[255:0]
+addSignal -h 15 -holdScope s0_op[2:0]
+addSignal -h 15 -holdScope s0_read_with_linefill
+addSignal -h 15 -holdScope s0_drop
+addSignal -h 15 -holdScope s0_way[1:0]
+addSignal -h 15 -holdScope s0_set[2:0]
+addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/u_data_array/w_en
+addSignal -h 15 -holdScope w_set[2:0]
+addSignal -h 15 -holdScope w_way[1:0]
+addSignal -h 15 -holdScope w_mask[1:0]
+addSignal -h 15 -holdScope w_data[255:0]
+addGroup "s1"
+addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/s0_s1_hsked
+addSignal -h 15 -holdScope s1_valid
+addSignal -h 15 -holdScope s1_ready
+addSignal -h 15 -holdScope s1_drop
+addSignal -h 15 -holdScope s1_read_with_linefill
+addSignal -h 15 -holdScope s1_write_with_linefill
+addSignal -h 15 -holdScope s1_way[1:0]
+addSignal -h 15 -holdScope s1_set[2:0]
+addSignal -h 15 -holdScope wbuf_rsp_data[127:0]
+addSignal -h 15 -holdScope s1_rdata[127:0]
+addGroup "u_bank_rsp"
+addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/u_bank_rsp_valid
+addSignal -h 15 -holdScope u_bank_rsp_rob_id[3:0]
+addSignal -h 15 -holdScope u_bank_rsp_channel_id[1:0]
+addSignal -h 15 -holdScope u_bank_rsp_data[127:0]
+addGroup "G5"
+addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/memctl_wvalid
+addSignal -h 15 -holdScope memctl_wdata[255:0]
+addGroup "G6"
+
+; getSignalForm Scope Hierarchy Status
+; active file of getSignalForm
+
