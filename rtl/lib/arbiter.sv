@@ -95,6 +95,20 @@ assign indic_next = grt_sel ? {ored_msked_vec1[ARBT_NUM-2:0], 1'b0} : {ored_mske
 
 endmodule
 
+module ns_gnrl_fixed # (
+    parameter ARBT_NUM = 4
+)(
+    output             [ARBT_NUM-1: 0]  grt_vec                    ,
+    input              [ARBT_NUM-1: 0]  req_vec                    
+);
+assign grt_vec[0] = req_vec[0];
+generate
+for (genvar i=1;i<ARBT_NUM;i=i+1)
+	assign grt_vec[i] = (~|req_vec[i-1:0]) & req_vec[i];
+endgenerate
+
+endmodule
+
 module ns_gnrl_weight_with_ref # (
   parameter ARBT_NUM = 4
 )

@@ -1,0 +1,92 @@
+Magic 271485
+Revision Verdi_O-2018.09-SP2
+
+; Window Layout <x> <y> <width> <height> <signalwidth> <valuewidth>
+viewPort 0 27 2548 651 295 692
+
+; File list:
+; openDirFile [-d delimiter] [-s time_offset] [-rf auto_bus_rule_file] path_name file_name
+openDirFile -d / "" "/home/zcy/workspace/mpc/smoke_test/build/result/init_test/mc_wrapper.fsdb"
+
+; file time scale:
+; fileTimeScale ### s|ms|us|ns|ps
+
+; signal spacing:
+signalSpacing 5
+
+; windowTimeUnit is used for zoom, cursor & marker
+; waveform viewport range
+zoom 465.637576 1266.159750
+cursor 0.000000
+marker 0.000000
+
+; user define markers
+; userMarker time_pos marker_name color linestyle
+; visible top row signal index
+top 14
+; marker line index
+markerPos 38
+
+; event list
+; addEvent event_name event_expression
+; curEvent event_name
+
+
+
+COMPLEX_EVENT_BEGIN
+
+
+COMPLEX_EVENT_END
+
+
+
+; toolbar current search type
+; curSTATUS search_type
+curSTATUS ByChange
+
+
+addGroup "G1"
+activeDirFile "" "/home/zcy/workspace/mpc/smoke_test/build/result/init_test/mc_wrapper.fsdb"
+addSignal -h 15 /tb_mc_wrapper/u_mc_wrapper/clk
+addSignal -h 15 -holdScope awvalid
+addSignal -h 15 -holdScope awready
+addSignal -h 15 -holdScope awid[4:0]
+addSignal -h 15 -holdScope awaddr[31:0]
+addSignal -h 15 -holdScope wvalid
+addSignal -h 15 -holdScope wready
+addSignal -h 15 -holdScope wid[4:0]
+addSignal -h 15 -holdScope wdata[255:0]
+addSignal -h 15 -holdScope arvalid
+addSignal -h 15 -holdScope arready
+addSignal -h 15 -holdScope arid[4:0]
+addSignal -h 15 -holdScope araddr[31:0]
+addSignal -h 15 -holdScope rvalid
+addSignal -h 15 -holdScope rready
+addSignal -h 15 -holdScope rid[4:0]
+addSignal -h 15 -holdScope rdata[255:0]
+addSignal -h 15 -holdScope m_axi_awready
+addSignal -h 15 -holdScope m_axi_awvalid
+addSignal -h 15 -holdScope m_axi_awid[4:0]
+addSignal -h 15 -holdScope m_axi_awaddr[31:0]
+addSignal -h 15 -holdScope m_axi_wvalid
+addSignal -h 15 -holdScope m_axi_wdata[255:0]
+addSignal -h 15 -holdScope m_axi_wready
+addSignal -h 15 -holdScope m_axi_bvalid
+addSignal -h 15 -holdScope m_axi_bid[4:0]
+addSignal -h 15 -holdScope m_axi_arvalid
+addSignal -h 15 -holdScope m_axi_arready
+addSignal -h 15 -holdScope m_axi_araddr[31:0]
+addSignal -h 15 -holdScope m_axi_arid[4:0]
+addSignal -h 15 -holdScope m_axi_rvalid
+addSignal -h 15 -holdScope m_axi_rdata[255:0]
+addSignal -h 15 -holdScope m_axi_rid[4:0]
+addGroup "G2"
+addSignal -h 15 /tb_mc_wrapper/u_mc_wrapper/rvalid
+addSignal -h 15 -holdScope rid[4:0]
+addSignal -h 15 -holdScope rdata[255:0]
+addSignal -h 15 -holdScope entry_valid[3:0]
+addGroup "G3"
+
+; getSignalForm Scope Hierarchy Status
+; active file of getSignalForm
+
