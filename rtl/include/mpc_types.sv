@@ -151,6 +151,8 @@ package mpc_types;
         int unsigned lsqSize;
         //  Size of Refill Buffer
         int unsigned rfbufSize;
+        //  Size of Memory Controller Queue
+        int unsigned mcSize;
     } mpc_user_cfg_t;
 
     typedef struct packed {
@@ -172,6 +174,7 @@ package mpc_types;
         int unsigned lsqWidth;
         int unsigned rfbufWidth;
         int unsigned kobWidth;
+        int unsigned mcWidth;
     } mpc_cfg_t;
 
     function automatic mpc_cfg_t mpcBuildConfig(input mpc_user_cfg_t p);
@@ -193,6 +196,7 @@ package mpc_types;
         ret.lsqWidth = $clog2(p.lsqSize);
         ret.rfbufWidth = $clog2(p.rfbufSize);
         ret.kobWidth = $clog2(p.kobSize);
+        ret.mcWidth = $clog2(p.mcSize);
         return ret;
     endfunction
 

@@ -12,9 +12,10 @@ module ns_mux1h#
 always_comb begin
      data_sel = 0;
      for (int i = 0; i < SEL_WIDTH; i++) begin
-       if (one_hot_flg[i])
-         data_sel = data_grp[i];
-         break;
+        if (one_hot_flg[i]) begin
+          data_sel = data_grp[i];
+          break;
+        end
      end
    end
 
