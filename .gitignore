@@ -5,3 +5,4 @@
 !/tb/*
 !setup.sh
 !.gitignore
+.vscode
