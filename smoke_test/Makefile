@@ -30,7 +30,9 @@ endif
 # TEST_CASE ?= rc_wrapper
 # TEST_CASE ?= write_buffer
 # TEST_CASE ?= mc_wrapper
-TEST_CASE ?= extmem
+# TEST_CASE ?= extmem
+TEST_CASE ?= mpc_wrapper
+
 
 ##*****************************************************##
 ##													   ##
