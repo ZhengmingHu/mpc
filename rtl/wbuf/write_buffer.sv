@@ -72,6 +72,7 @@ module write_buffer
 
 logic  [127: 0] entry_rsp_data [Cfg.u.wbufSize-1:0]; 
 logic  [Cfg.u.wbufSize-1:0] entry_confirm;
+logic  [127: 0] rc_rsp_data_nxt;
 
 generate
     for (genvar i = 0; i < int'(Cfg.u.wbufSize); i = i + 1) begin
@@ -100,8 +101,9 @@ generate
     end
 endgenerate
 
-ns_mux1h # (128, Cfg.u.wbufSize) rc_rsp_data_mux1h (entry_rsp_data, entry_confirm, rc_rsp_data);
-assign xbar_rsp_free_valid = rc_req_valid;
-assign xbar_rsp_free_id = rc_req_id;
+ns_mux1h # (128, Cfg.u.wbufSize) rc_rsp_data_mux1h (entry_rsp_data, entry_confirm, rc_rsp_data_nxt);
+ns_gnrl_dfflr # (128) rc_rsp_data_dfflr (1'b1, rc_rsp_data_nxt, rc_rsp_data, clk, rst_n);
+ns_gnrl_dfflr # (1) xbar_rsp_free_valid_dfflr (1'b1, rc_req_valid, xbar_rsp_free_valid, clk, rst_n);
+ns_gnrl_dfflr # (Cfg.wbufWidth) xbar_rsp_free_id_dfflr (1'b1, rc_req_id, xbar_rsp_free_id, clk, rst_n);
 
 endmodule

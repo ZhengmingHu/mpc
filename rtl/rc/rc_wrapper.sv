@@ -194,7 +194,7 @@ assign s1_drop                = s1_wb && memctl_wready ||
 
 assign u_isu_ready            = s0_ready;
 
-assign wbuf_req_valid         = s0_read_wbuf;
+assign wbuf_req_valid         = s0_read_wbuf && s0_s1_hsked;
 assign wbuf_req_id            = s0_wbuf_id;
 
 
