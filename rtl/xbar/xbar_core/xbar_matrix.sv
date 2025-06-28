@@ -1,5 +1,17 @@
 module xbar_matrix
     import mpc_types::*;
+# (
+    parameter mpc_cfg_t Cfg = '0,   
+    parameter type setWidth_t      = logic,
+    parameter type tagWidth_t      = logic,
+    parameter type wayIndexWidth_t = logic,
+    parameter type wbufWidth_t     = logic,
+    parameter type wayNum_t        = logic,
+    parameter type nlineWidth_t    = logic,
+    parameter type offsetWidth_t   = logic,
+    parameter type metaWidth_t     = logic,
+    parameter type channel_req_t   = logic
+)
 (
     input  logic                        clk                                 ,
     input  logic                        rst_n                               ,

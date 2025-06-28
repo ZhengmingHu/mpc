@@ -1,21 +1,4 @@
 package mpc_types;
-     
-    typedef struct packed {
-                       logic [  2:0] op;
-                       logic [ 31:0] addr;
-                       logic [127:0] wdata;
-    } channel_req_t;
-
-    typedef struct packed {
-                       logic [127:0] rdata;
-    } channel_rsp_t;
-
-    typedef struct packed {
-                       logic [  2:0] channel_1hot_id;
-                       logic [  2:0] op;
-                       logic [ 31:0] addr;
-                       logic [127:0] wdata;
-    } bank_req_t;
 
     typedef struct packed {
                    logic [  2:0] channel_1hot_id;
@@ -131,10 +114,14 @@ package mpc_types;
     endfunction
 
     typedef struct packed {
+        //  Op Width
+        int unsigned opWidth;
         //  Cacheline Width
         int unsigned clWidth;
         //  Word Width
         int unsigned clWordWidth;
+        //  Address Width
+        int unsigned addrWidth;
         //  Number of sets
         int unsigned sets;
         //  Number of banks
@@ -186,7 +173,7 @@ package mpc_types;
         ret.offsetWidth = $clog2(p.clWidth / p.clWordWidth);
         ret.setWidth = $clog2(p.sets);
         ret.bankWidth = $clog2(p.banks);
-        ret.tagWidth = 32 - ret.bankWidth - ret.setWidth - ret.offsetWidth - ret.byteWidth;
+        ret.tagWidth = ret.u.addrWidth - ret.bankWidth - ret.setWidth - ret.offsetWidth - ret.byteWidth;
         ret.metaWidth = 2;
         ret.wayNum = p.ways;
         ret.wayIndexWidth = (p.ways > 1) ? $clog2(p.ways) : 1;

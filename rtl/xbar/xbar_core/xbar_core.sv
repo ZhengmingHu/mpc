@@ -9,7 +9,9 @@ module xbar_core
     parameter type wayNum_t        = logic,
     parameter type nlineWidth_t    = logic,
     parameter type offsetWidth_t   = logic,
-    parameter type metaWidth_t     = logic
+    parameter type metaWidth_t     = logic,
+    parameter type channel_req_t   = logic,
+    parameter type bank_req_t      = logic
 )
 (
     input  logic                        clk                        ,
@@ -91,7 +93,19 @@ channel_req_t   d_bank_1_ch_req;
 channel_req_t   d_bank_2_ch_req;
 channel_req_t   d_bank_3_ch_req;
 
-xbar_matrix u_xbar_matrix (
+xbar_matrix #(
+    .Cfg                                (Cfg                       ),
+    .setWidth_t                         (setWidth_t                ), 
+    .tagWidth_t                         (tagWidth_t                ), 
+    .wayIndexWidth_t                    (wayIndexWidth_t           ), 
+    .wbufWidth_t                        (wbufWidth_t               ), 
+    .wayNum_t                           (wayNum_t                  ), 
+    .nlineWidth_t                       (nlineWidth_t              ), 
+    .offsetWidth_t                      (offsetWidth_t             ), 
+    .metaWidth_t                        (metaWidth_t               ), 
+    .channel_req_t                      (channel_req_t             )
+) 
+u_xbar_matrix (
     .clk                                (clk                       ),
     .rst_n                              (rst_n                     ),
     .*
@@ -112,7 +126,8 @@ xbar_buffer # (
     .wayNum_t                          (wayNum_t                           ),
     .nlineWidth_t                      (nlineWidth_t                       ),
     .offsetWidth_t                     (offsetWidth_t                      ),
-    .metaWidth_t                       (metaWidth_t                        )
+    .metaWidth_t                       (metaWidth_t                        ),
+    .channel_req_t                     (channel_req_t                      )
 )
 u_xbar_buffer (
     .clk                                (clk                       ),

@@ -10,7 +10,8 @@ module kob
     parameter type nlineWidth_t    = logic,
     parameter type offsetWidth_t   = logic,
     parameter type metaWidth_t     = logic,
-    parameter type kobWidth_t      = logic
+    parameter type kobWidth_t      = logic,
+    parameter type channel_req_t   = logic
 )
 (
     input  logic                        clk                            ,

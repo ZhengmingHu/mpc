@@ -2,8 +2,9 @@ FSDB ?= 0
 DEFINE ?= +define+DW_SUPPRESS_WARN
 ROOT ?= /home/zcy/workspace/mpc
 
-RTL_DIR := ./rtl
-TB_DIR := ./tb
+RTL_DIR := $(ROOT)/rtl
+INC_DIR := $(ROOT)/rtl/include
+TB_DIR := $(ROOT)/tb
 
 ifeq ($(FSDB),1)
 	DEFINE += +define+FSDB
@@ -30,7 +31,9 @@ endif
 # TEST_CASE ?= rc_wrapper
 # TEST_CASE ?= write_buffer
 # TEST_CASE ?= mc_wrapper
-TEST_CASE ?= extmem
+# TEST_CASE ?= extmem
+TEST_CASE ?= mpc_wrapper
+
 
 ##*****************************************************##
 ##													   ##
@@ -74,10 +77,10 @@ VERDI_FILE := $(BUILD_DIR)/result/init_test/$(TEST_CASE)
 FILELIST_DIR := $(ROOT)/filelist
 FILELIST := $(FILELIST_DIR)/$(TEST_CASE).f
 
-RCFILE_DIR := /home/zcy/workspace/mpc/verdi_common
+RCFILE_DIR := $(ROOT)/verdi_common
 RCFILE ?= $(TEST_CASE).rc
 
-MEM_DIR := /home/zcy/workspace/mpc/tb/mem_model
+MEM_DIR := $(TB_DIR)/mem_model
 
 vcs_compile:
 	@if [ ! -d $(BUILD_DIR) ]; then\
@@ -92,6 +95,7 @@ vcs_compile:
 		-deraceclockdata \
 		-LDFLAGS "-Wl,-rpath,." \
 		-CFLAGS "--std=c99 -fno-extended-identifiers -I${VCS_HOME}/include" \
+		+incdir+$(INC_DIR) \
 		-daidir=$(BUILD_DIR)/simv.daidir -Mdir=$(BUILD_DIR)/csrc \
 		-l $(BUILD_DIR)/compile.log -f $(FILELIST)	
 
