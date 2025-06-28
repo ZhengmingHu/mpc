@@ -12,7 +12,8 @@ module htu_wrapper
     parameter type metaWidth_t     = logic,
     parameter type robWidth_t      = logic,
     parameter type lsqWidth_t      = logic,
-    parameter type rfbufWidth_t    = logic
+    parameter type rfbufWidth_t    = logic,
+    parameter type bank_req_t      = logic
 )
 (
     input  logic                        clk                        ,
@@ -97,7 +98,8 @@ htu_pipe # (
     .wayNum_t                          (wayNum_t                  ),
     .nlineWidth_t                      (nlineWidth_t              ),
     .offsetWidth_t                     (offsetWidth_t             ),
-    .metaWidth_t                       (metaWidth_t               )
+    .metaWidth_t                       (metaWidth_t               ),
+    .bank_req_t                        (bank_req_t                )
 ) u_htu_pipe (
     .clk                  ,
     .rst_n                ,

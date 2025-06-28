@@ -16,16 +16,16 @@ signalSpacing 5
 
 ; windowTimeUnit is used for zoom, cursor & marker
 ; waveform viewport range
-zoom 634.074405 730.789096
-cursor 670.000000
+zoom 669.449282 880.801349
+cursor 610.000000
 marker 0.000000
 
 ; user define markers
 ; userMarker time_pos marker_name color linestyle
 ; visible top row signal index
-top 37
+top 62
 ; marker line index
-markerPos 59
+markerPos 88
 
 ; event list
 ; addEvent event_name event_expression
@@ -96,6 +96,20 @@ addSignal -h 15 -holdScope d_rc_offset[0:0]
 addSignal -h 15 -holdScope d_rc_way[1:0]
 addGroup "rc"
 addSignal -h 15 /tb_mpc_wrapper/u_mpc_wrapper/u_mpc/u_slice_0/u_rc_wrapper/u_isu_valid
+addSignal -h 15 -holdScope s0_valid
+addSignal -h 15 -holdScope s0_ready
+addSignal -h 15 -holdScope s0_op[2:0]
+addSignal -h 15 -holdScope s0_rob_id[3:0]
+addSignal -h 15 -holdScope s0_read
+addSignal -h 15 -holdScope s0_drop
+addSignal -h 15 -holdScope s0_can_go
+addSignal -h 15 -holdScope s1_valid
+addSignal -h 15 -holdScope s1_rob_id[3:0]
+addSignal -h 15 -holdScope s1_rdata[127:0]
+addSignal -h 15 -holdScope u_bank_rsp_valid
+addSignal -h 15 -holdScope u_bank_rsp_ready
+addSignal -h 15 -holdScope u_bank_rsp_channel_id[1:0]
+addSignal -h 15 -holdScope u_bank_rsp_data[127:0]
 addSignal -h 15 -holdScope wbuf_req_valid
 addSignal -h 15 -holdScope wbuf_rsp_data[127:0]
 addSignal -h 15 -holdScope s1_write_with_linefill
@@ -109,7 +123,20 @@ addSignal -h 15 -holdScope w_mask[1:0]
 addSignal -h 15 -holdScope w_data[255:0]
 addGroup "wbuf"
 addSignal -h 15 /tb_mpc_wrapper/u_mpc_wrapper/u_mpc/u_xbar_wrapper/d_bank_0_wbuf_req_valid
-addSignal -h 15 -holdScope d_bank_0_htu_req_wbuf_id[3:0]
+addSignal -h 15 -UNSIGNED -HEX -holdScope d_bank_0_htu_req_wbuf_id[3:0]
+addSubGroup "rob"
+endSubGroup "rob"
+addSignal -h 15 /tb_mpc_wrapper/u_mpc_wrapper/u_mpc/u_xbar_wrapper/u_rob_wrapper_ch_1/u_kob_rob_req
+addSignal -h 15 -holdScope u_kob_rob_ack
+addSignal -h 15 -holdScope u_kob_rob_bank_id[1:0]
+addSignal -h 15 -holdScope d_rc_valid
+addSignal -h 15 -holdScope d_rc_rob_id[3:0]
+addSignal -h 15 -holdScope d_rc_data[127:0]
+addSignal -h 15 -holdScope d_bank_0_crdt_rtn
+addSignal -h 15 -holdScope u_ch_valid
+addSignal -h 15 -holdScope u_ch_data[127:0]
+addSignal -h 15 /tb_mpc_wrapper/u_mpc_wrapper/u_channel_1_rsp_bus_valid
+addSignal -h 15 -holdScope u_channel_1_rsp_bus_rdata[127:0]
 addGroup "G6"
 
 ; getSignalForm Scope Hierarchy Status

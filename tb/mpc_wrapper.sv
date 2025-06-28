@@ -2,6 +2,9 @@ module mpc_wrapper
     import mpc_types::*;
 #(
     parameter mpc_cfg_t Cfg = '0,   
+    parameter type opWidth_t       = logic,
+    parameter type dataWidth_t     = logic,
+    parameter type addrWidth_t     = logic,
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -14,7 +17,9 @@ module mpc_wrapper
     parameter type lsqWidth_t      = logic,
     parameter type rfbufWidth_t    = logic,
     parameter type kobWidth_t      = logic,
-    parameter type mcWidth_t       = logic
+    parameter type mcWidth_t       = logic,
+    parameter type channel_req_t   = logic,
+    parameter type bank_req_t      = logic
 )(
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
@@ -164,6 +169,9 @@ logic                        slice_3_axi_rlast   ;
 
 mpc # (
     .Cfg                       (Cfg                      ),
+    .opWidth_t                 (opWidth_t                ),
+    .dataWidth_t               (dataWidth_t              ),
+    .addrWidth_t               (addrWidth_t              ),
     .setWidth_t                (setWidth_t               ),
     .tagWidth_t                (tagWidth_t               ),
     .wayIndexWidth_t           (wayIndexWidth_t          ),
@@ -176,7 +184,9 @@ mpc # (
     .lsqWidth_t                (lsqWidth_t               ),
     .rfbufWidth_t              (rfbufWidth_t             ),
     .kobWidth_t                (kobWidth_t               ),
-    .mcWidth_t                 (mcWidth_t                )
+    .mcWidth_t                 (mcWidth_t                ),
+    .channel_req_t             (channel_req_t            ),
+    .bank_req_t                (bank_req_t               )
 ) u_mpc (
     .clk                       (clk                      ),
     .rst_n                     (rst_n                    ),

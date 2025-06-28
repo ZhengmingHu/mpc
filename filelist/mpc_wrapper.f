@@ -1,4 +1,5 @@
 ../rtl/include/mpc_types.sv
+../rtl/include/mpc_defs.svh
 ../rtl/lib/arbiter.sv
 ../rtl/lib/priority_encoder.sv
 ../rtl/lib/arbiter_mask.sv

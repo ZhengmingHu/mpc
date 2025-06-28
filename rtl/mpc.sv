@@ -2,6 +2,9 @@ module mpc
     import mpc_types::*;
 #(
     parameter mpc_cfg_t Cfg = '0,   
+    parameter type opWidth_t       = logic,
+    parameter type dataWidth_t     = logic,
+    parameter type addrWidth_t     = logic,
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -14,7 +17,10 @@ module mpc
     parameter type lsqWidth_t      = logic,
     parameter type rfbufWidth_t    = logic,
     parameter type kobWidth_t      = logic,
-    parameter type mcWidth_t       = logic
+    parameter type mcWidth_t       = logic,
+
+    parameter type channel_req_t   = logic,
+    parameter type bank_req_t      = logic
 )(
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
@@ -244,6 +250,9 @@ logic         [  2: 0]       bank_3_crdt_rtn           ;
 
 xbar_wrapper # (
     .Cfg                            (Cfg                        ),
+    .opWidth_t                      (opWidth_t                  ),
+    .dataWidth_t                    (dataWidth_t                ),
+    .addrWidth_t                    (addrWidth_t                ),
     .setWidth_t                     (setWidth_t                 ),
     .tagWidth_t                     (tagWidth_t                 ),
     .wayIndexWidth_t                (wayIndexWidth_t            ),
@@ -254,7 +263,9 @@ xbar_wrapper # (
     .metaWidth_t                    (metaWidth_t                ),
     .robWidth_t                     (robWidth_t                 ),
     .lsqWidth_t                     (lsqWidth_t                 ),
-    .kobWidth_t                     (kobWidth_t                 )
+    .kobWidth_t                     (kobWidth_t                 ),
+    .channel_req_t                  (channel_req_t              ),
+    .bank_req_t                     (bank_req_t                 )
 ) u_xbar_wrapper (              
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),
@@ -336,6 +347,9 @@ xbar_wrapper # (
 
 slice # (
     .Cfg                            (Cfg                        ),
+    .opWidth_t                      (opWidth_t                  ),
+    .dataWidth_t                    (dataWidth_t                ),
+    .addrWidth_t                    (addrWidth_t                ),
     .setWidth_t                     (setWidth_t                 ),
     .tagWidth_t                     (tagWidth_t                 ),
     .wayIndexWidth_t                (wayIndexWidth_t            ),
@@ -348,7 +362,8 @@ slice # (
     .lsqWidth_t                     (lsqWidth_t                 ),
     .rfbufWidth_t                   (rfbufWidth_t               ),
     .kobWidth_t                     (kobWidth_t                 ),
-    .mcWidth_t                      (mcWidth_t                  )
+    .mcWidth_t                      (mcWidth_t                  ),
+    .bank_req_t                     (bank_req_t                 )
 ) u_slice_0 (
     .clk                            (clk                        ),  
     .rst_n                          (rst_n                      ),  
@@ -399,6 +414,9 @@ slice # (
 
 slice # (
     .Cfg                            (Cfg                        ),
+    .opWidth_t                      (opWidth_t                  ),
+    .dataWidth_t                    (dataWidth_t                ),
+    .addrWidth_t                    (addrWidth_t                ),
     .setWidth_t                     (setWidth_t                 ),
     .tagWidth_t                     (tagWidth_t                 ),
     .wayIndexWidth_t                (wayIndexWidth_t            ),
@@ -411,7 +429,8 @@ slice # (
     .lsqWidth_t                     (lsqWidth_t                 ),
     .rfbufWidth_t                   (rfbufWidth_t               ),
     .kobWidth_t                     (kobWidth_t                 ),
-    .mcWidth_t                      (mcWidth_t                  )
+    .mcWidth_t                      (mcWidth_t                  ),
+    .bank_req_t                     (bank_req_t                 )
 ) u_slice_1 (
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),
@@ -462,6 +481,9 @@ slice # (
 
 slice # (
     .Cfg                            (Cfg                        ),
+    .opWidth_t                      (opWidth_t                  ),
+    .dataWidth_t                    (dataWidth_t                ),
+    .addrWidth_t                    (addrWidth_t                ),
     .setWidth_t                     (setWidth_t                 ),
     .tagWidth_t                     (tagWidth_t                 ),
     .wayIndexWidth_t                (wayIndexWidth_t            ),
@@ -474,7 +496,8 @@ slice # (
     .lsqWidth_t                     (lsqWidth_t                 ),
     .rfbufWidth_t                   (rfbufWidth_t               ),
     .kobWidth_t                     (kobWidth_t                 ),
-    .mcWidth_t                      (mcWidth_t                  )
+    .mcWidth_t                      (mcWidth_t                  ),
+    .bank_req_t                     (bank_req_t                 )
 ) u_slice_2 (
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),
@@ -525,6 +548,9 @@ slice # (
 
 slice # (
     .Cfg                            (Cfg                        ),
+    .opWidth_t                      (opWidth_t                  ),
+    .dataWidth_t                    (dataWidth_t                ),
+    .addrWidth_t                    (addrWidth_t                ),
     .setWidth_t                     (setWidth_t                 ),
     .tagWidth_t                     (tagWidth_t                 ),
     .wayIndexWidth_t                (wayIndexWidth_t            ),
@@ -537,7 +563,8 @@ slice # (
     .lsqWidth_t                     (lsqWidth_t                 ),
     .rfbufWidth_t                   (rfbufWidth_t               ),
     .kobWidth_t                     (kobWidth_t                 ),
-    .mcWidth_t                      (mcWidth_t                  )
+    .mcWidth_t                      (mcWidth_t                  ),
+    .bank_req_t                     (bank_req_t                 )
 ) u_slice_3 (
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),

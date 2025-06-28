@@ -1,7 +1,10 @@
 module xbar_wrapper
     import mpc_types::*;
 #(
-    parameter mpc_cfg_t Cfg = '0,   
+    parameter mpc_cfg_t Cfg = '0,
+    parameter type opWidth_t       = logic,
+    parameter type dataWidth_t     = logic,
+    parameter type addrWidth_t     = logic,   
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -12,7 +15,9 @@ module xbar_wrapper
     parameter type metaWidth_t     = logic,
     parameter type robWidth_t      = logic,
     parameter type lsqWidth_t      = logic,
-    parameter type kobWidth_t      = logic
+    parameter type kobWidth_t      = logic,
+    parameter type channel_req_t   = logic,
+    parameter type bank_req_t      = logic
 )
 (
     input  logic                        clk                        ,
@@ -172,7 +177,9 @@ xbar_core # (
     .wayNum_t                          (wayNum_t                           ),
     .nlineWidth_t                      (nlineWidth_t                       ),
     .offsetWidth_t                     (offsetWidth_t                      ),
-    .metaWidth_t                       (metaWidth_t                        )
+    .metaWidth_t                       (metaWidth_t                        ),
+    .channel_req_t                     (channel_req_t                      ),
+    .bank_req_t                        (bank_req_t                         )
 ) u_xbar_core (
     .*
 );
@@ -361,7 +368,8 @@ kob # (
     .nlineWidth_t                      (nlineWidth_t                       ),
     .offsetWidth_t                     (offsetWidth_t                      ),
     .metaWidth_t                       (metaWidth_t                        ),
-    .kobWidth_t                        (kobWidth_t                         )
+    .kobWidth_t                        (kobWidth_t                         ),
+    .channel_req_t                     (channel_req_t                      )
 ) u_kob (
     .clk                               (clk                                ),
     .rst_n                             (rst_n                              ),

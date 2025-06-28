@@ -9,7 +9,8 @@ module xbar_buffer
     parameter type wayNum_t        = logic,
     parameter type nlineWidth_t    = logic,
     parameter type offsetWidth_t   = logic,
-    parameter type metaWidth_t     = logic
+    parameter type metaWidth_t     = logic,
+    parameter type channel_req_t   = logic
 )
 (
     input  logic                        clk                        ,
@@ -114,7 +115,8 @@ generate
             .wayNum_t                          (wayNum_t                           ),
             .nlineWidth_t                      (nlineWidth_t                       ),
             .offsetWidth_t                     (offsetWidth_t                      ),
-            .metaWidth_t                       (metaWidth_t                        )
+            .metaWidth_t                       (metaWidth_t                        ),
+            .channel_req_t                     (channel_req_t                      )
         )
         u_xbar_sub_buffer (
             .clk                                (clk                            ),
@@ -166,7 +168,8 @@ module xbar_sub_buffer
     parameter type wayNum_t        = logic,
     parameter type nlineWidth_t    = logic,
     parameter type offsetWidth_t   = logic,
-    parameter type metaWidth_t     = logic
+    parameter type metaWidth_t     = logic,
+    parameter type channel_req_t   = logic
 ) 
 (
     input  logic                        clk                        ,

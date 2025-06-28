@@ -9,7 +9,8 @@ module htu_pipe
     parameter type wayNum_t        = logic,
     parameter type nlineWidth_t    = logic,
     parameter type offsetWidth_t   = logic,
-    parameter type metaWidth_t     = logic
+    parameter type metaWidth_t     = logic,
+    parameter type bank_req_t      = logic
 )
 (
     input  logic                        clk                        ,
@@ -96,16 +97,6 @@ localparam tagLSB       = Cfg.bankWidth + Cfg.setWidth + Cfg.offsetWidth + Cfg.b
 localparam offsetMSB    = 31 - Cfg.tagWidth - Cfg.bankWidth - Cfg.setWidth;
 localparam offsetLSB    = Cfg.byteWidth;
 localparam bankReqWidth = $bits(u_bank_req);
-
-
-always @ (posedge rst_n) begin
-    $display("tagWidth:%d", Cfg.tagWidth);
-    $display("bankWidth:%d", Cfg.bankWidth);
-    $display("setWidth:%d", Cfg.setWidth);
-    $display("offsetWidth:%d", Cfg.offsetWidth);
-    $display("byteWidth:%d", Cfg.byteWidth);
-    $display("wayNum:%d", Cfg.wayNum);
-end
 
 logic                                   s0_valid;
 logic                                   s0_ready;

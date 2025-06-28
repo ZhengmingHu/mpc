@@ -2,6 +2,9 @@ module slice
     import mpc_types::*;
 #(
     parameter mpc_cfg_t Cfg = '0,   
+    parameter type opWidth_t       = logic,
+    parameter type dataWidth_t     = logic,
+    parameter type addrWidth_t     = logic,
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -14,7 +17,8 @@ module slice
     parameter type lsqWidth_t      = logic,
     parameter type rfbufWidth_t    = logic,
     parameter type kobWidth_t      = logic,
-    parameter type mcWidth_t       = logic
+    parameter type mcWidth_t       = logic,
+    parameter type bank_req_t      = logic
 )(
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
@@ -141,7 +145,8 @@ htu_wrapper # (
     .metaWidth_t             (metaWidth_t           ), 
     .robWidth_t              (robWidth_t            ), 
     .lsqWidth_t              (lsqWidth_t            ),   
-    .rfbufWidth_t            (rfbufWidth_t          )   
+    .rfbufWidth_t            (rfbufWidth_t          ),
+    .bank_req_t              (bank_req_t            )   
 ) u_htu_wrapper (
     .clk                     (clk                   ),
     .rst_n                   (rst_n                 ),

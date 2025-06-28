@@ -56,7 +56,7 @@ module slice_0_memory_interface
     output  logic                       s_axi_rlast  
 );
     // Import DPI-C functions - modified to use output parameter instead of return
-    import "DPI-C" function void init_slice_0_memory();
+    // import "DPI-C" function void init_slice_memory();
     import "DPI-C" function void write_slice_0_memory(input int address, input bit [254:0] data, input bit write_en);
     import "DPI-C" function void read_slice_0_memory(input int address, output bit [254:0] data, input bit read_en);
     
@@ -108,9 +108,9 @@ module slice_0_memory_interface
 
 
     // Initialize memory
-    initial begin
-        init_slice_0_memory();
-    end
+    // initial begin
+    //    init_slice_memory();
+    // end
     
     // Example usage
     /* initial begin 
@@ -201,7 +201,6 @@ module slice_1_memory_interface
     output  logic                       s_axi_rlast  
 );
     // Import DPI-C functions - modified to use output parameter instead of return
-    import "DPI-C" function void init_slice_1_memory();
     import "DPI-C" function void write_slice_1_memory(input int address, input bit [254:0] data, input bit write_en);
     import "DPI-C" function void read_slice_1_memory(input int address, output bit [254:0] data, input bit read_en);
     
@@ -251,11 +250,6 @@ module slice_1_memory_interface
     assign s_axi_arready = !s_axi_awvalid & !s_axi_wvalid;
     assign s_axi_wready = 1'b1;
 
-
-    // Initialize memory
-    initial begin
-        init_slice_1_memory();
-    end
     
     // Example usage
     /* initial begin 
@@ -347,7 +341,6 @@ module slice_2_memory_interface
     output  logic                       s_axi_rlast  
 );
     // Import DPI-C functions - modified to use output parameter instead of return
-    import "DPI-C" function void init_slice_2_memory();
     import "DPI-C" function void write_slice_2_memory(input int address, input bit [254:0] data, input bit write_en);
     import "DPI-C" function void read_slice_2_memory(input int address, output bit [254:0] data, input bit read_en);
     
@@ -397,11 +390,6 @@ module slice_2_memory_interface
     assign s_axi_arready = !s_axi_awvalid & !s_axi_wvalid;
     assign s_axi_wready = 1'b1;
 
-
-    // Initialize memory
-    initial begin
-        init_slice_2_memory();
-    end
     
     // Example usage
     /* initial begin 
@@ -493,7 +481,6 @@ module slice_3_memory_interface
     output  logic                       s_axi_rlast  
 );
     // Import DPI-C functions - modified to use output parameter instead of return
-    import "DPI-C" function void init_slice_3_memory();
     import "DPI-C" function void write_slice_3_memory(input int address, input bit [254:0] data, input bit write_en);
     import "DPI-C" function void read_slice_3_memory(input int address, output bit [254:0] data, input bit read_en);
     
@@ -543,11 +530,6 @@ module slice_3_memory_interface
     assign s_axi_arready = !s_axi_awvalid & !s_axi_wvalid;
     assign s_axi_wready = 1'b1;
 
-
-    // Initialize memory
-    initial begin
-        init_slice_3_memory();
-    end
     
     // Example usage
     /* initial begin 
