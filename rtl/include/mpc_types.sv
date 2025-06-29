@@ -1,22 +1,5 @@
 package mpc_types;
 
-    typedef struct packed {
-                   logic [  2:0] channel_1hot_id;
-                   logic [  2:0] op;
-                   logic [ 31:0] addr;
-    } htu_req_t;
-
-    typedef struct packed {
-                       logic [  1:0] channel_id;
-                       logic [  2:0] rob_id;
-                       logic [127:0] rdata;
-    } rc_rsp_t;
-
-    typedef struct packed {
-                       logic [  7:0] wbuf_id;
-                       logic [127:0] wdata;
-    } wbuf_req_t;
-
     typedef enum logic [2:0] {
         MPC_OP_LOAD  = 3'd0,
         MPC_OP_STORE = 3'd1

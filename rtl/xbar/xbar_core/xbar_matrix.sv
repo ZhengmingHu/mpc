@@ -160,9 +160,12 @@ endgenerate
 //                  //
 //******************//
 
-assign ch_0_req_bank_id = u_channel_0_req.addr[9:8];
-assign ch_1_req_bank_id = u_channel_1_req.addr[9:8];
-assign ch_2_req_bank_id = u_channel_2_req.addr[9:8];
+localparam bankMSB       = Cfg.u.addrWidth - Cfg.tagWidth - 1;
+localparam bankLSB       = Cfg.offsetWidth + Cfg.byteWidth + Cfg.setWidth; 
+
+assign ch_0_req_bank_id = u_channel_0_req.addr[bankMSB:bankLSB];
+assign ch_1_req_bank_id = u_channel_1_req.addr[bankMSB:bankLSB];
+assign ch_2_req_bank_id = u_channel_2_req.addr[bankMSB:bankLSB];
 
 //******************//
 //                  //

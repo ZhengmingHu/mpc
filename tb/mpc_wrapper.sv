@@ -19,7 +19,8 @@ module mpc_wrapper
     parameter type kobWidth_t      = logic,
     parameter type mcWidth_t       = logic,
     parameter type channel_req_t   = logic,
-    parameter type bank_req_t      = logic
+    parameter type bank_req_t      = logic,
+    parameter type wbuf_req_t      = logic
 )(
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
@@ -38,15 +39,15 @@ module mpc_wrapper
     // upstream rsp to 3 channels
     output logic                        u_channel_0_rsp_bus_valid  ,
     input  logic                        u_channel_0_rsp_bus_ready  ,
-    output logic          [127: 0]      u_channel_0_rsp_bus_rdata  ,
+    output dataWidth_t                  u_channel_0_rsp_bus_rdata  ,
 
     output logic                        u_channel_1_rsp_bus_valid  ,
     input  logic                        u_channel_1_rsp_bus_ready  ,
-    output logic          [127: 0]      u_channel_1_rsp_bus_rdata  ,
+    output dataWidth_t                  u_channel_1_rsp_bus_rdata  ,
 
     output logic                        u_channel_2_rsp_bus_valid  ,
     input  logic                        u_channel_2_rsp_bus_ready  ,
-    output logic          [127: 0]      u_channel_2_rsp_bus_rdata  
+    output dataWidth_t                  u_channel_2_rsp_bus_rdata  
 );
 
 logic                        slice_0_axi_awready ;
@@ -186,7 +187,8 @@ mpc # (
     .kobWidth_t                (kobWidth_t               ),
     .mcWidth_t                 (mcWidth_t                ),
     .channel_req_t             (channel_req_t            ),
-    .bank_req_t                (bank_req_t               )
+    .bank_req_t                (bank_req_t               ),
+    .wbuf_req_t                (wbuf_req_t               )
 ) u_mpc (
     .clk                       (clk                      ),
     .rst_n                     (rst_n                    ),

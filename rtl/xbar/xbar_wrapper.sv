@@ -17,7 +17,8 @@ module xbar_wrapper
     parameter type lsqWidth_t      = logic,
     parameter type kobWidth_t      = logic,
     parameter type channel_req_t   = logic,
-    parameter type bank_req_t      = logic
+    parameter type bank_req_t      = logic,
+    parameter type wbuf_req_t      = logic
 )
 (
     input  logic                        clk                        ,
@@ -37,15 +38,15 @@ module xbar_wrapper
 
     output logic                        u_channel_0_rsp_bus_valid  ,
     input  logic                        u_channel_0_rsp_bus_ready  ,
-    output logic          [127: 0]      u_channel_0_rsp_bus_rdata  ,
+    output dataWidth_t                  u_channel_0_rsp_bus_rdata  ,
 
     output logic                        u_channel_1_rsp_bus_valid  ,
     input  logic                        u_channel_1_rsp_bus_ready  ,
-    output logic          [127: 0]      u_channel_1_rsp_bus_rdata  , 
+    output dataWidth_t                  u_channel_1_rsp_bus_rdata  , 
 
     output logic                        u_channel_2_rsp_bus_valid  ,
     input  logic                        u_channel_2_rsp_bus_ready  ,
-    output logic          [127: 0]      u_channel_2_rsp_bus_rdata  ,
+    output dataWidth_t                  u_channel_2_rsp_bus_rdata  ,
 
     output logic                        d_bank_0_htu_valid         ,
     input  logic                        d_bank_0_htu_ready         ,
@@ -89,25 +90,25 @@ module xbar_wrapper
 
     input  logic                        d_bank_0_rsp_valid         ,
     output logic                        d_bank_0_rsp_ready         ,
-    input  logic         [127: 0]       d_bank_0_rsp_data          ,
+    input  dataWidth_t                  d_bank_0_rsp_data          ,
     input  robWidth_t                   d_bank_0_rsp_rob_id        ,
     input  logic         [  1: 0]       d_bank_0_rsp_channel_id    ,
     
     input  logic                        d_bank_1_rsp_valid         ,
     output logic                        d_bank_1_rsp_ready         ,
-    input  logic         [127: 0]       d_bank_1_rsp_data          ,
+    input  dataWidth_t                  d_bank_1_rsp_data          ,
     input  robWidth_t                   d_bank_1_rsp_rob_id        ,
     input  logic         [  1: 0]       d_bank_1_rsp_channel_id    ,
 
     input  logic                        d_bank_2_rsp_valid          ,
     output logic                        d_bank_2_rsp_ready          ,
-    input  logic         [127: 0]       d_bank_2_rsp_data           ,
+    input  dataWidth_t                  d_bank_2_rsp_data           ,
     input  robWidth_t                   d_bank_2_rsp_rob_id         ,
     input  logic         [  1: 0]       d_bank_2_rsp_channel_id     ,
 
     input  logic                        d_bank_3_rsp_valid          ,
     output logic                        d_bank_3_rsp_ready          ,
-    input  logic         [127: 0]       d_bank_3_rsp_data           ,
+    input  dataWidth_t                  d_bank_3_rsp_data           ,
     input  robWidth_t                   d_bank_3_rsp_rob_id         ,
     input  logic         [  1: 0]       d_bank_3_rsp_channel_id     ,
 
@@ -306,19 +307,19 @@ assign d_bank_3_wbuf_req.wdata = d_bank_3_req.wdata;
 
 logic                        u_channel_0_rsp_valid                          ; 
 logic                        u_channel_0_rsp_ready                          ; 
-logic          [127: 0]      u_channel_0_rsp_data                           ; 
+dataWidth_t                  u_channel_0_rsp_data                           ; 
 logic          [  1: 0]      u_channel_0_rsp_bank_id                        ; 
 robWidth_t                   u_channel_0_rsp_rob_id                         ; 
 
 logic                        u_channel_1_rsp_valid                          ;
 logic                        u_channel_1_rsp_ready                          ;
-logic          [127: 0]      u_channel_1_rsp_data                           ;
+dataWidth_t                  u_channel_1_rsp_data                           ;
 logic          [  1: 0]      u_channel_1_rsp_bank_id                        ;
 robWidth_t                   u_channel_1_rsp_rob_id                         ;
 
 logic                        u_channel_2_rsp_valid                          ;
 logic                        u_channel_2_rsp_ready                          ;
-logic          [127: 0]      u_channel_2_rsp_data                           ;
+dataWidth_t                  u_channel_2_rsp_data                           ;
 logic          [  1: 0]      u_channel_2_rsp_bank_id                        ;
 robWidth_t                   u_channel_2_rsp_rob_id                         ;
 
@@ -351,7 +352,7 @@ logic        [  2: 0]        kob_rob_ack                                    ;
 logic        [  1: 0]        kob_rob_bank_id   [  2: 0]                     ;
 
 logic        [  2: 0]        u_ch_valid                                     ;
-logic        [127: 0]        u_ch_data         [  2: 0]                     ;
+dataWidth_t                  u_ch_data         [  2: 0]                     ;
 
 logic        [  2: 0]        d_bank_0_crdt_rtn_oh                           ;
 logic        [  2: 0]        d_bank_1_crdt_rtn_oh                           ;

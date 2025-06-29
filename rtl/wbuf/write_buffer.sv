@@ -55,7 +55,8 @@ module write_buffer
     parameter type metaWidth_t     = logic,
     parameter type robWidth_t      = logic,
     parameter type lsqWidth_t      = logic,
-    parameter type kobWidth_t      = logic
+    parameter type kobWidth_t      = logic,
+    parameter type wbuf_req_t      = logic
 )(
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,

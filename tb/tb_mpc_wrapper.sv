@@ -48,6 +48,11 @@ localparam type bank_req_t =
         dataWidth_t,
         addrWidth_t);
 
+localparam type wbuf_req_t = 
+    `MPC_DECL_WBUF_REQ_T(
+        wbufWidth_t,
+        dataWidth_t);
+
 logic                        clk                        ;
 logic                        rst_n                      ;
 
@@ -145,7 +150,8 @@ mpc_wrapper # (
     .kobWidth_t                (kobWidth_t               ), 
     .mcWidth_t                 (mcWidth_t                ),
     .channel_req_t             (channel_req_t            ),
-    .bank_req_t                (bank_req_t               )
+    .bank_req_t                (bank_req_t               ),
+    .wbuf_req_t                (wbuf_req_t               )
 ) u_mpc_wrapper (
     .*
 );

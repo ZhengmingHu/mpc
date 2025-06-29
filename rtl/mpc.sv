@@ -20,7 +20,8 @@ module mpc
     parameter type mcWidth_t       = logic,
 
     parameter type channel_req_t   = logic,
-    parameter type bank_req_t      = logic
+    parameter type bank_req_t      = logic,
+    parameter type wbuf_req_t      = logic
 )(
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
@@ -41,15 +42,15 @@ module mpc
     // upstream rsp to 3 channels
     output logic                        u_channel_0_rsp_bus_valid  ,
     input  logic                        u_channel_0_rsp_bus_ready  ,
-    output logic          [127: 0]      u_channel_0_rsp_bus_rdata  ,
+    output dataWidth_t                  u_channel_0_rsp_bus_rdata  ,
     
     output logic                        u_channel_1_rsp_bus_valid  ,
     input  logic                        u_channel_1_rsp_bus_ready  ,
-    output logic          [127: 0]      u_channel_1_rsp_bus_rdata  ,
+    output dataWidth_t                  u_channel_1_rsp_bus_rdata  ,
     
     output logic                        u_channel_2_rsp_bus_valid  ,
     input  logic                        u_channel_2_rsp_bus_ready  ,
-    output logic          [127: 0]      u_channel_2_rsp_bus_rdata  ,
+    output dataWidth_t                  u_channel_2_rsp_bus_rdata  ,
 
     // Master AXI AW Channel
     input  logic                        slice_0_m_axi_awready      ,
@@ -265,7 +266,8 @@ xbar_wrapper # (
     .lsqWidth_t                     (lsqWidth_t                 ),
     .kobWidth_t                     (kobWidth_t                 ),
     .channel_req_t                  (channel_req_t              ),
-    .bank_req_t                     (bank_req_t                 )
+    .bank_req_t                     (bank_req_t                 ),
+    .wbuf_req_t                     (wbuf_req_t                 )
 ) u_xbar_wrapper (              
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),
@@ -363,7 +365,8 @@ slice # (
     .rfbufWidth_t                   (rfbufWidth_t               ),
     .kobWidth_t                     (kobWidth_t                 ),
     .mcWidth_t                      (mcWidth_t                  ),
-    .bank_req_t                     (bank_req_t                 )
+    .bank_req_t                     (bank_req_t                 ),
+    .wbuf_req_t                     (wbuf_req_t                 )
 ) u_slice_0 (
     .clk                            (clk                        ),  
     .rst_n                          (rst_n                      ),  
@@ -430,7 +433,8 @@ slice # (
     .rfbufWidth_t                   (rfbufWidth_t               ),
     .kobWidth_t                     (kobWidth_t                 ),
     .mcWidth_t                      (mcWidth_t                  ),
-    .bank_req_t                     (bank_req_t                 )
+    .bank_req_t                     (bank_req_t                 ),
+    .wbuf_req_t                     (wbuf_req_t                 )
 ) u_slice_1 (
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),
@@ -497,7 +501,8 @@ slice # (
     .rfbufWidth_t                   (rfbufWidth_t               ),
     .kobWidth_t                     (kobWidth_t                 ),
     .mcWidth_t                      (mcWidth_t                  ),
-    .bank_req_t                     (bank_req_t                 )
+    .bank_req_t                     (bank_req_t                 ),
+    .wbuf_req_t                     (wbuf_req_t                 )
 ) u_slice_2 (
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),
@@ -564,7 +569,8 @@ slice # (
     .rfbufWidth_t                   (rfbufWidth_t               ),
     .kobWidth_t                     (kobWidth_t                 ),
     .mcWidth_t                      (mcWidth_t                  ),
-    .bank_req_t                     (bank_req_t                 )
+    .bank_req_t                     (bank_req_t                 ),
+    .wbuf_req_t                     (wbuf_req_t                 )
 ) u_slice_3 (
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),

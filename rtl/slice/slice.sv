@@ -18,7 +18,8 @@ module slice
     parameter type rfbufWidth_t    = logic,
     parameter type kobWidth_t      = logic,
     parameter type mcWidth_t       = logic,
-    parameter type bank_req_t      = logic
+    parameter type bank_req_t      = logic,
+    parameter type wbuf_req_t      = logic
 )(
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
@@ -273,7 +274,8 @@ write_buffer # (
     .metaWidth_t             (metaWidth_t           ),
     .robWidth_t              (robWidth_t            ),
     .lsqWidth_t              (lsqWidth_t            ),
-    .kobWidth_t              (kobWidth_t            )
+    .kobWidth_t              (kobWidth_t            ),
+    .wbuf_req_t              (wbuf_req_t            )
 ) u_write_buffer (
     .clk                     (clk                   ),
     .rst_n                   (rst_n                 ),

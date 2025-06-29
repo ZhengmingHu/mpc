@@ -12,3 +12,9 @@
         __data_t                          wdata; \
         __addr_t                          addr; \
     }
+
+`define MPC_DECL_WBUF_REQ_T(__wbuf_t, __data_t) \
+    struct packed { \
+        __wbuf_t                         wbuf_id; \
+        __data_t                         wdata; \
+    }

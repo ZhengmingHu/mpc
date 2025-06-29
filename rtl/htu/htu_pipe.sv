@@ -90,11 +90,11 @@ module htu_pipe
 
 );
 
-localparam setMSB       = 31 - Cfg.tagWidth - Cfg.bankWidth;
+localparam setMSB       = Cfg.u.addrWidth - Cfg.tagWidth - Cfg.bankWidth - 1;
 localparam setLSB       = Cfg.offsetWidth + Cfg.byteWidth;
-localparam tagMSB       = 31;
+localparam tagMSB       = Cfg.u.addrWidth - 1;
 localparam tagLSB       = Cfg.bankWidth + Cfg.setWidth + Cfg.offsetWidth + Cfg.byteWidth;
-localparam offsetMSB    = 31 - Cfg.tagWidth - Cfg.bankWidth - Cfg.setWidth;
+localparam offsetMSB    = Cfg.u.addrWidth - Cfg.tagWidth - Cfg.bankWidth - Cfg.setWidth - 1;
 localparam offsetLSB    = Cfg.byteWidth;
 localparam bankReqWidth = $bits(u_bank_req);
 
