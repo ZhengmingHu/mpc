@@ -2,6 +2,9 @@ module htu_wrapper
     import mpc_types::*;
 # (
     parameter mpc_cfg_t Cfg = '0,   
+    parameter type opWidth_t       = logic,
+    parameter type dataWidth_t     = logic,
+    parameter type addrWidth_t     = logic,
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -91,6 +94,9 @@ wayIndexWidth_t              replace_access_way                    ;
 
 htu_pipe # (
     .Cfg                               (Cfg                       ),
+    .opWidth_t                         (opWidth_t                 ),
+    .dataWidth_t                       (dataWidth_t               ),
+    .addrWidth_t                       (addrWidth_t               ),
     .setWidth_t                        (setWidth_t                ),
     .tagWidth_t                        (tagWidth_t                ),
     .wayIndexWidth_t                   (wayIndexWidth_t           ),

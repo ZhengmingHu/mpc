@@ -3,6 +3,7 @@ module slice
 #(
     parameter mpc_cfg_t Cfg = '0,   
     parameter type opWidth_t       = logic,
+    parameter type clWidth_t       = logic,
     parameter type dataWidth_t     = logic,
     parameter type addrWidth_t     = logic,
     parameter type setWidth_t      = logic,
@@ -40,7 +41,7 @@ module slice
     input  logic                        u_bank_rsp_ready           ,
     output robWidth_t                   u_bank_rsp_rob_id          ,
     output logic            [  1: 0]    u_bank_rsp_channel_id      ,
-    output logic            [127: 0]    u_bank_rsp_data            ,
+    output dataWidth_t                  u_bank_rsp_data            ,
 
     // 3. from upstream xbar credit return
     input  logic            [  2: 0]    u_xbar_crdt_rtn            ,
@@ -118,7 +119,7 @@ logic            [255: 0]    memctl_wdata        ;
 
 logic                        wbuf_req_valid      ;
 wbufWidth_t                  wbuf_req_id         ;
-logic            [127: 0]    wbuf_rsp_data       ;
+dataWidth_t                  wbuf_rsp_data       ;
 
 logic                        rc_valid            ;      
 logic                        rc_ready            ;      
@@ -136,6 +137,9 @@ logic            [255: 0]    rc_refill_data      ;
 
 htu_wrapper # (
     .Cfg                     (Cfg                   ),
+    .opWidth_t               (opWidth_t             ),
+    .dataWidth_t             (dataWidth_t           ),
+    .addrWidth_t             (addrWidth_t           ),
     .setWidth_t              (setWidth_t            ),  
     .tagWidth_t              (tagWidth_t            ), 
     .wayIndexWidth_t         (wayIndexWidth_t       ),
@@ -179,6 +183,7 @@ htu_wrapper # (
 
 isu_wrapper # (
     .Cfg                     (Cfg                   ),
+    .clWidth_t               (clWidth_t             ),
     .setWidth_t              (setWidth_t            ),
     .tagWidth_t              (tagWidth_t            ),
     .wayIndexWidth_t         (wayIndexWidth_t       ),
@@ -224,6 +229,8 @@ isu_wrapper # (
 
 rc_wrapper # (
     .Cfg                     (Cfg                   ),
+    .clWidth_t               (clWidth_t             ),
+    .dataWidth_t             (dataWidth_t           ),
     .setWidth_t              (setWidth_t            ),
     .tagWidth_t              (tagWidth_t            ),
     .wayIndexWidth_t         (wayIndexWidth_t       ),
@@ -264,6 +271,7 @@ rc_wrapper # (
 
 write_buffer # (
     .Cfg                     (Cfg                   ),
+    .dataWidth_t             (dataWidth_t           ),
     .setWidth_t              (setWidth_t            ),
     .tagWidth_t              (tagWidth_t            ),
     .wayIndexWidth_t         (wayIndexWidth_t       ),
@@ -288,7 +296,7 @@ write_buffer # (
     .rc_rsp_data             (wbuf_rsp_data         )
 );
 
-mc_wrapper # (
+mc_wrapper_banked # (
     .Cfg                     (Cfg                   ),
     .setWidth_t              (setWidth_t            ),
     .tagWidth_t              (tagWidth_t            ),

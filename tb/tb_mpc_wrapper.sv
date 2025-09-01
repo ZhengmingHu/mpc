@@ -19,6 +19,7 @@ module tb_mpc_wrapper;
      mcSize:4
  };
 parameter mpc_cfg_t Cfg = mpcBuildConfig(UserCfg);
+parameter type clWidth_t       = logic [Cfg.u.clWidth-1:0];
 parameter type opWidth_t       = logic [Cfg.u.opWidth-1:0];
 parameter type dataWidth_t     = logic [Cfg.u.clWordWidth-1:0];
 parameter type addrWidth_t     = logic [Cfg.u.addrWidth-1:0];
@@ -133,6 +134,7 @@ end
 
 mpc_wrapper # (
     .Cfg                       (Cfg                      ),
+    .clWidth_t                 (clWidth_t                ),
     .opWidth_t                 (opWidth_t                ),
     .dataWidth_t               (dataWidth_t              ),
     .addrWidth_t               (addrWidth_t              ),

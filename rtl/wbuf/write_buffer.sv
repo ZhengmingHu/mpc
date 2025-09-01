@@ -1,7 +1,8 @@
 module write_buffer_entry
     import mpc_types::*;
 #(
-    parameter mpc_cfg_t Cfg = '0,   
+    parameter mpc_cfg_t Cfg = '0,
+    parameter type dataWidth_t     = logic,   
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -18,23 +19,23 @@ module write_buffer_entry
     input  logic                        rst_n                      ,
 
     input  logic                        enq_valid                  ,
-    input  logic            [127: 0]    enq_wdata                  ,
+    input  dataWidth_t                  enq_wdata                  ,
 
     input  logic                        deq_valid                  ,
     output logic                        deq_confirm                ,
-    output logic            [127: 0]    deq_wdata           
+    output dataWidth_t                  deq_wdata           
 );
 
 logic          entry_valid_en;
 logic          entry_valid_nxt;
 logic          entry_valid;
-logic [127: 0] entry_wdata;
+dataWidth_t    entry_wdata;
 
 assign entry_valid_en  = enq_valid | deq_valid;
 assign entry_valid_nxt = enq_valid & !deq_valid; 
 
 ns_gnrl_dfflr # (  1) entry_valid_dfflr (entry_valid_en, entry_valid_nxt, entry_valid, clk, rst_n);
-ns_gnrl_dfflr # (128) entry_wdata_dfflr (enq_valid, enq_wdata, entry_wdata, clk, rst_n);
+ns_gnrl_dfflr # ($bits(dataWidth_t)) entry_wdata_dfflr (enq_valid, enq_wdata, entry_wdata, clk, rst_n);
 
 assign deq_confirm = deq_valid;
 assign deq_wdata = entry_wdata;
@@ -45,6 +46,7 @@ module write_buffer
     import mpc_types::*;
 #(
     parameter mpc_cfg_t Cfg = '0,   
+    parameter type dataWidth_t     = logic,
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -68,17 +70,18 @@ module write_buffer
 
     input  logic                        rc_req_valid               ,
     input  wbufWidth_t                  rc_req_id                  ,
-    output logic            [127: 0]    rc_rsp_data                
+    output dataWidth_t                  rc_rsp_data                
 );
 
-logic  [127: 0] entry_rsp_data [Cfg.u.wbufSize-1:0]; 
+dataWidth_t entry_rsp_data [Cfg.u.wbufSize-1:0]; 
 logic  [Cfg.u.wbufSize-1:0] entry_confirm;
-logic  [127: 0] rc_rsp_data_nxt;
+dataWidth_t rc_rsp_data_nxt;
 
 generate
     for (genvar i = 0; i < int'(Cfg.u.wbufSize); i = i + 1) begin
         write_buffer_entry # (
             .Cfg                               (Cfg                                ),
+            .dataWidth_t                       (dataWidth_t                        ),
             .setWidth_t                        (setWidth_t                         ),
             .tagWidth_t                        (tagWidth_t                         ),
             .wayIndexWidth_t                   (wayIndexWidth_t                    ),
@@ -102,8 +105,8 @@ generate
     end
 endgenerate
 
-ns_mux1h # (128, Cfg.u.wbufSize) rc_rsp_data_mux1h (entry_rsp_data, entry_confirm, rc_rsp_data_nxt);
-ns_gnrl_dfflr # (128) rc_rsp_data_dfflr (1'b1, rc_rsp_data_nxt, rc_rsp_data, clk, rst_n);
+ns_mux1h # ($bits(dataWidth_t), Cfg.u.wbufSize) rc_rsp_data_mux1h (entry_rsp_data, entry_confirm, rc_rsp_data_nxt);
+ns_gnrl_dfflr # ($bits(dataWidth_t)) rc_rsp_data_dfflr (1'b1, rc_rsp_data_nxt, rc_rsp_data, clk, rst_n);
 ns_gnrl_dfflr # (1) xbar_rsp_free_valid_dfflr (1'b1, rc_req_valid, xbar_rsp_free_valid, clk, rst_n);
 ns_gnrl_dfflr # (Cfg.wbufWidth) xbar_rsp_free_id_dfflr (1'b1, rc_req_id, xbar_rsp_free_id, clk, rst_n);
 

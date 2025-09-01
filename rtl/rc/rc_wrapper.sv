@@ -1,7 +1,9 @@
 module rc_wrapper 
     import mpc_types::*;
 #(
-    parameter mpc_cfg_t Cfg = '0,   
+    parameter mpc_cfg_t Cfg = '0,
+    parameter type clWidth_t       = logic,
+    parameter type dataWidth_t     = logic,   
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -33,14 +35,14 @@ module rc_wrapper
     // 2. interact with wbuf
     output logic                        wbuf_req_valid             ,   
     output wbufWidth_t                  wbuf_req_id                ,                        
-    input  logic            [127: 0]    wbuf_rsp_data              ,
+    input  dataWidth_t                  wbuf_rsp_data              ,
 
     // 3. to upstream xbar
     output logic                        u_bank_rsp_valid           ,
     input  logic                        u_bank_rsp_ready           ,
     output robWidth_t                   u_bank_rsp_rob_id          ,
     output logic            [  1: 0]    u_bank_rsp_channel_id      ,
-    output logic            [127: 0]    u_bank_rsp_data            ,
+    output dataWidth_t                  u_bank_rsp_data            ,
 
     // 4. memory controller intf
     output logic                        memctl_wvalid              ,
@@ -94,10 +96,10 @@ setWidth_t                              s1_set;
 wayIndexWidth_t                         s1_way;
 offsetWidth_t                           s1_offset;
 logic             [255: 0]              s1_refill_data;
-logic             [127: 0]              s1_refill_data_hi;
-logic             [127: 0]              s1_refill_data_lo;
+dataWidth_t                             s1_refill_data_hi;
+dataWidth_t                             s1_refill_data_lo;
 logic             [255: 0]              s1_data_array_rsp_data;
-logic             [127: 0]              s1_rdata;
+dataWidth_t                             s1_rdata;
 logic             [255: 0]              s1_wdata;
 logic             [  1: 0]              s1_wmask;
 

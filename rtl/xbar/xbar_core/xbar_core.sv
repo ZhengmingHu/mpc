@@ -1,7 +1,7 @@
 module xbar_core
     import mpc_types::*;
 #(
-    parameter mpc_cfg_t Cfg = '0,   
+    parameter mpc_cfg_t Cfg = '0,
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,

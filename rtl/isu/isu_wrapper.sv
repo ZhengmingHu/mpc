@@ -1,7 +1,8 @@
 module isu_wrapper
     import mpc_types::*;
 #(
-    parameter mpc_cfg_t Cfg = '0,   
+    parameter mpc_cfg_t Cfg = '0,
+    parameter type clWidth_t       = logic,   
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -36,7 +37,7 @@ module isu_wrapper
     input  logic                        memctl_refill_valid        ,
     output logic                        memctl_refill_ready        ,  
     input  nlineWidth_t                 memctl_refill_id           ,
-    input  logic            [255: 0]    memctl_refill_data         ,
+    input  clWidth_t                    memctl_refill_data         ,
 
     // 4. from upstream xbar credit return
     input  logic            [  2: 0]    u_xbar_crdt_rtn            ,
@@ -51,7 +52,7 @@ module isu_wrapper
     output wayIndexWidth_t              d_rc_way                   ,
     output offsetWidth_t                d_rc_offset                ,
     output wbufWidth_t                  d_rc_wbuf_id               ,
-    output logic            [255: 0]    d_rc_refill_data           ,
+    output clWidth_t                    d_rc_refill_data           ,
 
     // 6. return credit for reference counter
     output logic                        u_htu_crdt_valid           ,
@@ -147,6 +148,7 @@ lsq # (
 
 refill_buffer # (
     .Cfg                               (Cfg                                ),
+    .clWidth_t                         (clWidth_t                          ),
     .setWidth_t                        (setWidth_t                         ),
     .tagWidth_t                        (tagWidth_t                         ),
     .wayIndexWidth_t                   (wayIndexWidth_t                    ),

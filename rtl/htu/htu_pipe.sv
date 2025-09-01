@@ -2,6 +2,9 @@ module htu_pipe
     import mpc_types::*;
 #(
     parameter mpc_cfg_t Cfg = '0,   
+    parameter type opWidth_t       = logic,
+    parameter type dataWidth_t     = logic,
+    parameter type addrWidth_t     = logic,
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -31,7 +34,7 @@ module htu_pipe
     output logic                        d_isu_valid                ,
     input  logic                        d_isu_ready                ,
     output logic           [  2: 0]     d_isu_channel_1hot_id      ,
-    output logic           [  2: 0]     d_isu_op                   ,
+    output opWidth_t                    d_isu_op                   ,
     output nlineWidth_t                 d_isu_id                   ,
     output offsetWidth_t                d_isu_offset               ,
     output wbufWidth_t                  d_isu_wbuf_id              ,
@@ -40,12 +43,12 @@ module htu_pipe
     output logic                        d_memctl_awvalid           ,
     input  logic                        d_memctl_awready           ,
     output nlineWidth_t                 d_memctl_awid              ,
-    output logic           [ 31: 0]     d_memctl_awaddr            ,
+    output addrWidth_t                  d_memctl_awaddr            ,
     
     output logic                        d_memctl_arvalid           ,
     input  logic                        d_memctl_arready           ,
     output nlineWidth_t                 d_memctl_arid              ,
-    output logic           [ 31: 0]     d_memctl_araddr            ,
+    output addrWidth_t                  d_memctl_araddr            ,
 
     // 5. tag_array interface
     output logic                        tag_read_valid             ,

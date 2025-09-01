@@ -1,7 +1,8 @@
 module slice_0_memory_interface 
     import mpc_types::*;
 #(
-    parameter mpc_cfg_t Cfg = '0,   
+    parameter mpc_cfg_t Cfg = '0,
+    parameter type clWidth_t       = logic,   
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -30,7 +31,7 @@ module slice_0_memory_interface
     // 2. Slave AXI W Channel
     output  logic                       s_axi_wready               ,
     input   logic                       s_axi_wvalid               ,
-    input   logic           [255: 0]    s_axi_wdata                ,
+    input   clWidth_t                   s_axi_wdata                ,
     input   logic           [ 31: 0]    s_axi_wstrb                ,
     input   logic                       s_axi_wlast                ,
     input   logic                       s_axi_bready               ,
@@ -51,42 +52,45 @@ module slice_0_memory_interface
     input   logic                       s_axi_rready               ,
     output  logic                       s_axi_rvalid               ,
     output  nlineWidth_t                s_axi_rid                  ,
-    output  logic           [255: 0]    s_axi_rdata                ,
+    output  clWidth_t                        s_axi_rdata                ,
     output  logic           [  1: 0]    s_axi_rresp                ,
     output  logic                       s_axi_rlast  
 );
     // Import DPI-C functions - modified to use output parameter instead of return
     // import "DPI-C" function void init_slice_memory();
-    import "DPI-C" function void write_slice_0_memory(input int address, input bit [254:0] data, input bit write_en);
-    import "DPI-C" function void read_slice_0_memory(input int address, output bit [254:0] data, input bit read_en);
+    // note: need to modify parameter of cacheline width
+    import "DPI-C" function void write_slice_0_memory(input int address, input bit [Cfg.u.clWidth-1:0] data, input bit write_en);
+    import "DPI-C" function void read_slice_0_memory(input int address, output bit [Cfg.u.clWidth-1:0] data, input bit read_en);
     
     
     
 
     logic         awaddr_en;
-    logic [ 24:0] awaddr_nxt;
-    logic [ 24:0] awaddr;
+    logic [ 27:0] awaddr_nxt;
+    logic [ 27:0] awaddr;
 
     logic         wdata_en;
     logic         write_en;
-    logic [255:0] wdata;
+    clWidth_t     wdata;
 
     logic         read_en;
-    logic [ 24:0] araddr;
-    logic [255:0] rdata_nxt;
+    logic [ 27:0] araddr;
+    clWidth_t     rdata_nxt;
 
+    localparam bankMSB       = Cfg.u.addrWidth - Cfg.tagWidth - 1;
+    localparam bankLSB       = Cfg.offsetWidth + Cfg.byteWidth + Cfg.setWidth; 
     assign awaddr_en  = s_axi_awvalid && s_axi_awready;
-    assign awaddr_nxt = {s_axi_awaddr[31:10], s_axi_awaddr[7:5]};
-    ns_gnrl_dfflr # (25) awaddr_dfflr (awaddr_en, awaddr_nxt, awaddr, clk, rst_n);
+    assign awaddr_nxt = {s_axi_awaddr[31:bankMSB+1], s_axi_awaddr[bankLSB-1:2]};
+    ns_gnrl_dfflr # (28) awaddr_dfflr (awaddr_en, awaddr_nxt, awaddr, clk, rst_n);
     assign wdata_en = s_axi_wvalid && s_axi_wready;
-    ns_gnrl_dfflr # (256) wdata_dfflr (wdata_en, s_axi_wdata, wdata, clk, rst_n);
+    ns_gnrl_dfflr # ($bits(clWidth_t)) wdata_dfflr (wdata_en, s_axi_wdata, wdata, clk, rst_n);
     ns_gnrl_dfflr # (1) write_en_dfflr (1'b1, wdata_en, write_en, clk, rst_n);
     
     assign read_en = s_axi_arvalid && s_axi_arready; 
-    assign araddr = {s_axi_araddr[31:10], s_axi_araddr[7:5]};
+    assign araddr = {s_axi_araddr[31:bankMSB+1], s_axi_araddr[bankLSB-1:2]};
     ns_gnrl_dfflr # (1) rvalid_dfflr (1'b1, read_en, s_axi_rvalid, clk, rst_n);
     ns_gnrl_dfflr # (1) rlast_dfflr (1'b1, read_en, s_axi_rlast, clk, rst_n);
-    ns_gnrl_dfflr # (256) rdata_dfflr (read_en, rdata_nxt, s_axi_rdata, clk, rst_n);
+    ns_gnrl_dfflr # ($bits(clWidth_t)) rdata_dfflr (read_en, rdata_nxt, s_axi_rdata, clk, rst_n);
     ns_gnrl_dfflr # (Cfg.nlineWidth) rid_dfflr (read_en, s_axi_arid, s_axi_rid, clk, rst_n);
     assign s_axi_rresp = 'd0;
 
@@ -146,7 +150,8 @@ endmodule
 module slice_1_memory_interface 
     import mpc_types::*;
 #(
-    parameter mpc_cfg_t Cfg = '0,   
+    parameter mpc_cfg_t Cfg = '0,  
+    parameter type clWidth_t     = logic, 
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -175,7 +180,7 @@ module slice_1_memory_interface
     // 2. Slave AXI W Channel
     output  logic                       s_axi_wready               ,
     input   logic                       s_axi_wvalid               ,
-    input   logic           [255: 0]    s_axi_wdata                ,
+    input   clWidth_t                   s_axi_wdata                ,
     input   logic           [ 31: 0]    s_axi_wstrb                ,
     input   logic                       s_axi_wlast                ,
     input   logic                       s_axi_bready               ,
@@ -196,41 +201,43 @@ module slice_1_memory_interface
     input   logic                       s_axi_rready               ,
     output  logic                       s_axi_rvalid               ,
     output  nlineWidth_t                s_axi_rid                  ,
-    output  logic           [255: 0]    s_axi_rdata                ,
+    output  clWidth_t                        s_axi_rdata                ,
     output  logic           [  1: 0]    s_axi_rresp                ,
     output  logic                       s_axi_rlast  
 );
     // Import DPI-C functions - modified to use output parameter instead of return
-    import "DPI-C" function void write_slice_1_memory(input int address, input bit [254:0] data, input bit write_en);
-    import "DPI-C" function void read_slice_1_memory(input int address, output bit [254:0] data, input bit read_en);
+    import "DPI-C" function void write_slice_1_memory(input int address, input bit [Cfg.u.clWidth-1:0] data, input bit write_en);
+    import "DPI-C" function void read_slice_1_memory(input int address, output bit [Cfg.u.clWidth-1:0] data, input bit read_en);
     
     
     
 
     logic         awaddr_en;
-    logic [ 24:0] awaddr_nxt;
-    logic [ 24:0] awaddr;
+    logic [ 27:0] awaddr_nxt;
+    logic [ 27:0] awaddr;
 
     logic         wdata_en;
     logic         write_en;
-    logic [255:0] wdata;
+    clWidth_t     wdata;
 
     logic         read_en;
-    logic [ 24:0] araddr;
-    logic [255:0] rdata_nxt;
+    logic [ 27:0] araddr;
+    clWidth_t     rdata_nxt;
 
+    localparam bankMSB       = Cfg.u.addrWidth - Cfg.tagWidth - 1;
+    localparam bankLSB       = Cfg.offsetWidth + Cfg.byteWidth + Cfg.setWidth; 
     assign awaddr_en  = s_axi_awvalid && s_axi_awready;
-    assign awaddr_nxt = {s_axi_awaddr[31:10], s_axi_awaddr[7:5]};
-    ns_gnrl_dfflr # (25) awaddr_dfflr (awaddr_en, awaddr_nxt, awaddr, clk, rst_n);
+    assign awaddr_nxt = {s_axi_awaddr[31:bankMSB+1], s_axi_awaddr[bankLSB-1:2]};
+    ns_gnrl_dfflr # (28) awaddr_dfflr (awaddr_en, awaddr_nxt, awaddr, clk, rst_n);
     assign wdata_en = s_axi_wvalid && s_axi_wready;
-    ns_gnrl_dfflr # (256) wdata_dfflr (wdata_en, s_axi_wdata, wdata, clk, rst_n);
+    ns_gnrl_dfflr # ($bits(clWidth_t)) wdata_dfflr (wdata_en, s_axi_wdata, wdata, clk, rst_n);
     ns_gnrl_dfflr # (1) write_en_dfflr (1'b1, wdata_en, write_en, clk, rst_n);
     
     assign read_en = s_axi_arvalid && s_axi_arready; 
-    assign araddr = {s_axi_araddr[31:10], s_axi_araddr[7:5]};
+    assign araddr = {s_axi_araddr[31:bankMSB+1], s_axi_araddr[bankLSB-1:2]};
     ns_gnrl_dfflr # (1) rvalid_dfflr (1'b1, read_en, s_axi_rvalid, clk, rst_n);
     ns_gnrl_dfflr # (1) rlast_dfflr (1'b1, read_en, s_axi_rlast, clk, rst_n);
-    ns_gnrl_dfflr # (256) rdata_dfflr (read_en, rdata_nxt, s_axi_rdata, clk, rst_n);
+    ns_gnrl_dfflr # ($bits(clWidth_t)) rdata_dfflr (read_en, rdata_nxt, s_axi_rdata, clk, rst_n);
     ns_gnrl_dfflr # (Cfg.nlineWidth) rid_dfflr (read_en, s_axi_arid, s_axi_rid, clk, rst_n);
     assign s_axi_rresp = 'd0;
 
@@ -286,7 +293,8 @@ endmodule
 module slice_2_memory_interface 
     import mpc_types::*;
 #(
-    parameter mpc_cfg_t Cfg = '0,   
+    parameter mpc_cfg_t Cfg = '0,
+    parameter type clWidth_t       = logic,   
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -315,7 +323,7 @@ module slice_2_memory_interface
     // 2. Slave AXI W Channel
     output  logic                       s_axi_wready               ,
     input   logic                       s_axi_wvalid               ,
-    input   logic           [255: 0]    s_axi_wdata                ,
+    input   clWidth_t                   s_axi_wdata                ,
     input   logic           [ 31: 0]    s_axi_wstrb                ,
     input   logic                       s_axi_wlast                ,
     input   logic                       s_axi_bready               ,
@@ -336,41 +344,43 @@ module slice_2_memory_interface
     input   logic                       s_axi_rready               ,
     output  logic                       s_axi_rvalid               ,
     output  nlineWidth_t                s_axi_rid                  ,
-    output  logic           [255: 0]    s_axi_rdata                ,
+    output  clWidth_t                   s_axi_rdata                ,
     output  logic           [  1: 0]    s_axi_rresp                ,
     output  logic                       s_axi_rlast  
 );
     // Import DPI-C functions - modified to use output parameter instead of return
-    import "DPI-C" function void write_slice_2_memory(input int address, input bit [254:0] data, input bit write_en);
-    import "DPI-C" function void read_slice_2_memory(input int address, output bit [254:0] data, input bit read_en);
+    import "DPI-C" function void write_slice_2_memory(input int address, input bit [Cfg.u.clWidth-1:0] data, input bit write_en);
+    import "DPI-C" function void read_slice_2_memory(input int address, output bit [Cfg.u.clWidth-1:0] data, input bit read_en);
     
     
     
 
     logic         awaddr_en;
-    logic [ 24:0] awaddr_nxt;
-    logic [ 24:0] awaddr;
+    logic [ 27:0] awaddr_nxt;
+    logic [ 27:0] awaddr;
 
     logic         wdata_en;
     logic         write_en;
-    logic [255:0] wdata;
+    clWidth_t     wdata;
 
     logic         read_en;
-    logic [ 24:0] araddr;
-    logic [255:0] rdata_nxt;
+    logic [ 27:0] araddr;
+    clWidth_t     rdata_nxt;
 
+    localparam bankMSB       = Cfg.u.addrWidth - Cfg.tagWidth - 1;
+    localparam bankLSB       = Cfg.offsetWidth + Cfg.byteWidth + Cfg.setWidth; 
     assign awaddr_en  = s_axi_awvalid && s_axi_awready;
-    assign awaddr_nxt = {s_axi_awaddr[31:10], s_axi_awaddr[7:5]};
-    ns_gnrl_dfflr # (25) awaddr_dfflr (awaddr_en, awaddr_nxt, awaddr, clk, rst_n);
+    assign awaddr_nxt = {s_axi_awaddr[31:bankMSB+1], s_axi_awaddr[bankLSB-1:2]};
+    ns_gnrl_dfflr # (28) awaddr_dfflr (awaddr_en, awaddr_nxt, awaddr, clk, rst_n);
     assign wdata_en = s_axi_wvalid && s_axi_wready;
-    ns_gnrl_dfflr # (256) wdata_dfflr (wdata_en, s_axi_wdata, wdata, clk, rst_n);
+    ns_gnrl_dfflr # ($bits(clWidth_t)) wdata_dfflr (wdata_en, s_axi_wdata, wdata, clk, rst_n);
     ns_gnrl_dfflr # (1) write_en_dfflr (1'b1, wdata_en, write_en, clk, rst_n);
     
     assign read_en = s_axi_arvalid && s_axi_arready; 
-    assign araddr = {s_axi_araddr[31:10], s_axi_araddr[7:5]};
+    assign araddr = {s_axi_araddr[31:bankMSB+1], s_axi_araddr[bankLSB-1:2]};
     ns_gnrl_dfflr # (1) rvalid_dfflr (1'b1, read_en, s_axi_rvalid, clk, rst_n);
     ns_gnrl_dfflr # (1) rlast_dfflr (1'b1, read_en, s_axi_rlast, clk, rst_n);
-    ns_gnrl_dfflr # (256) rdata_dfflr (read_en, rdata_nxt, s_axi_rdata, clk, rst_n);
+    ns_gnrl_dfflr # ($bits(clWidth_t)) rdata_dfflr (read_en, rdata_nxt, s_axi_rdata, clk, rst_n);
     ns_gnrl_dfflr # (Cfg.nlineWidth) rid_dfflr (read_en, s_axi_arid, s_axi_rid, clk, rst_n);
     assign s_axi_rresp = 'd0;
 
@@ -426,7 +436,8 @@ endmodule
 module slice_3_memory_interface 
     import mpc_types::*;
 #(
-    parameter mpc_cfg_t Cfg = '0,   
+    parameter mpc_cfg_t Cfg = '0,
+    parameter type clWidth_t       = logic,   
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -455,7 +466,7 @@ module slice_3_memory_interface
     // 2. Slave AXI W Channel
     output  logic                       s_axi_wready               ,
     input   logic                       s_axi_wvalid               ,
-    input   logic           [255: 0]    s_axi_wdata                ,
+    input   clWidth_t                   s_axi_wdata                ,
     input   logic           [ 31: 0]    s_axi_wstrb                ,
     input   logic                       s_axi_wlast                ,
     input   logic                       s_axi_bready               ,
@@ -476,41 +487,43 @@ module slice_3_memory_interface
     input   logic                       s_axi_rready               ,
     output  logic                       s_axi_rvalid               ,
     output  nlineWidth_t                s_axi_rid                  ,
-    output  logic           [255: 0]    s_axi_rdata                ,
+    output  clWidth_t                   s_axi_rdata                ,
     output  logic           [  1: 0]    s_axi_rresp                ,
     output  logic                       s_axi_rlast  
 );
     // Import DPI-C functions - modified to use output parameter instead of return
-    import "DPI-C" function void write_slice_3_memory(input int address, input bit [254:0] data, input bit write_en);
-    import "DPI-C" function void read_slice_3_memory(input int address, output bit [254:0] data, input bit read_en);
+    import "DPI-C" function void write_slice_3_memory(input int address, input bit [Cfg.u.clWidth-1:0] data, input bit write_en);
+    import "DPI-C" function void read_slice_3_memory(input int address, output bit [Cfg.u.clWidth-1:0] data, input bit read_en);
     
     
     
 
     logic         awaddr_en;
-    logic [ 24:0] awaddr_nxt;
-    logic [ 24:0] awaddr;
+    logic [ 27:0] awaddr_nxt;
+    logic [ 27:0] awaddr;
 
     logic         wdata_en;
     logic         write_en;
-    logic [255:0] wdata;
+    clWidth_t     wdata;
 
     logic         read_en;
-    logic [ 24:0] araddr;
-    logic [255:0] rdata_nxt;
+    logic [ 27:0] araddr;
+    clWidth_t     rdata_nxt;
 
+    localparam bankMSB       = Cfg.u.addrWidth - Cfg.tagWidth - 1;
+    localparam bankLSB       = Cfg.offsetWidth + Cfg.byteWidth + Cfg.setWidth; 
     assign awaddr_en  = s_axi_awvalid && s_axi_awready;
-    assign awaddr_nxt = {s_axi_awaddr[31:10], s_axi_awaddr[7:5]};
-    ns_gnrl_dfflr # (25) awaddr_dfflr (awaddr_en, awaddr_nxt, awaddr, clk, rst_n);
+    assign awaddr_nxt = {s_axi_awaddr[31:bankMSB+1], s_axi_awaddr[bankLSB-1:2]};
+    ns_gnrl_dfflr # (28) awaddr_dfflr (awaddr_en, awaddr_nxt, awaddr, clk, rst_n);
     assign wdata_en = s_axi_wvalid && s_axi_wready;
-    ns_gnrl_dfflr # (256) wdata_dfflr (wdata_en, s_axi_wdata, wdata, clk, rst_n);
+    ns_gnrl_dfflr # ($bits(clWidth_t)) wdata_dfflr (wdata_en, s_axi_wdata, wdata, clk, rst_n);
     ns_gnrl_dfflr # (1) write_en_dfflr (1'b1, wdata_en, write_en, clk, rst_n);
     
     assign read_en = s_axi_arvalid && s_axi_arready; 
-    assign araddr = {s_axi_araddr[31:10], s_axi_araddr[7:5]};
+    assign araddr = {s_axi_araddr[31:bankMSB+1], s_axi_araddr[bankLSB-1:2]};
     ns_gnrl_dfflr # (1) rvalid_dfflr (1'b1, read_en, s_axi_rvalid, clk, rst_n);
     ns_gnrl_dfflr # (1) rlast_dfflr (1'b1, read_en, s_axi_rlast, clk, rst_n);
-    ns_gnrl_dfflr # (256) rdata_dfflr (read_en, rdata_nxt, s_axi_rdata, clk, rst_n);
+    ns_gnrl_dfflr # ($bits(clWidth_t)) rdata_dfflr (read_en, rdata_nxt, s_axi_rdata, clk, rst_n);
     ns_gnrl_dfflr # (Cfg.nlineWidth) rid_dfflr (read_en, s_axi_arid, s_axi_rid, clk, rst_n);
     assign s_axi_rresp = 'd0;
 

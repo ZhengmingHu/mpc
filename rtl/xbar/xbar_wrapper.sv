@@ -327,6 +327,7 @@ robWidth_t                   u_channel_2_rsp_rob_id                         ;
 
 rtn_xbar_core # (
     .Cfg                               (Cfg                                ),
+    .dataWidth_t                       (dataWidth_t                        ),
     .setWidth_t                        (setWidth_t                         ),
     .tagWidth_t                        (tagWidth_t                         ),
     .wayIndexWidth_t                   (wayIndexWidth_t                    ),
@@ -401,6 +402,7 @@ kob # (
 
 rob_wrapper # (
     .Cfg                               (Cfg                                ),
+    .dataWidth_t                       (dataWidth_t                        ),
     .setWidth_t                        (setWidth_t                         ),
     .tagWidth_t                        (tagWidth_t                         ),
     .wayIndexWidth_t                   (wayIndexWidth_t                    ),
@@ -432,6 +434,7 @@ rob_wrapper # (
 
 rob_wrapper # (
     .Cfg                               (Cfg                                ),
+    .dataWidth_t                       (dataWidth_t                        ),
     .setWidth_t                        (setWidth_t                         ),
     .tagWidth_t                        (tagWidth_t                         ),
     .wayIndexWidth_t                   (wayIndexWidth_t                    ),
@@ -463,6 +466,7 @@ rob_wrapper # (
 
 rob_wrapper # (
     .Cfg                               (Cfg                                ),
+    .dataWidth_t                       (dataWidth_t                        ),
     .setWidth_t                        (setWidth_t                         ),
     .tagWidth_t                        (tagWidth_t                         ),
     .wayIndexWidth_t                   (wayIndexWidth_t                    ),

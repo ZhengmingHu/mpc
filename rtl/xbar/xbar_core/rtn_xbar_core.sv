@@ -2,6 +2,7 @@ module rtn_xbar_core
     import mpc_types::*;
 #(
     parameter mpc_cfg_t Cfg = '0,   
+    parameter type dataWidth_t     = logic,
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -19,43 +20,43 @@ module rtn_xbar_core
 
     input  logic                        d_bank_0_rsp_valid         ,
     output logic                        d_bank_0_rsp_ready         ,
-    input  logic          [127: 0]      d_bank_0_rsp_data          ,
+    input  dataWidth_t                  d_bank_0_rsp_data          ,
     input  logic          [  1: 0]      d_bank_0_rsp_channel_id    ,
     input  robWidth_t                   d_bank_0_rsp_rob_id        ,
 
     input  logic                        d_bank_1_rsp_valid         ,
     output logic                        d_bank_1_rsp_ready         ,
-    input  logic          [127: 0]      d_bank_1_rsp_data          ,
+    input  dataWidth_t                  d_bank_1_rsp_data          ,
     input  logic          [  1: 0]      d_bank_1_rsp_channel_id    ,
     input  robWidth_t                   d_bank_1_rsp_rob_id        ,
 
     input  logic                        d_bank_2_rsp_valid         ,
     output logic                        d_bank_2_rsp_ready         ,
-    input  logic          [127: 0]      d_bank_2_rsp_data          ,
+    input  dataWidth_t                  d_bank_2_rsp_data          ,
     input  logic          [  1: 0]      d_bank_2_rsp_channel_id    ,
     input  robWidth_t                   d_bank_2_rsp_rob_id        ,
 
     input  logic                        d_bank_3_rsp_valid         ,
     output logic                        d_bank_3_rsp_ready         ,
-    input  logic          [127: 0]      d_bank_3_rsp_data          ,
+    input  dataWidth_t                  d_bank_3_rsp_data          ,
     input  logic          [  1: 0]      d_bank_3_rsp_channel_id    ,
     input  robWidth_t                   d_bank_3_rsp_rob_id        ,
 
     output logic                        u_channel_0_rsp_valid      ,
     input  logic                        u_channel_0_rsp_ready      ,
-    output logic          [127: 0]      u_channel_0_rsp_data       ,
+    output dataWidth_t                  u_channel_0_rsp_data       ,
     output logic          [  1: 0]      u_channel_0_rsp_bank_id    ,
     output robWidth_t                   u_channel_0_rsp_rob_id     ,
 
     output logic                        u_channel_1_rsp_valid      ,
     input  logic                        u_channel_1_rsp_ready      ,
-    output logic          [127: 0]      u_channel_1_rsp_data       ,
+    output dataWidth_t                  u_channel_1_rsp_data       ,
     output logic          [  1: 0]      u_channel_1_rsp_bank_id    ,
     output robWidth_t                   u_channel_1_rsp_rob_id     ,
 
     output logic                        u_channel_2_rsp_valid      ,
     input  logic                        u_channel_2_rsp_ready      ,
-    output logic          [127: 0]      u_channel_2_rsp_data       ,
+    output dataWidth_t                  u_channel_2_rsp_data       ,
     output logic          [  1: 0]      u_channel_2_rsp_bank_id    ,
     output robWidth_t                   u_channel_2_rsp_rob_id
 );
@@ -107,9 +108,9 @@ logic            [  7: 0]    bank_3_ch_0_r_entry_1hot_id        ;
 logic            [  7: 0]    bank_3_ch_1_r_entry_1hot_id        ;
 logic            [  7: 0]    bank_3_ch_2_r_entry_1hot_id        ;
 
-logic            [127: 0]    u_ch_0_bank_rsp_data;
-logic            [127: 0]    u_ch_1_bank_rsp_data;
-logic            [127: 0]    u_ch_2_bank_rsp_data;
+dataWidth_t                  u_ch_0_bank_rsp_data;
+dataWidth_t                  u_ch_1_bank_rsp_data;
+dataWidth_t                  u_ch_2_bank_rsp_data;
 
 robWidth_t                   u_ch_0_bank_rsp_rob_id;
 robWidth_t                   u_ch_1_bank_rsp_rob_id;
@@ -129,6 +130,7 @@ rtn_xbar_ptr_gen u_rtn_xbar_ptr_gen (
 
 rtn_xbar_buffer # (  
         .Cfg                               (Cfg                                ),
+        .dataWidth_t                       (dataWidth_t                        ),
         .setWidth_t                        (setWidth_t                         ),
         .tagWidth_t                        (tagWidth_t                         ),
         .wayIndexWidth_t                   (wayIndexWidth_t                    ),

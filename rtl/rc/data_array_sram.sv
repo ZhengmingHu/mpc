@@ -62,7 +62,7 @@ mpc_sram # (
 mpc_sram # (
     .ADDR_SIZE                         (Cfg.setWidth                       ),
     .DATA_SIZE                         (128                                )
-) u_mpc_sram_1s (
+) u_mpc_sram_1 (
     .clk                               (clk                                ),
     .rst_n                             (rst_n                              ),
     .cs                                (cs[1]                              ),

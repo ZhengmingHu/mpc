@@ -2,6 +2,7 @@ module rob_wrapper
     import mpc_types::*;
 #(
     parameter mpc_cfg_t Cfg = '0,   
+    parameter type dataWidth_t     = logic,
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -23,12 +24,12 @@ module rob_wrapper
 
     input  logic                               d_rc_valid                 ,
     input  robWidth_t                          d_rc_rob_id                ,
-    input  logic           [127: 0]            d_rc_data                  ,
+    input  dataWidth_t                         d_rc_data                  ,
     input  logic           [  1: 0]            d_rc_bank_id               ,
 
     output logic                               u_ch_valid                 ,
     input  logic                               u_ch_ready                 ,
-    output logic           [127: 0]            u_ch_data                  ,
+    output dataWidth_t                         u_ch_data                  ,
 
     output logic                               d_bank_0_crdt_rtn          ,
     output logic                               d_bank_1_crdt_rtn          ,
@@ -38,10 +39,11 @@ module rob_wrapper
 
 logic                      [  3: 0]            kob_rob_ack;
 logic                      [  3: 0]            ch_valid;
-logic                      [127: 0]            ch_data        [  3: 0];
+dataWidth_t                                    ch_data        [  3: 0];
   
 rob # (
     .Cfg                               (Cfg                       ),
+    .dataWidth_t                       (dataWidth_t               ),
     .setWidth_t                        (setWidth_t                ),
     .tagWidth_t                        (tagWidth_t                ),
     .wayIndexWidth_t                   (wayIndexWidth_t           ),
@@ -72,6 +74,7 @@ rob # (
 
 rob # (
     .Cfg                               (Cfg                       ),
+    .dataWidth_t                       (dataWidth_t               ),
     .setWidth_t                        (setWidth_t                ),
     .tagWidth_t                        (tagWidth_t                ),
     .wayIndexWidth_t                   (wayIndexWidth_t           ),
@@ -101,6 +104,7 @@ rob # (
 
 rob # (
     .Cfg                               (Cfg                       ),
+    .dataWidth_t                       (dataWidth_t               ),
     .setWidth_t                        (setWidth_t                ),
     .tagWidth_t                        (tagWidth_t                ),
     .wayIndexWidth_t                   (wayIndexWidth_t           ),
@@ -130,6 +134,7 @@ rob # (
 
 rob # (
     .Cfg                               (Cfg                       ),
+    .dataWidth_t                       (dataWidth_t               ),
     .setWidth_t                        (setWidth_t                ),
     .tagWidth_t                        (tagWidth_t                ),
     .wayIndexWidth_t                   (wayIndexWidth_t           ),

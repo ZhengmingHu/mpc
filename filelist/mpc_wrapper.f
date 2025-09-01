@@ -41,7 +41,7 @@
 ../rtl/rc/data_array_sram.sv
 ../rtl/rc/data_array.sv
 ../rtl/rc/rc_wrapper.sv
-../rtl/mc/mc_wrapper.sv
+../rtl/mc/mc_wrapper_banked.sv
 ../rtl/wbuf/write_buffer.sv
 ../tb/mem_model/mem_intf.sv
 ../rtl/slice/slice.sv

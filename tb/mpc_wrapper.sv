@@ -1,7 +1,8 @@
 module mpc_wrapper 
     import mpc_types::*;
 #(
-    parameter mpc_cfg_t Cfg = '0,   
+    parameter mpc_cfg_t Cfg = '0, 
+    parameter type clWidth_t       = logic,  
     parameter type opWidth_t       = logic,
     parameter type dataWidth_t     = logic,
     parameter type addrWidth_t     = logic,
@@ -59,7 +60,7 @@ logic           [  2: 0]     slice_0_axi_awsize  ;
 logic           [  1: 0]     slice_0_axi_awburst ;
 logic                        slice_0_axi_wready  ;
 logic                        slice_0_axi_wvalid  ;
-logic           [255: 0]     slice_0_axi_wdata   ;
+clWidth_t                    slice_0_axi_wdata   ;
 logic           [ 31: 0]     slice_0_axi_wstrb   ;
 logic                        slice_0_axi_wlast   ;
 logic                        slice_0_axi_bready  ;
@@ -76,7 +77,7 @@ logic           [  1: 0]     slice_0_axi_arburst ;
 logic                        slice_0_axi_rready  ;
 logic                        slice_0_axi_rvalid  ;
 nlineWidth_t                 slice_0_axi_rid     ;
-logic           [255: 0]     slice_0_axi_rdata   ;
+clWidth_t                    slice_0_axi_rdata   ;
 logic           [  1: 0]     slice_0_axi_rresp   ;
 logic                        slice_0_axi_rlast   ;
 logic                        slice_1_axi_awready ;
@@ -88,7 +89,7 @@ logic           [  2: 0]     slice_1_axi_awsize  ;
 logic           [  1: 0]     slice_1_axi_awburst ;
 logic                        slice_1_axi_wready  ;
 logic                        slice_1_axi_wvalid  ;
-logic           [255: 0]     slice_1_axi_wdata   ;
+clWidth_t                    slice_1_axi_wdata   ;
 logic           [ 31: 0]     slice_1_axi_wstrb   ;
 logic                        slice_1_axi_wlast   ;
 logic                        slice_1_axi_bready  ;
@@ -105,7 +106,7 @@ logic           [  1: 0]     slice_1_axi_arburst ;
 logic                        slice_1_axi_rready  ;
 logic                        slice_1_axi_rvalid  ;
 nlineWidth_t                 slice_1_axi_rid     ;
-logic           [255: 0]     slice_1_axi_rdata   ;
+clWidth_t                    slice_1_axi_rdata   ;
 logic           [  1: 0]     slice_1_axi_rresp   ;
 logic                        slice_1_axi_rlast   ;
 logic                        slice_2_axi_awready ;
@@ -117,7 +118,7 @@ logic           [  2: 0]     slice_2_axi_awsize  ;
 logic           [  1: 0]     slice_2_axi_awburst ;
 logic                        slice_2_axi_wready  ;
 logic                        slice_2_axi_wvalid  ;
-logic           [255: 0]     slice_2_axi_wdata   ;
+clWidth_t                    slice_2_axi_wdata   ;
 logic           [ 31: 0]     slice_2_axi_wstrb   ;
 logic                        slice_2_axi_wlast   ;
 logic                        slice_2_axi_bready  ;
@@ -134,7 +135,7 @@ logic           [  1: 0]     slice_2_axi_arburst ;
 logic                        slice_2_axi_rready  ;
 logic                        slice_2_axi_rvalid  ;
 nlineWidth_t                 slice_2_axi_rid     ;
-logic           [255: 0]     slice_2_axi_rdata   ;
+clWidth_t                    slice_2_axi_rdata   ;
 logic           [  1: 0]     slice_2_axi_rresp   ;
 logic                        slice_2_axi_rlast   ;
 logic                        slice_3_axi_awready ;
@@ -146,7 +147,7 @@ logic           [  2: 0]     slice_3_axi_awsize  ;
 logic           [  1: 0]     slice_3_axi_awburst ;
 logic                        slice_3_axi_wready  ;
 logic                        slice_3_axi_wvalid  ;
-logic           [255: 0]     slice_3_axi_wdata   ;
+clWidth_t                    slice_3_axi_wdata   ;
 logic           [ 31: 0]     slice_3_axi_wstrb   ;
 logic                        slice_3_axi_wlast   ;
 logic                        slice_3_axi_bready  ;
@@ -163,7 +164,7 @@ logic           [  1: 0]     slice_3_axi_arburst ;
 logic                        slice_3_axi_rready  ;
 logic                        slice_3_axi_rvalid  ;
 nlineWidth_t                 slice_3_axi_rid     ;
-logic           [255: 0]     slice_3_axi_rdata   ;
+clWidth_t                    slice_3_axi_rdata   ;
 logic           [  1: 0]     slice_3_axi_rresp   ;
 logic                        slice_3_axi_rlast   ;
 
@@ -171,6 +172,7 @@ logic                        slice_3_axi_rlast   ;
 mpc # (
     .Cfg                       (Cfg                      ),
     .opWidth_t                 (opWidth_t                ),
+    .clWidth_t                 (clWidth_t                ),
     .dataWidth_t               (dataWidth_t              ),
     .addrWidth_t               (addrWidth_t              ),
     .setWidth_t                (setWidth_t               ),
@@ -329,7 +331,8 @@ mpc # (
 );
 
 slice_0_memory_interface # (
-    .Cfg                               (Cfg                ),      
+    .Cfg                               (Cfg                ),     
+    .clWidth_t                         (clWidth_t          ), 
     .setWidth_t                        (setWidth_t         ),      
     .tagWidth_t                        (tagWidth_t         ),      
     .wayIndexWidth_t                   (wayIndexWidth_t    ),      
@@ -378,7 +381,8 @@ slice_0_memory_interface # (
 );
 
 slice_1_memory_interface # (
-    .Cfg                               (Cfg                ),      
+    .Cfg                               (Cfg                ),
+    .clWidth_t                         (clWidth_t          ),       
     .setWidth_t                        (setWidth_t         ),      
     .tagWidth_t                        (tagWidth_t         ),      
     .wayIndexWidth_t                   (wayIndexWidth_t    ),      
@@ -427,7 +431,8 @@ slice_1_memory_interface # (
 );
 
 slice_2_memory_interface # (
-    .Cfg                               (Cfg                ),      
+    .Cfg                               (Cfg                ),  
+    .clWidth_t                         (clWidth_t          ),     
     .setWidth_t                        (setWidth_t         ),      
     .tagWidth_t                        (tagWidth_t         ),      
     .wayIndexWidth_t                   (wayIndexWidth_t    ),      
@@ -476,7 +481,8 @@ slice_2_memory_interface # (
 );
 
 slice_3_memory_interface # (
-    .Cfg                               (Cfg                ),      
+    .Cfg                               (Cfg                ),
+    .clWidth_t                         (clWidth_t          ),       
     .setWidth_t                        (setWidth_t         ),      
     .tagWidth_t                        (tagWidth_t         ),      
     .wayIndexWidth_t                   (wayIndexWidth_t    ),      

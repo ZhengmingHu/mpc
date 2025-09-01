@@ -3,6 +3,7 @@ module mpc
 #(
     parameter mpc_cfg_t Cfg = '0,   
     parameter type opWidth_t       = logic,
+    parameter type clWidth_t       = logic,
     parameter type dataWidth_t     = logic,
     parameter type addrWidth_t     = logic,
     parameter type setWidth_t      = logic,
@@ -226,22 +227,22 @@ logic                        bank_3_wbuf_rsp_free_valid;
 wbufWidth_t                  bank_3_wbuf_rsp_free_id   ;
 logic                        bank_0_rsp_valid          ;
 logic                        bank_0_rsp_ready          ;
-logic         [127: 0]       bank_0_rsp_data           ;
+dataWidth_t                  bank_0_rsp_data           ;
 robWidth_t                   bank_0_rsp_rob_id         ;
 logic         [  1: 0]       bank_0_rsp_channel_id     ;
 logic                        bank_1_rsp_valid          ;
 logic                        bank_1_rsp_ready          ;
-logic         [127: 0]       bank_1_rsp_data           ;
+dataWidth_t                  bank_1_rsp_data           ;
 robWidth_t                   bank_1_rsp_rob_id         ;
 logic         [  1: 0]       bank_1_rsp_channel_id     ;
 logic                        bank_2_rsp_valid          ;
 logic                        bank_2_rsp_ready          ;
-logic         [127: 0]       bank_2_rsp_data           ;
+dataWidth_t                  bank_2_rsp_data           ;
 robWidth_t                   bank_2_rsp_rob_id         ;
 logic         [  1: 0]       bank_2_rsp_channel_id     ;
 logic                        bank_3_rsp_valid          ;
 logic                        bank_3_rsp_ready          ;
-logic         [127: 0]       bank_3_rsp_data           ;
+dataWidth_t                  bank_3_rsp_data           ;
 robWidth_t                   bank_3_rsp_rob_id         ;
 logic         [  1: 0]       bank_3_rsp_channel_id     ;
 logic         [  2: 0]       bank_0_crdt_rtn           ;
@@ -350,6 +351,7 @@ xbar_wrapper # (
 slice # (
     .Cfg                            (Cfg                        ),
     .opWidth_t                      (opWidth_t                  ),
+    .clWidth_t                      (clWidth_t                  ),
     .dataWidth_t                    (dataWidth_t                ),
     .addrWidth_t                    (addrWidth_t                ),
     .setWidth_t                     (setWidth_t                 ),
@@ -418,6 +420,7 @@ slice # (
 slice # (
     .Cfg                            (Cfg                        ),
     .opWidth_t                      (opWidth_t                  ),
+    .clWidth_t                      (clWidth_t                  ),
     .dataWidth_t                    (dataWidth_t                ),
     .addrWidth_t                    (addrWidth_t                ),
     .setWidth_t                     (setWidth_t                 ),
@@ -486,6 +489,7 @@ slice # (
 slice # (
     .Cfg                            (Cfg                        ),
     .opWidth_t                      (opWidth_t                  ),
+    .clWidth_t                      (clWidth_t                  ),
     .dataWidth_t                    (dataWidth_t                ),
     .addrWidth_t                    (addrWidth_t                ),
     .setWidth_t                     (setWidth_t                 ),
@@ -554,6 +558,7 @@ slice # (
 slice # (
     .Cfg                            (Cfg                        ),
     .opWidth_t                      (opWidth_t                  ),
+    .clWidth_t                      (clWidth_t                  ),
     .dataWidth_t                    (dataWidth_t                ),
     .addrWidth_t                    (addrWidth_t                ),
     .setWidth_t                     (setWidth_t                 ),
