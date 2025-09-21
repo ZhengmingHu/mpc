@@ -28,11 +28,12 @@ endif
 # TEST_CASE ?= rtn_xbar_core
 # TEST_CASE ?= kob
 # TEST_CASE ?= isu
-# TEST_CASE ?= rc_wrapper
+TEST_CASE ?= rc_wrapper
 # TEST_CASE ?= write_buffer
 # TEST_CASE ?= mc_wrapper
 # TEST_CASE ?= extmem
-TEST_CASE ?= mpc_wrapper
+# TEST_CASE ?= mpc_wrapper
+# TEST_CASE ?= mem_intf_arbiter
 
 
 ##*****************************************************##
@@ -95,6 +96,8 @@ vcs_compile:
 		-deraceclockdata \
 		-LDFLAGS "-Wl,-rpath,." \
 		-CFLAGS "--std=c99 -fno-extended-identifiers -I${VCS_HOME}/include" \
+		+lint=TFIPC-L \
+		+lint=PCWM \
 		+incdir+$(INC_DIR) \
 		-daidir=$(BUILD_DIR)/simv.daidir -Mdir=$(BUILD_DIR)/csrc \
 		-l $(BUILD_DIR)/compile.log -f $(FILELIST)	

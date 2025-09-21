@@ -25,6 +25,8 @@ module slice
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
 
+    input  logic            [  1: 0]    bank_id                    ,   
+
     // 1. from upstream req
     input  logic                        u_bank_req_valid           ,
     output logic                        u_bank_req_ready           ,
@@ -49,7 +51,7 @@ module slice
     // 4. Master AXI AW Channel
     input  logic                        m_axi_awready              ,    
     output logic                        m_axi_awvalid              ,    
-    output nlineWidth_t                 m_axi_awid                 ,    
+    output logic           [  1: 0]     m_axi_awid                 ,    
     output logic           [ 31: 0]     m_axi_awaddr               ,    
     output logic           [  7: 0]     m_axi_awlen                ,    
     output logic           [  2: 0]     m_axi_awsize               ,    
@@ -63,13 +65,13 @@ module slice
     output logic                        m_axi_wlast                ,    
     output logic                        m_axi_bready               ,    
     input  logic                        m_axi_bvalid               ,    
-    input  nlineWidth_t                 m_axi_bid                  ,    
+    input  logic           [  1: 0]     m_axi_bid                  ,    
     input  logic           [  1: 0]     m_axi_bresp                ,
 
     // 6. Master AXI AR Channel
     input  logic                        m_axi_arready              ,   
     output logic                        m_axi_arvalid              ,   
-    output nlineWidth_t                 m_axi_arid                 ,   
+    output logic           [  1: 0]     m_axi_arid                 ,   
     output logic           [ 31: 0]     m_axi_araddr               ,   
     output logic           [  7: 0]     m_axi_arlen                ,   
     output logic           [  2: 0]     m_axi_arsize               ,   
@@ -78,7 +80,7 @@ module slice
     // 7. Master AXI R Channel
     output logic                        m_axi_rready               ,           
     input  logic                        m_axi_rvalid               ,           
-    input  nlineWidth_t                 m_axi_rid                  ,           
+    input  logic           [  1: 0]     m_axi_rid                  ,           
     input  logic           [255: 0]     m_axi_rdata                ,           
     input  logic           [  1: 0]     m_axi_rresp                ,           
     input  logic                        m_axi_rlast                            
@@ -296,8 +298,10 @@ write_buffer # (
     .rc_rsp_data             (wbuf_rsp_data         )
 );
 
-mc_wrapper_banked # (
+mc_wrapper # (
     .Cfg                     (Cfg                   ),
+    .clWidth_t               (clWidth_t             ),
+    .addrWidth_t             (addrWidth_t           ),
     .setWidth_t              (setWidth_t            ),
     .tagWidth_t              (tagWidth_t            ),
     .wayIndexWidth_t         (wayIndexWidth_t       ),
@@ -313,22 +317,23 @@ mc_wrapper_banked # (
 ) u_mc_wrapper (
     .clk                     (clk                   ),
     .rst_n                   (rst_n                 ),
-    .awvalid                 (memctl_awvalid        ),
-    .awready                 (memctl_awready        ),
-    .awid                    (memctl_awid           ),
-    .awaddr                  (memctl_awaddr         ),
-    .wvalid                  (memctl_wvalid         ),
-    .wready                  (memctl_wready         ),
-    .wid                     (memctl_wid            ),
-    .wdata                   (memctl_wdata          ),
-    .arvalid                 (memctl_arvalid        ),
-    .arready                 (memctl_arready        ),
-    .arid                    (memctl_arid           ),
-    .araddr                  (memctl_araddr         ),
-    .rvalid                  (memctl_rvalid         ),
-    .rready                  (memctl_rready         ),
-    .rid                     (memctl_rid            ),
-    .rdata                   (memctl_rdata          ),
+    .bank_id                 (bank_id               ),
+    .s_axi_awvalid           (memctl_awvalid        ),
+    .s_axi_awready           (memctl_awready        ),
+    .s_axi_awid              (memctl_awid           ),
+    .s_axi_awaddr            (memctl_awaddr         ),
+    .s_axi_wvalid            (memctl_wvalid         ),
+    .s_axi_wready            (memctl_wready         ),
+    .s_axi_wid               (memctl_wid            ),
+    .s_axi_wdata             (memctl_wdata          ),
+    .s_axi_arvalid           (memctl_arvalid        ),
+    .s_axi_arready           (memctl_arready        ),
+    .s_axi_arid              (memctl_arid           ),
+    .s_axi_araddr            (memctl_araddr         ),
+    .s_axi_rvalid            (memctl_rvalid         ),
+    .s_axi_rready            (memctl_rready         ),
+    .s_axi_rid               (memctl_rid            ),
+    .s_axi_rdata             (memctl_rdata          ),
     .m_axi_awready           (m_axi_awready         ),
     .m_axi_awvalid           (m_axi_awvalid         ),
     .m_axi_awid              (m_axi_awid            ),

@@ -2,8 +2,10 @@ module tb_mc_wrapper;
     import mpc_types::*;
 
  parameter mpc_user_cfg_t UserCfg = '{
+     opWidth:3,
      clWidth:256,
      clWordWidth:128,
+     addrWidth:32,
      sets:8,
      banks:4,
      ways:4,
@@ -14,7 +16,10 @@ module tb_mc_wrapper;
      rfbufSize:16,
      mcSize:4
  };
+
 parameter mpc_cfg_t Cfg = mpcBuildConfig(UserCfg);
+parameter type clWidth_t       = logic [Cfg.u.clWidth-1:0];
+parameter type addrWidth_t     = logic [Cfg.u.addrWidth-1:0];
 parameter type setWidth_t      = logic [Cfg.setWidth-1:0];
 parameter type tagWidth_t      = logic [Cfg.tagWidth-1:0];
 parameter type wayIndexWidth_t = logic [Cfg.wayIndexWidth-1:0];
@@ -32,29 +37,31 @@ parameter type mcWidth_t       = logic [Cfg.mcWidth-1:0];
 logic                        clk                        ;
 logic                        rst_n                      ;
 
-logic                        awvalid                    ;
-logic                        awready                    ;
-nlineWidth_t                 awid                       ;
-logic           [ 31: 0]     awaddr                     ;
+logic           [  1: 0]     bank_id                    ;
 
-logic                        wvalid                     ;
-logic                        wready                     ;
-nlineWidth_t                 wid                        ;
-logic           [255: 0]     wdata                      ;
+logic                        s_axi_awvalid              ;
+logic                        s_axi_awready              ;
+nlineWidth_t                 s_axi_awid                 ;
+logic           [ 31: 0]     s_axi_awaddr               ;
 
-logic                        arvalid                    ;
-logic                        arready                    ;
-nlineWidth_t                 arid                       ;
-logic           [ 31: 0]     araddr                     ;
+logic                        s_axi_wvalid               ;
+logic                        s_axi_wready               ;
+nlineWidth_t                 s_axi_wid                  ;
+logic           [255: 0]     s_axi_wdata                ;
 
-logic                        rvalid                     ;
-logic                        rready                     ;
-nlineWidth_t                 rid                        ;
-logic           [255: 0]     rdata                      ;
+logic                        s_axi_arvalid              ;
+logic                        s_axi_arready              ;
+nlineWidth_t                 s_axi_arid                 ;
+logic           [ 31: 0]     s_axi_araddr               ;
+
+logic                        s_axi_rvalid               ;
+logic                        s_axi_rready               ;
+nlineWidth_t                 s_axi_rid                  ;
+logic           [255: 0]     s_axi_rdata                ;
 
 logic                        m_axi_awready              ;
 logic                        m_axi_awvalid              ;
-nlineWidth_t                 m_axi_awid                 ;
+logic           [  1: 0]     m_axi_awid                 ;
 logic           [ 31: 0]     m_axi_awaddr               ;
 logic           [  7: 0]     m_axi_awlen                ;
 logic           [  2: 0]     m_axi_awsize               ;
@@ -67,12 +74,12 @@ logic           [ 31: 0]     m_axi_wstrb                ;
 logic                        m_axi_wlast                ;
 logic                        m_axi_bready               ;
 logic                        m_axi_bvalid               ;
-nlineWidth_t                 m_axi_bid                  ;
+logic           [  1: 0]     m_axi_bid                  ;
 logic           [  1: 0]     m_axi_bresp                ;
 
 logic                        m_axi_arready              ;
 logic                        m_axi_arvalid              ;
-nlineWidth_t                 m_axi_arid                 ;
+logic           [  1: 0]     m_axi_arid                 ;
 logic           [ 31: 0]     m_axi_araddr               ;
 logic           [  7: 0]     m_axi_arlen                ;
 logic           [  2: 0]     m_axi_arsize               ;
@@ -80,7 +87,7 @@ logic           [  1: 0]     m_axi_arburst              ;
 
 logic                        m_axi_rready               ;
 logic                        m_axi_rvalid               ;
-nlineWidth_t                 m_axi_rid                  ;
+logic           [  1: 0]     m_axi_rid                  ;
 logic           [255: 0]     m_axi_rdata                ;
 logic           [  1: 0]     m_axi_rresp                ;
 logic                        m_axi_rlast                ;
@@ -108,19 +115,22 @@ initial begin
 end
 
 initial begin
-    awvalid        = 'd0;
-    awid           = 'd0;
-    awaddr         = 'd0;
 
-    wvalid         = 'd0;         
-    wid            = 'd0;     
-    wdata          = 'd0;         
+    bank_id              = 'd3;
 
-    arvalid        = 'd0;
-    arid           = 'd0; 
-    araddr         = 'd0; 
+    s_axi_awvalid        = 'd0;
+    s_axi_awid           = 'd0;
+    s_axi_awaddr         = 'd0;
 
-    rready         = 'd1;
+    s_axi_wvalid         = 'd0;         
+    s_axi_wid            = 'd0;     
+    s_axi_wdata          = 'd0;         
+
+    s_axi_arvalid        = 'd0;
+    s_axi_arid           = 'd0; 
+    s_axi_araddr         = 'd0; 
+
+    s_axi_rready         = 'd1;
 
     m_axi_awready  = 'd0;
     m_axi_wready   = 'd0;   
@@ -138,53 +148,54 @@ initial begin
     
     #500;
     @(posedge clk)
-    awvalid        <= 'd1;
-    awid           <= 'd7;
-    awaddr         <= 'h8000;
+    bank_id              <= 'd3;
+    s_axi_awvalid        <= 'd1;
+    s_axi_awid           <= 'd7;
+    s_axi_awaddr         <= 'h8000;
     
     m_axi_awready  <= 'd0;
     m_axi_wready   <= 'd0;
     m_axi_arready  <= 'd0;
     
     @(posedge clk)
-    awvalid        <= 'd1;
-    awid           <= 'd5;
-    awaddr         <= 'h8020;
+    s_axi_awvalid        <= 'd1;
+    s_axi_awid           <= 'd5;
+    s_axi_awaddr         <= 'h8020;
 
-    wvalid         <= 'd1;
-    wid            <= 'd7;
-    wdata          <= 'haaaa_bbbb_cccc_dddd;
+    s_axi_wvalid         <= 'd1;
+    s_axi_wid            <= 'd7;
+    s_axi_wdata          <= 'haaaa_bbbb_cccc_dddd;
 
     @(posedge clk)
-    awvalid        <= 'd0;
-    awid           <= 'd0;
-    awaddr         <= 'd0;
+    s_axi_awvalid        <= 'd0;
+    s_axi_awid           <= 'd0;
+    s_axi_awaddr         <= 'd0;
 
-    arvalid        <= 'd1;
-    arid           <= 'd3;
-    araddr         <= 'h8010;
+    s_axi_arvalid        <= 'd1;
+    s_axi_arid           <= 'd3;
+    s_axi_araddr         <= 'h8010;
     
-    wvalid         <= 'd1;
-    wid            <= 'd5;
-    wdata          <= 'heeee_ffff_cccc_dddd;
+    s_axi_wvalid         <= 'd1;
+    s_axi_wid            <= 'd5;
+    s_axi_wdata          <= 'heeee_ffff_cccc_dddd;
 
     @(posedge clk)  
-    arvalid        <= 'd1;
-    arid           <= 'd6;
-    araddr         <= 'h8030;
+    s_axi_arvalid        <= 'd1;
+    s_axi_arid           <= 'd6;
+    s_axi_araddr         <= 'h8030;
 
-    wvalid         <= 'd0;
-    wid            <= 'd0;
-    wdata          <= 'h0;
+    s_axi_wvalid         <= 'd0;
+    s_axi_wid            <= 'd0;
+    s_axi_wdata          <= 'h0;
 
     m_axi_awready  <= 'd0;
     m_axi_wready   <= 'd0;
     m_axi_arready  <= 'd0;
 
     @(posedge clk)
-    arvalid        <= 'd0;
-    arid           <= 'd0;
-    araddr         <= 'h0;
+    s_axi_arvalid        <= 'd0;
+    s_axi_arid           <= 'd0;
+    s_axi_araddr         <= 'h0;
 
     @(posedge clk)
 
@@ -195,7 +206,7 @@ initial begin
 
     @(posedge clk)
     m_axi_bvalid   <= 'd1;
-    m_axi_bid      <= 'd7;
+    m_axi_bid      <= 'd3;
     m_axi_bresp    <= 'd0;
 
     m_axi_awready <= 'd1;
@@ -203,8 +214,8 @@ initial begin
     m_axi_arready <= 'd0;
 
     @(posedge clk)
-    m_axi_bvalid   <= 'd1;
-    m_axi_bid      <= 'd5;
+    m_axi_bvalid   <= 'd0;
+    m_axi_bid      <= 'd0;
     m_axi_bresp    <= 'd0;
 
     m_axi_awready <= 'd0;
@@ -212,28 +223,44 @@ initial begin
     m_axi_arready <= 'd1;
 
     @(posedge clk)
+
+    m_axi_awready  <= 'd0;
+    m_axi_wready   <= 'd0;
+    m_axi_arready  <= 'd1;
+    
+    @(posedge clk)
+
+    @(posedge clk)
+    m_axi_awready  <= 'd1;
+    m_axi_wready   <= 'd1;
+    m_axi_arready  <= 'd1;
+
+    @(posedge clk)
+    m_axi_bvalid   <= 'd1;
+    m_axi_bid      <= 'd3;
+    m_axi_bresp    <= 'd0;
+    
+    @(posedge clk)
     m_axi_bvalid   <= 'd0;
     m_axi_bid      <= 'd0;
     m_axi_bresp    <= 'd0;
 
+    @(posedge clk)
     m_axi_rvalid   <= 'd1;
     m_axi_rid      <= 'd3;
     m_axi_rdata    <= 'hcccc_dddd_eeee_ffff;
     m_axi_rlast    <= 'd1;
 
-    m_axi_awready  <= 'd0;
-    m_axi_wready   <= 'd0;
-    m_axi_arready  <= 'd1;
-
     @(posedge clk)
+
     m_axi_rvalid   <= 'd1;
-    m_axi_rid      <= 'd6;
+    m_axi_rid      <= 'd3;
     m_axi_rdata    <= 'hbbbb_aaaa_eeee_ffff;
     m_axi_rlast    <= 'd1;
 
-    m_axi_awready  <= 'd1;
-    m_axi_wready   <= 'd1;
-    m_axi_arready  <= 'd1;
+    @(posedge clk)
+
+    @(posedge clk)
 
     @(posedge clk)
     m_axi_rvalid   <= 'd0;
@@ -248,7 +275,9 @@ initial begin
 end
 
 mc_wrapper # (
-    .Cfg                               (Cfg                ),      
+    .Cfg                               (Cfg                ),
+    .clWidth_t                         (clWidth_t          ),
+    .addrWidth_t                       (addrWidth_t        ),      
     .setWidth_t                        (setWidth_t         ),      
     .tagWidth_t                        (tagWidth_t         ),      
     .wayIndexWidth_t                   (wayIndexWidth_t    ),      

@@ -6,6 +6,14 @@ package mpc_types;
     } mpc_command_e;
 
     typedef enum logic [2:0] {
+        BYTE         = 3'd0,
+        HALF         = 3'd1,
+        WORD         = 3'd2,
+        DOUBLE       = 3'd3,
+        QUAD         = 3'd4
+    } mpc_size_e;
+
+    typedef enum logic [2:0] {
         CACHE_OP_LOAD         = 3'd0,
         CACHE_OP_STORE        = 3'd1,
         CACHE_OP_RAE          = 3'd2,
