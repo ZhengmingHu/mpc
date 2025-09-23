@@ -10,6 +10,7 @@ module isu_wrapper
     parameter type wayNum_t        = logic,
     parameter type nlineWidth_t    = logic,
     parameter type offsetWidth_t   = logic,
+    parameter type byteWidth_t     = logic,
     parameter type metaWidth_t     = logic,
     parameter type robWidth_t      = logic,
     parameter type lsqWidth_t      = logic,
@@ -24,8 +25,10 @@ module isu_wrapper
     output logic                        u_htu_ready                ,
     input  logic           [  2: 0]     u_htu_channel_1hot_id      ,
     input  logic           [  2: 0]     u_htu_op                   ,
+    input  logic           [  2: 0]     u_htu_size                 ,
     input  nlineWidth_t                 u_htu_id                   ,
     input  offsetWidth_t                u_htu_offset               ,
+    input  byteWidth_t                  u_htu_byte                 ,
     input  wbufWidth_t                  u_htu_wbuf_id              ,
 
     // 2. from upstream htu refill info
@@ -48,9 +51,11 @@ module isu_wrapper
     output logic            [  2: 0]    d_rc_channel_1hot_id       ,
     output robWidth_t                   d_rc_rob_id                ,
     output logic            [  2: 0]    d_rc_op                    ,
+    output logic            [  2: 0]    d_rc_size                  ,
     output setWidth_t                   d_rc_set                   ,
     output wayIndexWidth_t              d_rc_way                   ,
     output offsetWidth_t                d_rc_offset                ,
+    output byteWidth_t                  d_rc_byte                  ,
     output wbufWidth_t                  d_rc_wbuf_id               ,
     output clWidth_t                    d_rc_refill_data           ,
 
@@ -115,6 +120,7 @@ lsq # (
     .wayNum_t                          (wayNum_t                           ),
     .nlineWidth_t                      (nlineWidth_t                       ),
     .offsetWidth_t                     (offsetWidth_t                      ),
+    .byteWidth_t                       (byteWidth_t                        ),
     .metaWidth_t                       (metaWidth_t                        ),
     .robWidth_t                        (robWidth_t                         ),
     .lsqWidth_t                        (lsqWidth_t                         )
@@ -126,8 +132,10 @@ lsq # (
     .u_htu_ready                       (u_htu_ready                        ),
     .u_htu_channel_1hot_id             (u_htu_channel_1hot_id              ),
     .u_htu_op                          (u_htu_op                           ),
+    .u_htu_size                        (u_htu_size                         ),
     .u_htu_id                          (u_htu_id                           ),
     .u_htu_offset                      (u_htu_offset                       ),
+    .u_htu_byte                        (u_htu_byte                         ),
     .u_htu_wbuf_id                     (u_htu_wbuf_id                      ),
     .u_htu_crdt_valid                  (u_htu_crdt_valid                   ),
     .u_htu_crdt_id                     (u_htu_crdt_way_set                 ),
@@ -140,9 +148,11 @@ lsq # (
     .d_rc_channel_1hot_id              (d_rc_channel_1hot_id               ),
     .d_rc_rob_id                       (d_rc_rob_id                        ),
     .d_rc_op                           (lsq_deq_op                         ),
+    .d_rc_size                         (d_rc_size                          ),
     .d_rc_set                          (d_rc_set                           ),
     .d_rc_way                          (d_rc_way                           ),
     .d_rc_offset                       (d_rc_offset                        ),
+    .d_rc_byte                         (d_rc_byte                          ),
     .d_rc_wbuf_id                      (d_rc_wbuf_id                       )
 );
 

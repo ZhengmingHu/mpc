@@ -12,6 +12,7 @@ module htu_pipe
     parameter type wayNum_t        = logic,
     parameter type nlineWidth_t    = logic,
     parameter type offsetWidth_t   = logic,
+    parameter type byteWidth_t     = logic,
     parameter type metaWidth_t     = logic,
     parameter type bank_req_t      = logic
 )
@@ -35,8 +36,10 @@ module htu_pipe
     input  logic                        d_isu_ready                ,
     output logic           [  2: 0]     d_isu_channel_1hot_id      ,
     output opWidth_t                    d_isu_op                   ,
+    output logic           [  2: 0]     d_isu_size                 ,
     output nlineWidth_t                 d_isu_id                   ,
     output offsetWidth_t                d_isu_offset               ,
+    output byteWidth_t                  d_isu_byte                 ,
     output wbufWidth_t                  d_isu_wbuf_id              ,
     
     // 4. to down stream memory interface
@@ -99,6 +102,8 @@ localparam tagMSB       = Cfg.u.addrWidth - 1;
 localparam tagLSB       = Cfg.bankWidth + Cfg.setWidth + Cfg.offsetWidth + Cfg.byteWidth;
 localparam offsetMSB    = Cfg.u.addrWidth - Cfg.tagWidth - Cfg.bankWidth - Cfg.setWidth - 1;
 localparam offsetLSB    = Cfg.byteWidth;
+localparam byteMSB      = Cfg.byteWidth-1;
+localparam byteLSB      = 0;
 localparam bankReqWidth = $bits(u_bank_req);
 
 logic                                   s0_valid;
@@ -275,8 +280,10 @@ assign d_isu_op               =  s2_hit &  is_load(s2_bank_req.op)              
                                 !s2_hit &  is_load(s2_bank_req.op) & !is_unique(s2_meta[s2_way]) ? CACHE_OP_LOAD  :
                                 !s2_hit & is_store(s2_bank_req.op) &  is_unique(s2_meta[s2_way]) ? CACHE_OP_WAE   :
                                 !s2_hit & is_store(s2_bank_req.op) & !is_unique(s2_meta[s2_way]) ? CACHE_OP_STORE : CACHE_OP_LOAD;
+assign d_isu_size             = s2_bank_req.size;
 assign d_isu_id               = {s2_way, s2_set};
 assign d_isu_offset           = s2_bank_req.addr[offsetMSB:offsetLSB];
+assign d_isu_byte             = s2_bank_req.addr[byteMSB:byteLSB];
 assign d_isu_wbuf_id          = s2_bank_req_wbuf_id;
 
 assign d_isu_refill_valid     = s2_hsked & !s2_hit;

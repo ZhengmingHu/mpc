@@ -28,11 +28,11 @@ endif
 # TEST_CASE ?= rtn_xbar_core
 # TEST_CASE ?= kob
 # TEST_CASE ?= isu
-TEST_CASE ?= rc_wrapper
+# TEST_CASE ?= rc_wrapper
 # TEST_CASE ?= write_buffer
 # TEST_CASE ?= mc_wrapper
 # TEST_CASE ?= extmem
-# TEST_CASE ?= mpc_wrapper
+TEST_CASE ?= mpc_wrapper
 # TEST_CASE ?= mem_intf_arbiter
 
 

@@ -13,6 +13,7 @@ module slice
     parameter type wayNum_t        = logic,
     parameter type nlineWidth_t    = logic,
     parameter type offsetWidth_t   = logic,
+    parameter type byteWidth_t     = logic,
     parameter type metaWidth_t     = logic,
     parameter type robWidth_t      = logic,
     parameter type lsqWidth_t      = logic,
@@ -95,8 +96,10 @@ logic                        isu_valid           ;
 logic                        isu_ready           ;
 logic           [  2: 0]     isu_channel_1hot_id ;
 logic           [  2: 0]     isu_op              ;
+logic           [  2: 0]     isu_size            ;
 nlineWidth_t                 isu_id              ;
 offsetWidth_t                isu_offset          ;
+byteWidth_t                  isu_byte            ;
 wbufWidth_t                  isu_wbuf_id         ;
 logic                        isu_crdt_valid      ;
 nlineWidth_t                 isu_crdt_way_set    ;
@@ -128,9 +131,11 @@ logic                        rc_ready            ;
 logic            [  2: 0]    rc_channel_1hot_id  ;      
 robWidth_t                   rc_rob_id           ;      
 logic            [  2: 0]    rc_op               ;      
+logic            [  2: 0]    rc_size             ;
 setWidth_t                   rc_set              ;      
 wayIndexWidth_t              rc_way              ;      
 offsetWidth_t                rc_offset           ;      
+byteWidth_t                  rc_byte             ;
 wbufWidth_t                  rc_wbuf_id          ;      
 logic            [255: 0]    rc_refill_data      ;      
 
@@ -149,6 +154,7 @@ htu_wrapper # (
     .wayNum_t                (wayNum_t              ),        
     .nlineWidth_t            (nlineWidth_t          ),      
     .offsetWidth_t           (offsetWidth_t         ), 
+    .byteWidth_t             (byteWidth_t           ),  
     .metaWidth_t             (metaWidth_t           ), 
     .robWidth_t              (robWidth_t            ), 
     .lsqWidth_t              (lsqWidth_t            ),   
@@ -168,8 +174,10 @@ htu_wrapper # (
     .d_isu_ready             (isu_ready             ),
     .d_isu_channel_1hot_id   (isu_channel_1hot_id   ),
     .d_isu_op                (isu_op                ),
+    .d_isu_size              (isu_size              ),
     .d_isu_id                (isu_id                ),
     .d_isu_offset            (isu_offset            ),
+    .d_isu_byte              (isu_byte              ),
     .d_isu_wbuf_id           (isu_wbuf_id           ),
     .d_memctl_awvalid        (memctl_awvalid        ),
     .d_memctl_awready        (memctl_awready        ),
@@ -193,6 +201,7 @@ isu_wrapper # (
     .wayNum_t                (wayNum_t              ),
     .nlineWidth_t            (nlineWidth_t          ),
     .offsetWidth_t           (offsetWidth_t         ),
+    .byteWidth_t             (byteWidth_t           ),
     .metaWidth_t             (metaWidth_t           ),
     .robWidth_t              (robWidth_t            ),
     .lsqWidth_t              (lsqWidth_t            ),
@@ -204,8 +213,10 @@ isu_wrapper # (
     .u_htu_ready             (isu_ready             ),
     .u_htu_channel_1hot_id   (isu_channel_1hot_id   ),
     .u_htu_op                (isu_op                ),
+    .u_htu_size              (isu_size              ),
     .u_htu_id                (isu_id                ),
     .u_htu_offset            (isu_offset            ),
+    .u_htu_byte              (isu_byte              ),
     .u_htu_wbuf_id           (isu_wbuf_id           ),
     .u_htu_refill_valid      (isu_refill_valid      ),
     .u_htu_refill_set        (isu_refill_set        ),
@@ -220,9 +231,11 @@ isu_wrapper # (
     .d_rc_channel_1hot_id    (rc_channel_1hot_id    ),
     .d_rc_rob_id             (rc_rob_id             ),
     .d_rc_op                 (rc_op                 ),
+    .d_rc_size               (rc_size               ),
     .d_rc_set                (rc_set                ),
     .d_rc_way                (rc_way                ),
     .d_rc_offset             (rc_offset             ),
+    .d_rc_byte               (rc_byte               ),
     .d_rc_wbuf_id            (rc_wbuf_id            ),
     .d_rc_refill_data        (rc_refill_data        ),
     .u_htu_crdt_valid        (isu_crdt_valid        ),
@@ -240,6 +253,7 @@ rc_wrapper # (
     .wayNum_t                (wayNum_t              ),
     .nlineWidth_t            (nlineWidth_t          ),
     .offsetWidth_t           (offsetWidth_t         ),
+    .byteWidth_t             (byteWidth_t           ),
     .metaWidth_t             (metaWidth_t           ),
     .robWidth_t              (robWidth_t            ),
     .lsqWidth_t              (lsqWidth_t            ),
@@ -252,9 +266,11 @@ rc_wrapper # (
     .u_isu_channel_1hot_id  (rc_channel_1hot_id     ),
     .u_isu_rob_id           (rc_rob_id              ),
     .u_isu_op               (rc_op                  ),
+    .u_isu_size             (rc_size                ),
     .u_isu_set              (rc_set                 ),
     .u_isu_way              (rc_way                 ),
     .u_isu_offset           (rc_offset              ),
+    .u_isu_byte             (rc_byte                ),
     .u_isu_wbuf_id          (rc_wbuf_id             ),
     .u_isu_refill_data      (rc_refill_data         ),
     .wbuf_req_valid         (wbuf_req_valid         ),

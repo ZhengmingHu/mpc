@@ -13,6 +13,7 @@ module mpc
     parameter type wayNum_t        = logic,
     parameter type nlineWidth_t    = logic,
     parameter type offsetWidth_t   = logic,
+    parameter type byteWidth_t     = logic,
     parameter type metaWidth_t     = logic,
     parameter type robWidth_t      = logic,
     parameter type lsqWidth_t      = logic,
@@ -361,6 +362,7 @@ slice # (
     .wayNum_t                       (wayNum_t                   ),
     .nlineWidth_t                   (nlineWidth_t               ),
     .offsetWidth_t                  (offsetWidth_t              ),
+    .byteWidth_t                    (byteWidth_t                ),
     .metaWidth_t                    (metaWidth_t                ),
     .robWidth_t                     (robWidth_t                 ),
     .lsqWidth_t                     (lsqWidth_t                 ),
@@ -371,7 +373,8 @@ slice # (
     .wbuf_req_t                     (wbuf_req_t                 )
 ) u_slice_0 (
     .clk                            (clk                        ),  
-    .rst_n                          (rst_n                      ),  
+    .rst_n                          (rst_n                      ),
+    .bank_id                        (2'd0                       ),  
     .u_bank_req_valid               (bank_0_htu_valid           ),  
     .u_bank_req_ready               (bank_0_htu_ready           ),  
     .u_bank_req                     (bank_0_htu_req             ),  
@@ -430,6 +433,7 @@ slice # (
     .wayNum_t                       (wayNum_t                   ),
     .nlineWidth_t                   (nlineWidth_t               ),
     .offsetWidth_t                  (offsetWidth_t              ),
+    .byteWidth_t                    (byteWidth_t                ),
     .metaWidth_t                    (metaWidth_t                ),
     .robWidth_t                     (robWidth_t                 ),
     .lsqWidth_t                     (lsqWidth_t                 ),
@@ -441,6 +445,7 @@ slice # (
 ) u_slice_1 (
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),
+    .bank_id                        (2'd1                       ),
     .u_bank_req_valid               (bank_1_htu_valid           ),
     .u_bank_req_ready               (bank_1_htu_ready           ),
     .u_bank_req                     (bank_1_htu_req             ),
@@ -499,6 +504,7 @@ slice # (
     .wayNum_t                       (wayNum_t                   ),
     .nlineWidth_t                   (nlineWidth_t               ),
     .offsetWidth_t                  (offsetWidth_t              ),
+    .byteWidth_t                    (byteWidth_t                ),
     .metaWidth_t                    (metaWidth_t                ),
     .robWidth_t                     (robWidth_t                 ),
     .lsqWidth_t                     (lsqWidth_t                 ),
@@ -510,6 +516,7 @@ slice # (
 ) u_slice_2 (
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),
+    .bank_id                        (2'd2                       ),
     .u_bank_req_valid               (bank_2_htu_valid           ),
     .u_bank_req_ready               (bank_2_htu_ready           ),
     .u_bank_req                     (bank_2_htu_req             ),
@@ -568,6 +575,7 @@ slice # (
     .wayNum_t                       (wayNum_t                   ),
     .nlineWidth_t                   (nlineWidth_t               ),
     .offsetWidth_t                  (offsetWidth_t              ),
+    .byteWidth_t                    (byteWidth_t                ),
     .metaWidth_t                    (metaWidth_t                ),
     .robWidth_t                     (robWidth_t                 ),
     .lsqWidth_t                     (lsqWidth_t                 ),
@@ -579,6 +587,7 @@ slice # (
 ) u_slice_3 (
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),
+    .bank_id                        (2'd3                       ),
     .u_bank_req_valid               (bank_3_htu_valid           ),
     .u_bank_req_ready               (bank_3_htu_ready           ),
     .u_bank_req                     (bank_3_htu_req             ),
