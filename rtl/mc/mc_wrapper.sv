@@ -1,7 +1,9 @@
-module mc_queue
+module mc_queue 
     import mpc_types::*;
 #(
     parameter mpc_cfg_t Cfg = '0,   
+    parameter type clWidth_t       = logic,
+    parameter type addrWidth_t     = logic,
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -18,35 +20,38 @@ module mc_queue
     input  logic                        clk                         ,
     input  logic                        rst_n                       ,
 
+    input  logic           [  1: 0]     id                          ,
+
     // 1. Slave AW Channel
     input  logic                        s_awvalid                   ,
     output logic                        s_awready                   ,
     input  nlineWidth_t                 s_awid                      ,
-    input  logic           [ 31: 0]     s_awaddr                    ,
+    input  addrWidth_t                  s_awaddr                    ,
     // 2. Slave W Channel
     input  logic                        s_wvalid                    ,
     output logic                        s_wready                    ,
-    input  logic           [255: 0]     s_wdata                     ,
+    input  nlineWidth_t                 s_wid                       ,
+    input  clWidth_t                    s_wdata                     ,
     // 3. Slave AR Channel
     input  logic                        s_arvalid                   ,
     output logic                        s_arready                   ,
     input  nlineWidth_t                 s_arid                      ,
-    input  logic           [ 31: 0]     s_araddr                    ,
+    input  addrWidth_t                  s_araddr                    ,
 
     // 4. Slave R Channel
     output logic                        s_rvalid                    ,
     input  logic                        s_rready                    ,
-    output logic           [255: 0]     s_rdata                     ,
+    output clWidth_t                    s_rdata                     ,
 
      // 5. Master AW Channel
     output logic                        m_awvalid                   ,
     input  logic                        m_awready                   ,
-    output logic           [ 31: 0]     m_awaddr                    ,
+    output addrWidth_t                  m_awaddr                    ,
     
     // 6. Master W Channel
     output logic                        m_wvalid                    ,
     input  logic                        m_wready                    ,
-    output logic           [255: 0]     m_wdata                     ,
+    output clWidth_t                    m_wdata                     ,
 
     output logic                        m_bready                    ,
     input  logic                        m_bvalid                    ,
@@ -55,113 +60,124 @@ module mc_queue
     // 7. Master AR Channel
     output logic                        m_arvalid                   ,
     input  logic                        m_arready                   ,
-    output logic           [ 31: 0]     m_araddr                    ,
+    output addrWidth_t                  m_araddr                    ,
     
     // 8. Master R Channel
     input  logic                        m_rvalid                    ,
     output logic                        m_rready                    ,
-    input  logic           [255: 0]     m_rdata                     ,
+    input  clWidth_t                    m_rdata                     ,
     input  logic           [  1: 0]     m_rresp                     ,
 
     // 9. Entry State
     output logic                        entry_valid                 ,
-    output nlineWidth_t                 entry_id
-
-
+    output nlineWidth_t                 cacheline_id                ,
+    output logic           [  2: 0]     entry_state
 );
 
-logic                 entry_valid_en;
-logic                 entry_valid_nxt;
+    parameter S_IDLE = 'd0, S_WAIT_DAT = 'd1, S_SEND_REQ = 'd2, S_WAIT_RESP = 'd3, S_SEND_RESP = 'd4;
 
-logic                 entry_id_en;
-nlineWidth_t          entry_id_nxt;
+    reg                    [  2: 0]     state                       ;
+    wire                   [  2: 0]     state_nxt                   ;
 
-logic                 entry_addr_en;
-logic        [ 31: 0] entry_addr;
-logic        [ 31: 0] entry_addr_nxt;
+    reg                                 entry_cmd                   ;
+    wire                                entry_cmd_nxt               ;
+    wire                                entry_cmd_en                ;
 
-logic                 entry_data_en;
-logic        [255: 0] entry_data;
-logic        [255: 0] entry_data_nxt;
+    nlineWidth_t                        entry_cacheline_id          ;
+    nlineWidth_t                        entry_cacheline_id_nxt      ;
+    wire                                entry_cacheline_id_en       ;
 
-logic        [  2: 0] entry_cmd;
+    reg                    [  1: 0]     entry_bank_id               ;
+    wire                   [  1: 0]     entry_bank_id_nxt           ;
+
+    clWidth_t                           entry_data                  ;
+    clWidth_t                           entry_data_nxt              ;
+    wire                                entry_data_en               ;
+
+    addrWidth_t                         entry_addr                  ;
+    addrWidth_t                         entry_addr_nxt              ;
+    wire                                entry_addr_en               ;
+
+    logic                               s_aw_hsked;
+    logic                               s_w_hsked;  
+    logic                               s_ar_hsked;
+    logic                               s_r_hsked;
+
+    logic                               m_aw_hsked;
+    logic                               m_w_hsked;
+    logic                               m_b_hsked;
+    logic                               m_ar_hsked;
+    logic                               m_r_hsked;
+
+    assign s_aw_hsked = s_awvalid && s_awready;
+    assign s_w_hsked = s_wvalid && s_wready;
+    assign s_ar_hsked = s_arvalid && s_arready;
+    assign s_r_hsked = s_rvalid && s_rready;
+    assign m_aw_hsked = m_awvalid && m_awready;
+    assign m_w_hsked = m_wvalid && m_wready;
+    assign m_b_hsked = m_bvalid && m_bready;
+    assign m_ar_hsked = m_arvalid && m_arready;
+    assign m_r_hsked = m_rvalid && m_rready;
+
+    assign state_nxt = 
+    (state == S_IDLE)      ? (s_ar_hsked ? S_SEND_REQ : (s_aw_hsked ? S_WAIT_DAT : S_IDLE)) :
+    (state == S_WAIT_DAT)  ? (s_w_hsked ? S_SEND_REQ : S_WAIT_DAT) :
+    (state == S_SEND_REQ)  ? ((m_ar_hsked | m_aw_hsked) ? S_WAIT_RESP : S_SEND_REQ) :
+    (state == S_WAIT_RESP) ? (m_b_hsked ? S_IDLE : (m_r_hsked ? S_SEND_RESP : S_WAIT_RESP)) :
+    (state == S_SEND_RESP) ? (s_r_hsked ? S_IDLE : S_SEND_RESP) :
+                             S_IDLE;
+
+    assign entry_cmd_nxt = s_aw_hsked;
+    assign entry_cmd_en  = s_aw_hsked | s_ar_hsked;
+
+    assign entry_cacheline_id_nxt = s_aw_hsked ? s_awid : s_arid;
+    assign entry_cacheline_id_en = s_aw_hsked | s_ar_hsked;
+
+    assign entry_data_nxt = s_w_hsked ? s_wdata : m_rdata;
+    assign entry_data_en = s_w_hsked | m_r_hsked;
+
+    assign entry_addr_nxt = s_aw_hsked ? s_awaddr : s_araddr;
+    assign entry_addr_en = s_aw_hsked | s_ar_hsked;
+
+    ns_gnrl_dfflr # (3) entry_state_dfflr (1'b1, state_nxt, state, clk, rst_n);
+    ns_gnrl_dfflr # (1) entry_cmd_dfflr (entry_cmd_en, entry_cmd_nxt, entry_cmd, clk, rst_n);
+    ns_gnrl_dfflr # (2) entry_bank_id_dfflr (1'b1, entry_bank_id_nxt, entry_bank_id, clk, rst_n);
+    ns_gnrl_dfflr # (Cfg.nlineWidth) entry_cacheline_id_dfflr (entry_cacheline_id_en, entry_cacheline_id_nxt, entry_cacheline_id, clk, rst_n);
+    ns_gnrl_dfflr # (Cfg.u.clWidth) entry_data_dfflr (entry_data_en, entry_data_nxt, entry_data, clk, rst_n);
+    ns_gnrl_dfflr # (Cfg.u.addrWidth) entry_addr_dfflr (entry_addr_en, entry_addr_nxt, entry_addr, clk, rst_n);    
+
+    assign s_awready = state == S_IDLE;
+    assign s_wready  = state == S_WAIT_DAT;
+    assign s_arready = state == S_IDLE;
+
+    assign s_rvalid  = state == S_SEND_RESP;
+    assign s_rid     = entry_cacheline_id;
+    assign s_rdata   = entry_data;
+
+    assign m_awvalid = state == S_SEND_REQ & entry_cmd == MEM_OP_STORE;
+    assign m_awaddr  = entry_addr;
+    assign m_wvalid  = state == S_SEND_REQ & entry_cmd == MEM_OP_STORE;
+    assign m_wdata   = entry_data;
+
+    assign m_arvalid = state == S_SEND_REQ & entry_cmd == MEM_OP_LOAD;
+    assign m_araddr  = entry_addr;
+    assign m_rready  = state == S_WAIT_RESP & entry_cmd == MEM_OP_LOAD;
 
 
-logic                 araddr_rdy;
-logic                 awaddr_rdy;
-logic                 wdata_rdy;
-logic                 rrsp_rdy;
+    assign m_bready  = state == S_WAIT_RESP & entry_cmd == MEM_OP_STORE;
 
-logic                 s_aw_hsked;
-logic                 s_w_hsked;  
-logic                 s_ar_hsked;
-logic                 s_r_hsked;
-
-logic                 m_aw_hsked;
-logic                 m_w_hsked;
-logic                 m_b_hsked;
-logic                 m_ar_hsked;
-logic                 m_r_hsked;
-
-assign s_aw_hsked = s_awvalid && s_awready;
-assign s_w_hsked = s_wvalid && s_wready;
-assign s_ar_hsked = s_arvalid && s_arready;
-assign s_r_hsked = s_rvalid && s_rready;
-
-assign m_aw_hsked = m_awvalid && m_awready;
-assign m_w_hsked = m_wvalid && m_wready;
-assign m_b_hsked = m_bvalid && m_bready;
-assign m_ar_hsked = m_arvalid && m_arready;
-assign m_r_hsked = m_rvalid && m_rready;
-
-assign entry_valid_en  = s_aw_hsked | s_ar_hsked | m_b_hsked | s_r_hsked;
-assign entry_valid_nxt = (s_awvalid | s_arvalid) && !m_bvalid && !s_rvalid; 
-
-assign entry_id_en = s_aw_hsked | s_ar_hsked;
-assign entry_id_nxt = s_awvalid ? s_awid : s_arvalid ? s_arid : 'd0;
-
-assign entry_data_en = s_w_hsked | m_r_hsked;
-assign entry_data_nxt = s_wvalid ? s_wdata : m_rvalid ? m_rdata : 'd0; 
-
-assign entry_addr_en = s_aw_hsked | s_ar_hsked;
-assign entry_addr_nxt = s_awvalid ? s_awaddr : s_arvalid ? s_araddr : 'd0;
-
-ns_gnrl_dfflr # (1) entry_valid_dfflr (entry_valid_en, entry_valid_nxt, entry_valid, clk, rst_n);
-ns_gnrl_dfflr # (Cfg.nlineWidth) entry_id_dfflr (entry_id_en, entry_id_nxt, entry_id, clk, rst_n);
-ns_gnrl_dfflr # (32) entry_addr_dfflr (entry_addr_en, entry_addr_nxt, entry_addr, clk, rst_n);
-ns_gnrl_dfflr # (256) entry_data_dfflr (entry_data_en, entry_data_nxt, entry_data, clk, rst_n);
-
-ns_gnrl_dfflr # (1) araddr_rdy_dfflr (s_ar_hsked | m_ar_hsked, s_ar_hsked & !m_ar_hsked, araddr_rdy, clk, rst_n);
-ns_gnrl_dfflr # (1) awaddr_rdy_dfflr (s_w_hsked | m_aw_hsked, s_w_hsked & !m_aw_hsked, awaddr_rdy, clk, rst_n);
-ns_gnrl_dfflr # (1) wdata_rdy_dfflr (s_w_hsked | m_w_hsked, s_w_hsked & !m_w_hsked, wdata_rdy, clk, rst_n);
-ns_gnrl_dfflr # (1) rrsp_rdy_dfflr (s_r_hsked | m_r_hsked, m_r_hsked & !s_r_hsked, rrsp_rdy, clk, rst_n);
-
-assign s_awready = !entry_valid;
-assign m_awvalid = awaddr_rdy;
-assign m_awaddr = entry_addr;
-
-assign s_wready  = 1'b1;
-assign m_wvalid = wdata_rdy;
-assign m_wdata = entry_data;
-
-
-assign s_arready = !entry_valid;
-assign m_arvalid = araddr_rdy;
-assign m_araddr = entry_addr;
-
-assign s_rvalid = rrsp_rdy;
-assign s_rdata = entry_data;
-
-assign m_rready = 1'b1;
-assign m_bready = 1'b1;
-
+    assign entry_valid  = state != S_IDLE;
+    assign cacheline_id = entry_cacheline_id;
+    assign entry_state  = state;
 
 endmodule
 
-module mc_wrapper     
+module mc_wrapper 
     import mpc_types::*;
 #(
     parameter mpc_cfg_t Cfg = '0,   
+    parameter type clWidth_t       = logic,
+    parameter type addrWidth_t     = logic,
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -175,109 +191,127 @@ module mc_wrapper
     parameter type kobWidth_t      = logic,
     parameter type mcWidth_t       = logic
 )(
-    input  logic                        clk                        ,
-    input  logic                        rst_n                      ,
+    input  logic                        clk                              ,
+    input  logic                        rst_n                            ,
+
+    input  logic           [  1: 0]     bank_id                          ,
 
     // 1. Slave AW Channel
-    input  logic                        awvalid                    ,
-    output logic                        awready                    ,
-    input  nlineWidth_t                 awid                       ,
-    input  logic           [ 31: 0]     awaddr                     ,
+    input  logic                        s_axi_awvalid                    ,
+    output logic                        s_axi_awready                    ,
+    input  nlineWidth_t                 s_axi_awid                       ,
+    input  addrWidth_t                  s_axi_awaddr                     ,
 
     // 2. Slave W Channel
-    input  logic                        wvalid                     ,
-    output logic                        wready                     ,
-    input  nlineWidth_t                 wid                        ,
-    input  logic           [255: 0]     wdata                      ,
+    input  logic                        s_axi_wvalid                     ,
+    output logic                        s_axi_wready                     ,
+    input  nlineWidth_t                 s_axi_wid                        ,
+    input  clWidth_t                    s_axi_wdata                      ,
 
     // 3. Slave AR Channel
-    input  logic                        arvalid                    ,
-    output logic                        arready                    ,
-    input  nlineWidth_t                 arid                       ,
-    input  logic           [ 31: 0]     araddr                     ,
+    input  logic                        s_axi_arvalid                    ,
+    output logic                        s_axi_arready                    ,
+    input  nlineWidth_t                 s_axi_arid                       ,
+    input  addrWidth_t                  s_axi_araddr                     ,
     
     // 4. Slave R Channel
-    output logic                        rvalid                     ,
-    input  logic                        rready                     ,
-    output nlineWidth_t                 rid                        ,
-    output logic           [255: 0]     rdata                      ,
+    output logic                        s_axi_rvalid                     ,
+    input  logic                        s_axi_rready                     ,
+    output nlineWidth_t                 s_axi_rid                        ,
+    output clWidth_t                    s_axi_rdata                      ,
 
     // 5. Master AXI AW Channel
-    input  logic                        m_axi_awready              ,
-    output logic                        m_axi_awvalid              ,
-    output nlineWidth_t                 m_axi_awid                 ,
-    output logic           [ 31: 0]     m_axi_awaddr               ,
-    output logic           [  7: 0]     m_axi_awlen                ,
-    output logic           [  2: 0]     m_axi_awsize               ,
-    output logic           [  1: 0]     m_axi_awburst              ,
+    input  logic                        m_axi_awready                    ,
+    output logic                        m_axi_awvalid                    ,
+    output logic           [  1: 0]     m_axi_awid                       ,
+    output addrWidth_t                  m_axi_awaddr                     ,
+    output logic           [  7: 0]     m_axi_awlen                      ,
+    output logic           [  2: 0]     m_axi_awsize                     ,
+    output logic           [  1: 0]     m_axi_awburst                    ,
 
     // 6. Master AXI W Channel
-    input  logic                        m_axi_wready               ,
-    output logic                        m_axi_wvalid               ,
-    output logic           [255: 0]     m_axi_wdata                ,
-    output logic           [ 31: 0]     m_axi_wstrb                ,
-    output logic                        m_axi_wlast                ,
-    output logic                        m_axi_bready               ,
-    input  logic                        m_axi_bvalid               ,
-    input  nlineWidth_t                 m_axi_bid                  ,
-    input  logic           [  1: 0]     m_axi_bresp                ,
+    input  logic                        m_axi_wready                     ,
+    output logic                        m_axi_wvalid                     ,
+    output clWidth_t                    m_axi_wdata                      ,
+    output logic           [ 31: 0]     m_axi_wstrb                      , // FIXME
+    output logic                        m_axi_wlast                      ,
+    output logic                        m_axi_bready                     ,
+    input  logic                        m_axi_bvalid                     ,
+    input  logic           [  1: 0]     m_axi_bid                        ,
+    input  logic           [  1: 0]     m_axi_bresp                      ,
 
     // 7. Master AXI AR Channel
-    input  logic                        m_axi_arready              ,
-    output logic                        m_axi_arvalid              ,
-    output nlineWidth_t                 m_axi_arid                 ,
-    output logic           [ 31: 0]     m_axi_araddr               ,
-    output logic           [  7: 0]     m_axi_arlen                ,
-    output logic           [  2: 0]     m_axi_arsize               ,
-    output logic           [  1: 0]     m_axi_arburst              ,
+    input  logic                        m_axi_arready                    ,
+    output logic                        m_axi_arvalid                    ,
+    output logic           [  1: 0]     m_axi_arid                       ,
+    output addrWidth_t                  m_axi_araddr                     ,
+    output logic           [  7: 0]     m_axi_arlen                      ,
+    output logic           [  2: 0]     m_axi_arsize                     ,
+    output logic           [  1: 0]     m_axi_arburst                    ,
 
     // 8. Master AXI R Channel
 
-    output logic                        m_axi_rready               ,
-    input  logic                        m_axi_rvalid               ,
-    input  nlineWidth_t                 m_axi_rid                  ,
-    input  logic           [255: 0]     m_axi_rdata                ,
-    input  logic           [  1: 0]     m_axi_rresp                ,
+    output logic                        m_axi_rready                     ,
+    input  logic                        m_axi_rvalid                     ,
+    input  logic           [  1: 0]     m_axi_rid                        ,
+    input  clWidth_t                    m_axi_rdata                      ,
+    input  logic           [  1: 0]     m_axi_rresp                      ,
     input  logic                        m_axi_rlast  
 
 );
 
-nlineWidth_t             entry_id    [Cfg.u.mcSize-1:0];
+// note: slave channel's id has different meaning from master channel's id. 
+// slave's id identify cacheline, master's id identify bank.
 
 logic [Cfg.u.mcSize-1:0] entry_valid;
+nlineWidth_t             entry_cacheline_id [Cfg.u.mcSize-1:0];
+
 logic [Cfg.u.mcSize-1:0] entry_awready;
 logic [Cfg.u.mcSize-1:0] entry_arready;
-logic [Cfg.u.mcSize-1:0] entry_s_awsel;
-logic [Cfg.u.mcSize-1:0] entry_s_arsel;
-
-logic [Cfg.u.mcSize-1:0] entry_awvalid;
-logic [Cfg.u.mcSize-1:0] entry_arvalid;
-logic [Cfg.u.mcSize-1:0] entry_m_sel;
-logic [Cfg.u.mcSize-1:0] entry_m_awsel;
-logic [Cfg.u.mcSize-1:0] entry_m_arsel;
-
+logic [Cfg.u.mcSize-1:0] entry_wready;
 
 logic [Cfg.u.mcSize-1:0] entry_rvalid;
-logic [Cfg.u.mcSize-1:0] entry_wvalid;  
-logic [Cfg.u.mcSize-1:0] entry_rsel;
-logic [Cfg.u.mcSize-1:0] entry_wsel;
-logic [            31:0] entry_araddr [Cfg.u.mcSize-1:0];
-logic [           255:0] entry_rdata [Cfg.u.mcSize-1:0];
-logic [            31:0] entry_awaddr [Cfg.u.mcSize-1:0];
-logic [           255:0] entry_wdata [Cfg.u.mcSize-1:0];
+clWidth_t                entry_rdata [Cfg.u.mcSize-1:0];
+
+logic [Cfg.u.mcSize-1:0] entry_awvalid;
+addrWidth_t              entry_awaddr [Cfg.u.mcSize-1:0];
+
+logic [Cfg.u.mcSize-1:0] entry_wvalid;
+clWidth_t                entry_wdata [Cfg.u.mcSize-1:0];
+
+logic [Cfg.u.mcSize-1:0] entry_arvalid;
+addrWidth_t              entry_araddr [Cfg.u.mcSize-1:0]; 
+
+logic [Cfg.u.mcSize-1:0] entry_rready;
+
+logic [Cfg.u.mcSize-1:0] entry_bready;
+
+logic [             2:0] entry_state  [Cfg.u.mcSize-1:0];
 
 
-ns_gnrl_fixed #(Cfg.u.mcSize) u_ns_gnrl_s_awsel_fixed (entry_s_awsel, entry_awready);
-ns_gnrl_fixed #(Cfg.u.mcSize) u_ns_gnrl_s_arsel_fixed (entry_s_arsel, entry_arready);
-ns_gnrl_fixed #(Cfg.u.mcSize) u_ns_gnrl_m_sel_fixed (entry_m_sel, entry_awvalid | entry_arvalid);
-ns_gnrl_fixed #(Cfg.u.mcSize) u_ns_gnrl_m_awsel_fixed (entry_m_awsel, entry_awvalid);
-ns_gnrl_fixed #(Cfg.u.mcSize) u_ns_gnrl_m_arsel_fixed (entry_m_arsel, entry_arvalid);
-ns_gnrl_fixed #(Cfg.u.mcSize) u_ns_gnrl_wsel_fixed (entry_wsel, entry_wvalid);
-ns_gnrl_fixed #(Cfg.u.mcSize) u_ns_gnrl_rsel_fixed (entry_rsel, entry_rvalid);
+logic [   Cfg.mcWidth:0]         w_ptr;
+logic [   Cfg.mcWidth:0]         w_ptr_nxt;
+mcWidth_t                        w_ptr_v;
 
-for (genvar i = 0; i < int'(Cfg.u.mcSize); i = i + 1) begin
+
+logic [   Cfg.mcWidth:0]         r_ptr;
+logic [   Cfg.mcWidth:0]         r_ptr_nxt;
+mcWidth_t                        r_ptr_v;
+
+assign w_ptr_v = w_ptr[$clog2(Cfg.u.mcSize)-1:0];
+assign r_ptr_v = r_ptr[$clog2(Cfg.u.mcSize)-1:0];
+
+assign w_ptr_nxt = w_ptr + ((s_axi_awready & s_axi_awvalid) | (s_axi_arready & s_axi_arvalid));
+assign r_ptr_nxt = r_ptr + ((m_axi_bready & m_axi_bvalid) | (s_axi_rvalid & s_axi_rready));
+
+ns_gnrl_dfflr # ($bits(w_ptr)) w_ptr_dfflr (1'b1, w_ptr_nxt, w_ptr, clk, rst_n);
+ns_gnrl_dfflr # ($bits(r_ptr)) r_ptr_dfflr (1'b1, r_ptr_nxt, r_ptr, clk, rst_n);
+
+for (genvar i = 0; i < int'(Cfg.u.mcSize); i = i + 1) begin: mc_queue_gen
     mc_queue # (
         .Cfg                               (Cfg                                ),
+        .clWidth_t                         (clWidth_t                          ),
+        .addrWidth_t                       (addrWidth_t                        ),
         .setWidth_t                        (setWidth_t                         ),
         .tagWidth_t                        (tagWidth_t                         ),
         .wayIndexWidth_t                   (wayIndexWidth_t                    ),
@@ -294,77 +328,84 @@ for (genvar i = 0; i < int'(Cfg.u.mcSize); i = i + 1) begin
         .clk            (clk                                    ),
         .rst_n          (rst_n                                  ),
 
-        .s_awvalid      (entry_s_awsel[i] && awvalid            ),
+        .id             (bank_id                                ),
+
+        .s_awvalid      (w_ptr_v == i && s_axi_awvalid          ),
         .s_awready      (entry_awready[i]                       ),
-        .s_awaddr       (awaddr                                 ),
-        .s_awid         (awid                                   ),
+        .s_awaddr       (s_axi_awaddr                           ),
+        .s_awid         (s_axi_awid                             ),
 
-        .s_wvalid       (wvalid && wid == entry_id[i] && entry_valid[i]),
-        .s_wdata        (wdata                                  ),
-        .s_wready       (),
+        .s_wvalid       (s_axi_wid == entry_cacheline_id[i] && entry_valid[i] && s_axi_wvalid),
+        .s_wdata        (s_axi_wdata                            ),
+        .s_wid          (s_axi_wid                              ),
+        .s_wready       (entry_wready[i]                        ),
 
-        .s_arvalid      (entry_s_arsel[i] && arvalid            ),
+        .s_arvalid      (w_ptr_v == i && s_axi_arvalid          ),
         .s_arready      (entry_arready[i]                       ),
-        .s_araddr       (araddr                                 ),
-        .s_arid         (arid                                   ),
+        .s_araddr       (s_axi_araddr                           ),
+        .s_arid         (s_axi_arid                             ),
 
         .s_rvalid       (entry_rvalid[i]                        ),
-        .s_rready       (entry_rsel[i] && rready                ),
+        .s_rready       (r_ptr_v == i && s_axi_rready           ),
         .s_rdata        (entry_rdata[i]                         ),
 
         .m_awvalid      (entry_awvalid[i]                       ),
-        .m_awready      (entry_m_sel[i] && m_axi_awready      ),
+        .m_awready      (r_ptr_v == i && m_axi_awready          ),
         .m_awaddr       (entry_awaddr[i]                        ),
 
         .m_wvalid       (entry_wvalid[i]                        ),
-        .m_wready       (entry_m_sel[i] && m_axi_wready          ),
+        .m_wready       (r_ptr_v == i && m_axi_wready           ),
         .m_wdata        (entry_wdata[i]                         ),
 
         .m_arvalid      (entry_arvalid[i]                       ),
-        .m_arready      (entry_m_sel[i] && m_axi_arready        ),
+        .m_arready      (r_ptr_v == i && m_axi_arready          ),
         .m_araddr       (entry_araddr[i]                        ),
 
-        .m_rready       (),
-        .m_rvalid       (m_axi_rvalid && m_axi_rid == entry_id[i] && entry_valid[i]),
+        .m_rready       (entry_rready[i]                        ),
+        .m_rvalid       (r_ptr_v == i && m_axi_rvalid           ),
         .m_rdata        (m_axi_rdata                            ),
         .m_rresp        (m_axi_rresp                            ),
         
-        .m_bready       (),
-        .m_bvalid       (m_axi_bvalid && m_axi_bid == entry_id[i] && entry_valid[i]),
+        .m_bready       (entry_bready[i]                        ),
+        .m_bvalid       (r_ptr_v == i && m_axi_bvalid           ),
         .m_bresp        (m_axi_bresp                            ),
 
-        .entry_id       (entry_id[i]                            ),
-        .entry_valid    (entry_valid[i]                         )
-        
+        .entry_valid    (entry_valid[i]                         ),
+        .cacheline_id   (entry_cacheline_id[i]                  ),
+        .entry_state    (entry_state[i]                         )   
     );
 end
 
-assign awready = |entry_awready;
-assign m_axi_awvalid = |entry_awvalid;
-ns_mux1h# (Cfg.nlineWidth, Cfg.u.mcSize) mc_awid_mux1h (entry_id, entry_m_awsel, m_axi_awid);
-ns_mux1h# (32, Cfg.u.mcSize) mc_awaddr_mux1h (entry_awaddr, entry_m_awsel, m_axi_awaddr);
+assign s_axi_awready = entry_awready[w_ptr_v];
+assign s_axi_wready  = |entry_wready;
+
+assign s_axi_arready = entry_arready[w_ptr_v];
+
+assign s_axi_rvalid  = entry_rvalid[r_ptr_v];
+assign s_axi_rdata   = entry_rdata[r_ptr_v];
+assign s_axi_rid     = entry_cacheline_id[r_ptr_v];
+
+assign m_axi_awvalid = entry_awvalid[r_ptr_v];
+assign m_axi_awaddr  = entry_awaddr[r_ptr_v];
+assign m_axi_awid    = bank_id;
 assign m_axi_awlen   = 'd0; //unused
 assign m_axi_awsize  = 'd0; //unused
 assign m_axi_awburst = 'd0; //unused
 
-assign wready = 1'b1;
-assign m_axi_wvalid = |entry_wvalid;
-ns_mux1h# (256, Cfg.u.mcSize) mc_wdata_mux1h (entry_wdata, entry_wsel, m_axi_wdata);
-assign m_axi_wstrb  = 'd0; //unused
-assign m_axi_wlast  = 'd0; //unused
-assign m_axi_bready = 1'b1;
+assign m_axi_wvalid  = entry_wvalid[r_ptr_v];
+assign m_axi_wdata   = entry_wdata[r_ptr_v];
+assign m_axi_wstrb   = 'hffff_ffff; //unused
+assign m_axi_wlast   = entry_wvalid[r_ptr_v]; //unused
 
-assign arready = |entry_arready;
-assign m_axi_arvalid = |entry_arvalid;
-ns_mux1h# (Cfg.nlineWidth, Cfg.u.mcSize) mc_arid_mux1h (entry_id, entry_m_arsel, m_axi_arid);
-ns_mux1h# (32, Cfg.u.mcSize) mc_araddr_mux1h (entry_araddr, entry_m_arsel, m_axi_araddr);
+assign m_axi_arvalid = entry_arvalid[r_ptr_v];
+assign m_axi_araddr  = entry_araddr[r_ptr_v];
+assign m_axi_arid    = bank_id;
 assign m_axi_arlen   = 'd0; //unused
 assign m_axi_arsize  = 'd0; //unused
 assign m_axi_arburst = 'd0; //unused
 
-assign rvalid = |entry_rvalid;
-ns_mux1h# (256, Cfg.u.mcSize) mc_rdata_mux1h (entry_rdata, entry_rsel, rdata);
-ns_mux1h# (Cfg.nlineWidth, Cfg.u.mcSize) mc_rid_mux1h (entry_id, entry_rsel, rid);
-assign m_axi_rready = 1'b1;
+assign m_axi_rready  = entry_rready[r_ptr_v];
+
+assign m_axi_bready  = entry_bready[r_ptr_v];
 
 endmodule

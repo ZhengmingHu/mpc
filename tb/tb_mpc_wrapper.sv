@@ -19,6 +19,7 @@ module tb_mpc_wrapper;
      mcSize:4
  };
 parameter mpc_cfg_t Cfg = mpcBuildConfig(UserCfg);
+parameter type clWidth_t       = logic [Cfg.u.clWidth-1:0];
 parameter type opWidth_t       = logic [Cfg.u.opWidth-1:0];
 parameter type dataWidth_t     = logic [Cfg.u.clWordWidth-1:0];
 parameter type addrWidth_t     = logic [Cfg.u.addrWidth-1:0];
@@ -29,6 +30,7 @@ parameter type wbufWidth_t     = logic [Cfg.wbufWidth-1:0];
 parameter type wayNum_t        = logic [Cfg.wayNum-1:0];
 parameter type nlineWidth_t    = logic [Cfg.nlineWidth-1:0];
 parameter type offsetWidth_t   = logic [Cfg.offsetWidth-1:0];
+parameter type byteWidth_t     = logic [Cfg.byteWidth-1:0];
 parameter type metaWidth_t     = logic [Cfg.metaWidth-1:0];
 parameter type robWidth_t      = logic [Cfg.robWidth-1:0];
 parameter type lsqWidth_t      = logic [Cfg.lsqWidth-1:0];
@@ -39,14 +41,21 @@ parameter type mcWidth_t       = logic [Cfg.mcWidth-1:0];
 localparam type channel_req_t = 
     `MPC_DECL_REQ_T(
         opWidth_t,
+        opWidth_t,
         dataWidth_t,
         addrWidth_t);
     
 localparam type bank_req_t =
     `MPC_DECL_BANK_REQ_T(
         opWidth_t,
+        opWidth_t,
         dataWidth_t,
         addrWidth_t);
+
+localparam type wbuf_req_t = 
+    `MPC_DECL_WBUF_REQ_T(
+        wbufWidth_t,
+        dataWidth_t);
 
 logic                        clk                        ;
 logic                        rst_n                      ;
@@ -109,8 +118,9 @@ initial begin
     @(posedge clk)
     u_channel_0_req_bus_valid <= 'd1;
     u_channel_0_req_bus.op <= MPC_OP_STORE;
+    u_channel_0_req_bus.size <= QUAD;
     u_channel_0_req_bus.addr <= 32'b0000_0000_1010_0000;
-    u_channel_0_req_bus.wdata <= 128'haaaa_bbbb_cccc_dddd;
+    u_channel_0_req_bus.wdata <= 128'haaaa_bbbb_cccc_dddd_eeee_ffff_1234_5678;
     
     @(posedge clk)
     u_channel_0_req_bus_valid = 'd0;
@@ -118,7 +128,8 @@ initial begin
 
     u_channel_1_req_bus_valid = 'd1;
     u_channel_1_req_bus.op <= MPC_OP_LOAD;
-    u_channel_1_req_bus.addr <= 32'b0000_0000_1010_0000;
+    u_channel_1_req_bus.size <= BYTE;
+    u_channel_1_req_bus.addr <= 32'b0000_0000_1010_0001;
 
     @(posedge clk)
     u_channel_1_req_bus_valid = 'd0;
@@ -128,6 +139,7 @@ end
 
 mpc_wrapper # (
     .Cfg                       (Cfg                      ),
+    .clWidth_t                 (clWidth_t                ),
     .opWidth_t                 (opWidth_t                ),
     .dataWidth_t               (dataWidth_t              ),
     .addrWidth_t               (addrWidth_t              ),
@@ -137,7 +149,8 @@ mpc_wrapper # (
     .wbufWidth_t               (wbufWidth_t              ), 
     .wayNum_t                  (wayNum_t                 ), 
     .nlineWidth_t              (nlineWidth_t             ), 
-    .offsetWidth_t             (offsetWidth_t            ), 
+    .offsetWidth_t             (offsetWidth_t            ),
+    .byteWidth_t               (byteWidth_t              ), 
     .metaWidth_t               (metaWidth_t              ), 
     .robWidth_t                (robWidth_t               ), 
     .lsqWidth_t                (lsqWidth_t               ), 
@@ -145,7 +158,8 @@ mpc_wrapper # (
     .kobWidth_t                (kobWidth_t               ), 
     .mcWidth_t                 (mcWidth_t                ),
     .channel_req_t             (channel_req_t            ),
-    .bank_req_t                (bank_req_t               )
+    .bank_req_t                (bank_req_t               ),
+    .wbuf_req_t                (wbuf_req_t               )
 ) u_mpc_wrapper (
     .*
 );

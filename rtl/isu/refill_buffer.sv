@@ -1,7 +1,8 @@
 module refill_buffer_entry
     import mpc_types::*;
 #(
-    parameter mpc_cfg_t Cfg = '0,   
+    parameter mpc_cfg_t Cfg = '0,
+    parameter type clWidth_t       = logic,   
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -20,7 +21,7 @@ module refill_buffer_entry
 
     input  logic                                   memctl_refill_valid        ,
     input  nlineWidth_t                            memctl_refill_id           ,
-    input  logic                  [255: 0]         memctl_refill_data         ,
+    input  clWidth_t                               memctl_refill_data         ,
 
     output logic                                   entry_valid                ,
     output setWidth_t                              entry_set                  ,
@@ -28,7 +29,7 @@ module refill_buffer_entry
 
     output logic                                   deq_valid                  ,
     input  logic                                   deq_ready                  ,
-    output logic                 [255: 0]          deq_data    
+    output clWidth_t                               deq_data    
 
 );
 
@@ -58,7 +59,7 @@ assign deq_hsked         = deq_valid & deq_ready;
 ns_gnrl_dfflr # (                1) entry_valid_dfflr (entry_valid_set, entry_valid_nxt, entry_valid, clk, rst_n);
 ns_gnrl_dfflr # (     Cfg.setWidth) entry_set_dfflr (memctl_refill_valid, memctl_refill_set, entry_set, clk, rst_n);
 ns_gnrl_dfflr # (Cfg.wayIndexWidth) entry_way_dfflr (memctl_refill_valid, memctl_refill_way, entry_way, clk, rst_n);
-ns_gnrl_dfflr # (              256) entry_data_dfflr (memctl_refill_valid, memctl_refill_data, entry_data, clk, rst_n);
+ns_gnrl_dfflr # (    Cfg.u.clWidth) entry_data_dfflr (memctl_refill_valid, memctl_refill_data, entry_data, clk, rst_n);
 
 assign deq_valid         = entry_valid;
 assign deq_data          = entry_data;
@@ -68,7 +69,8 @@ endmodule
 module refill_buffer
     import mpc_types::*;
 #(
-    parameter mpc_cfg_t Cfg = '0,   
+    parameter mpc_cfg_t Cfg = '0,
+    parameter type clWidth_t       = logic,   
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -89,7 +91,7 @@ module refill_buffer
     input  logic                                   memctl_refill_valid        ,
     output logic                                   memctl_refill_ready        ,  
     input  nlineWidth_t                            memctl_refill_id           ,
-    input  logic                   [255: 0]        memctl_refill_data         ,
+    input  clWidth_t                               memctl_refill_data         ,
 
     // 2. lsq intf
     input  logic                                   lsq_deq_confirm            ,                                   
@@ -99,7 +101,7 @@ module refill_buffer
     // 3. downstream rc intf
     output logic                                   d_rc_hit_refill_buf        ,
     input  logic                                   d_rc_ready                 ,
-    output logic                  [255: 0]         d_rc_refill_data                     
+    output clWidth_t                               d_rc_refill_data                     
 );
 
 logic [Cfg.u.rfbufSize-1:0]                        entry_vld_vec;
@@ -131,6 +133,7 @@ generate
     begin: refill_buffer_entry_gen
         refill_buffer_entry # (
             .Cfg                               (Cfg                       ),
+            .clWidth_t                         (clWidth_t                 ),
             .setWidth_t                        (setWidth_t                ),
             .tagWidth_t                        (tagWidth_t                ),
             .wayIndexWidth_t                   (wayIndexWidth_t           ),

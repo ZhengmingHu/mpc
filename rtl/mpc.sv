@@ -3,6 +3,7 @@ module mpc
 #(
     parameter mpc_cfg_t Cfg = '0,   
     parameter type opWidth_t       = logic,
+    parameter type clWidth_t       = logic,
     parameter type dataWidth_t     = logic,
     parameter type addrWidth_t     = logic,
     parameter type setWidth_t      = logic,
@@ -12,6 +13,7 @@ module mpc
     parameter type wayNum_t        = logic,
     parameter type nlineWidth_t    = logic,
     parameter type offsetWidth_t   = logic,
+    parameter type byteWidth_t     = logic,
     parameter type metaWidth_t     = logic,
     parameter type robWidth_t      = logic,
     parameter type lsqWidth_t      = logic,
@@ -20,7 +22,8 @@ module mpc
     parameter type mcWidth_t       = logic,
 
     parameter type channel_req_t   = logic,
-    parameter type bank_req_t      = logic
+    parameter type bank_req_t      = logic,
+    parameter type wbuf_req_t      = logic
 )(
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
@@ -41,20 +44,20 @@ module mpc
     // upstream rsp to 3 channels
     output logic                        u_channel_0_rsp_bus_valid  ,
     input  logic                        u_channel_0_rsp_bus_ready  ,
-    output logic          [127: 0]      u_channel_0_rsp_bus_rdata  ,
+    output dataWidth_t                  u_channel_0_rsp_bus_rdata  ,
     
     output logic                        u_channel_1_rsp_bus_valid  ,
     input  logic                        u_channel_1_rsp_bus_ready  ,
-    output logic          [127: 0]      u_channel_1_rsp_bus_rdata  ,
+    output dataWidth_t                  u_channel_1_rsp_bus_rdata  ,
     
     output logic                        u_channel_2_rsp_bus_valid  ,
     input  logic                        u_channel_2_rsp_bus_ready  ,
-    output logic          [127: 0]      u_channel_2_rsp_bus_rdata  ,
+    output dataWidth_t                  u_channel_2_rsp_bus_rdata  ,
 
     // Master AXI AW Channel
     input  logic                        slice_0_m_axi_awready      ,
     output logic                        slice_0_m_axi_awvalid      ,
-    output nlineWidth_t                 slice_0_m_axi_awid         ,
+    output logic           [  1: 0]     slice_0_m_axi_awid         ,
     output logic           [ 31: 0]     slice_0_m_axi_awaddr       ,
     output logic           [  7: 0]     slice_0_m_axi_awlen        ,
     output logic           [  2: 0]     slice_0_m_axi_awsize       ,
@@ -68,13 +71,13 @@ module mpc
     output logic                        slice_0_m_axi_wlast        ,
     output logic                        slice_0_m_axi_bready       ,
     input  logic                        slice_0_m_axi_bvalid       ,
-    input  nlineWidth_t                 slice_0_m_axi_bid          ,
+    input  logic           [  1: 0]     slice_0_m_axi_bid          ,
     input  logic           [  1: 0]     slice_0_m_axi_bresp        ,
 
     // Master AXI AR Channel
     input  logic                        slice_0_m_axi_arready      ,
     output logic                        slice_0_m_axi_arvalid      ,
-    output nlineWidth_t                 slice_0_m_axi_arid         ,
+    output logic           [  1: 0]     slice_0_m_axi_arid         ,
     output logic           [ 31: 0]     slice_0_m_axi_araddr       ,
     output logic           [  7: 0]     slice_0_m_axi_arlen        ,
     output logic           [  2: 0]     slice_0_m_axi_arsize       ,
@@ -83,14 +86,14 @@ module mpc
     // Master AXI R Channel
     output logic                        slice_0_m_axi_rready       ,
     input  logic                        slice_0_m_axi_rvalid       ,
-    input  nlineWidth_t                 slice_0_m_axi_rid          ,
+    input  logic           [  1: 0]     slice_0_m_axi_rid          ,
     input  logic           [255: 0]     slice_0_m_axi_rdata        ,
     input  logic           [  1: 0]     slice_0_m_axi_rresp        ,
     input  logic                        slice_0_m_axi_rlast        ,
     
     input  logic                        slice_1_m_axi_awready      ,
     output logic                        slice_1_m_axi_awvalid      ,
-    output nlineWidth_t                 slice_1_m_axi_awid         ,
+    output logic           [  1: 0]     slice_1_m_axi_awid         ,
     output logic           [ 31: 0]     slice_1_m_axi_awaddr       ,
     output logic           [  7: 0]     slice_1_m_axi_awlen        ,
     output logic           [  2: 0]     slice_1_m_axi_awsize       ,
@@ -103,12 +106,12 @@ module mpc
     output logic                        slice_1_m_axi_wlast        ,
     output logic                        slice_1_m_axi_bready       ,
     input  logic                        slice_1_m_axi_bvalid       ,
-    input  nlineWidth_t                 slice_1_m_axi_bid          ,
+    input  logic           [  1: 0]     slice_1_m_axi_bid          ,
     input  logic           [  1: 0]     slice_1_m_axi_bresp        ,
 
     input  logic                        slice_1_m_axi_arready      ,
     output logic                        slice_1_m_axi_arvalid      ,
-    output nlineWidth_t                 slice_1_m_axi_arid         ,
+    output logic           [  1: 0]     slice_1_m_axi_arid         ,
     output logic           [ 31: 0]     slice_1_m_axi_araddr       ,
     output logic           [  7: 0]     slice_1_m_axi_arlen        ,
     output logic           [  2: 0]     slice_1_m_axi_arsize       ,
@@ -116,14 +119,14 @@ module mpc
 
     output logic                        slice_1_m_axi_rready       ,
     input  logic                        slice_1_m_axi_rvalid       ,
-    input  nlineWidth_t                 slice_1_m_axi_rid          ,
+    input  logic           [  1: 0]     slice_1_m_axi_rid          ,
     input  logic           [255: 0]     slice_1_m_axi_rdata        ,
     input  logic           [  1: 0]     slice_1_m_axi_rresp        ,
     input  logic                        slice_1_m_axi_rlast        ,
 
     input  logic                        slice_2_m_axi_awready      ,
     output logic                        slice_2_m_axi_awvalid      ,
-    output nlineWidth_t                 slice_2_m_axi_awid         ,
+    output logic           [  1: 0]     slice_2_m_axi_awid         ,
     output logic           [ 31: 0]     slice_2_m_axi_awaddr       ,
     output logic           [  7: 0]     slice_2_m_axi_awlen        ,
     output logic           [  2: 0]     slice_2_m_axi_awsize       ,
@@ -137,12 +140,12 @@ module mpc
     
     output logic                        slice_2_m_axi_bready       ,
     input  logic                        slice_2_m_axi_bvalid       ,
-    input  nlineWidth_t                 slice_2_m_axi_bid          ,
+    input  logic           [  1: 0]     slice_2_m_axi_bid          ,
     input  logic           [  1: 0]     slice_2_m_axi_bresp        ,
     
     input  logic                        slice_2_m_axi_arready      ,
     output logic                        slice_2_m_axi_arvalid      ,
-    output nlineWidth_t                 slice_2_m_axi_arid         ,
+    output logic           [  1: 0]     slice_2_m_axi_arid         ,
     output logic           [ 31: 0]     slice_2_m_axi_araddr       ,
     output logic           [  7: 0]     slice_2_m_axi_arlen        ,
     output logic           [  2: 0]     slice_2_m_axi_arsize       ,
@@ -150,14 +153,14 @@ module mpc
     
     output logic                        slice_2_m_axi_rready       ,
     input  logic                        slice_2_m_axi_rvalid       ,
-    input  nlineWidth_t                 slice_2_m_axi_rid          ,
+    input  logic           [  1: 0]     slice_2_m_axi_rid          ,
     input  logic           [255: 0]     slice_2_m_axi_rdata        ,
     input  logic           [  1: 0]     slice_2_m_axi_rresp        ,
     input  logic                        slice_2_m_axi_rlast        ,
 
     input  logic                        slice_3_m_axi_awready      ,
     output logic                        slice_3_m_axi_awvalid      ,
-    output nlineWidth_t                 slice_3_m_axi_awid         ,
+    output logic           [  1: 0]     slice_3_m_axi_awid         ,
     output logic           [ 31: 0]     slice_3_m_axi_awaddr       ,
     output logic           [  7: 0]     slice_3_m_axi_awlen        ,
     output logic           [  2: 0]     slice_3_m_axi_awsize       ,
@@ -171,12 +174,12 @@ module mpc
 
     output logic                        slice_3_m_axi_bready       ,
     input  logic                        slice_3_m_axi_bvalid       ,
-    input  nlineWidth_t                 slice_3_m_axi_bid          ,
+    input  logic           [  1: 0]     slice_3_m_axi_bid          ,
     input  logic           [  1: 0]     slice_3_m_axi_bresp        ,
     
     input  logic                        slice_3_m_axi_arready      ,
     output logic                        slice_3_m_axi_arvalid      ,
-    output nlineWidth_t                 slice_3_m_axi_arid         ,
+    output logic           [  1: 0]     slice_3_m_axi_arid         ,
     output logic           [ 31: 0]     slice_3_m_axi_araddr       ,
     output logic           [  7: 0]     slice_3_m_axi_arlen        ,
     output logic           [  2: 0]     slice_3_m_axi_arsize       ,
@@ -184,7 +187,7 @@ module mpc
     
     output logic                        slice_3_m_axi_rready       ,
     input  logic                        slice_3_m_axi_rvalid       ,
-    input  nlineWidth_t                 slice_3_m_axi_rid          ,
+    input  logic           [  1: 0]     slice_3_m_axi_rid          ,
     input  logic           [255: 0]     slice_3_m_axi_rdata        ,
     input  logic           [  1: 0]     slice_3_m_axi_rresp        ,
     input  logic                        slice_3_m_axi_rlast        
@@ -225,22 +228,22 @@ logic                        bank_3_wbuf_rsp_free_valid;
 wbufWidth_t                  bank_3_wbuf_rsp_free_id   ;
 logic                        bank_0_rsp_valid          ;
 logic                        bank_0_rsp_ready          ;
-logic         [127: 0]       bank_0_rsp_data           ;
+dataWidth_t                  bank_0_rsp_data           ;
 robWidth_t                   bank_0_rsp_rob_id         ;
 logic         [  1: 0]       bank_0_rsp_channel_id     ;
 logic                        bank_1_rsp_valid          ;
 logic                        bank_1_rsp_ready          ;
-logic         [127: 0]       bank_1_rsp_data           ;
+dataWidth_t                  bank_1_rsp_data           ;
 robWidth_t                   bank_1_rsp_rob_id         ;
 logic         [  1: 0]       bank_1_rsp_channel_id     ;
 logic                        bank_2_rsp_valid          ;
 logic                        bank_2_rsp_ready          ;
-logic         [127: 0]       bank_2_rsp_data           ;
+dataWidth_t                  bank_2_rsp_data           ;
 robWidth_t                   bank_2_rsp_rob_id         ;
 logic         [  1: 0]       bank_2_rsp_channel_id     ;
 logic                        bank_3_rsp_valid          ;
 logic                        bank_3_rsp_ready          ;
-logic         [127: 0]       bank_3_rsp_data           ;
+dataWidth_t                  bank_3_rsp_data           ;
 robWidth_t                   bank_3_rsp_rob_id         ;
 logic         [  1: 0]       bank_3_rsp_channel_id     ;
 logic         [  2: 0]       bank_0_crdt_rtn           ;
@@ -265,7 +268,8 @@ xbar_wrapper # (
     .lsqWidth_t                     (lsqWidth_t                 ),
     .kobWidth_t                     (kobWidth_t                 ),
     .channel_req_t                  (channel_req_t              ),
-    .bank_req_t                     (bank_req_t                 )
+    .bank_req_t                     (bank_req_t                 ),
+    .wbuf_req_t                     (wbuf_req_t                 )
 ) u_xbar_wrapper (              
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),
@@ -348,6 +352,7 @@ xbar_wrapper # (
 slice # (
     .Cfg                            (Cfg                        ),
     .opWidth_t                      (opWidth_t                  ),
+    .clWidth_t                      (clWidth_t                  ),
     .dataWidth_t                    (dataWidth_t                ),
     .addrWidth_t                    (addrWidth_t                ),
     .setWidth_t                     (setWidth_t                 ),
@@ -357,16 +362,19 @@ slice # (
     .wayNum_t                       (wayNum_t                   ),
     .nlineWidth_t                   (nlineWidth_t               ),
     .offsetWidth_t                  (offsetWidth_t              ),
+    .byteWidth_t                    (byteWidth_t                ),
     .metaWidth_t                    (metaWidth_t                ),
     .robWidth_t                     (robWidth_t                 ),
     .lsqWidth_t                     (lsqWidth_t                 ),
     .rfbufWidth_t                   (rfbufWidth_t               ),
     .kobWidth_t                     (kobWidth_t                 ),
     .mcWidth_t                      (mcWidth_t                  ),
-    .bank_req_t                     (bank_req_t                 )
+    .bank_req_t                     (bank_req_t                 ),
+    .wbuf_req_t                     (wbuf_req_t                 )
 ) u_slice_0 (
     .clk                            (clk                        ),  
-    .rst_n                          (rst_n                      ),  
+    .rst_n                          (rst_n                      ),
+    .bank_id                        (2'd0                       ),  
     .u_bank_req_valid               (bank_0_htu_valid           ),  
     .u_bank_req_ready               (bank_0_htu_ready           ),  
     .u_bank_req                     (bank_0_htu_req             ),  
@@ -415,6 +423,7 @@ slice # (
 slice # (
     .Cfg                            (Cfg                        ),
     .opWidth_t                      (opWidth_t                  ),
+    .clWidth_t                      (clWidth_t                  ),
     .dataWidth_t                    (dataWidth_t                ),
     .addrWidth_t                    (addrWidth_t                ),
     .setWidth_t                     (setWidth_t                 ),
@@ -424,16 +433,19 @@ slice # (
     .wayNum_t                       (wayNum_t                   ),
     .nlineWidth_t                   (nlineWidth_t               ),
     .offsetWidth_t                  (offsetWidth_t              ),
+    .byteWidth_t                    (byteWidth_t                ),
     .metaWidth_t                    (metaWidth_t                ),
     .robWidth_t                     (robWidth_t                 ),
     .lsqWidth_t                     (lsqWidth_t                 ),
     .rfbufWidth_t                   (rfbufWidth_t               ),
     .kobWidth_t                     (kobWidth_t                 ),
     .mcWidth_t                      (mcWidth_t                  ),
-    .bank_req_t                     (bank_req_t                 )
+    .bank_req_t                     (bank_req_t                 ),
+    .wbuf_req_t                     (wbuf_req_t                 )
 ) u_slice_1 (
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),
+    .bank_id                        (2'd1                       ),
     .u_bank_req_valid               (bank_1_htu_valid           ),
     .u_bank_req_ready               (bank_1_htu_ready           ),
     .u_bank_req                     (bank_1_htu_req             ),
@@ -482,6 +494,7 @@ slice # (
 slice # (
     .Cfg                            (Cfg                        ),
     .opWidth_t                      (opWidth_t                  ),
+    .clWidth_t                      (clWidth_t                  ),
     .dataWidth_t                    (dataWidth_t                ),
     .addrWidth_t                    (addrWidth_t                ),
     .setWidth_t                     (setWidth_t                 ),
@@ -491,16 +504,19 @@ slice # (
     .wayNum_t                       (wayNum_t                   ),
     .nlineWidth_t                   (nlineWidth_t               ),
     .offsetWidth_t                  (offsetWidth_t              ),
+    .byteWidth_t                    (byteWidth_t                ),
     .metaWidth_t                    (metaWidth_t                ),
     .robWidth_t                     (robWidth_t                 ),
     .lsqWidth_t                     (lsqWidth_t                 ),
     .rfbufWidth_t                   (rfbufWidth_t               ),
     .kobWidth_t                     (kobWidth_t                 ),
     .mcWidth_t                      (mcWidth_t                  ),
-    .bank_req_t                     (bank_req_t                 )
+    .bank_req_t                     (bank_req_t                 ),
+    .wbuf_req_t                     (wbuf_req_t                 )
 ) u_slice_2 (
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),
+    .bank_id                        (2'd2                       ),
     .u_bank_req_valid               (bank_2_htu_valid           ),
     .u_bank_req_ready               (bank_2_htu_ready           ),
     .u_bank_req                     (bank_2_htu_req             ),
@@ -549,6 +565,7 @@ slice # (
 slice # (
     .Cfg                            (Cfg                        ),
     .opWidth_t                      (opWidth_t                  ),
+    .clWidth_t                      (clWidth_t                  ),
     .dataWidth_t                    (dataWidth_t                ),
     .addrWidth_t                    (addrWidth_t                ),
     .setWidth_t                     (setWidth_t                 ),
@@ -558,16 +575,19 @@ slice # (
     .wayNum_t                       (wayNum_t                   ),
     .nlineWidth_t                   (nlineWidth_t               ),
     .offsetWidth_t                  (offsetWidth_t              ),
+    .byteWidth_t                    (byteWidth_t                ),
     .metaWidth_t                    (metaWidth_t                ),
     .robWidth_t                     (robWidth_t                 ),
     .lsqWidth_t                     (lsqWidth_t                 ),
     .rfbufWidth_t                   (rfbufWidth_t               ),
     .kobWidth_t                     (kobWidth_t                 ),
     .mcWidth_t                      (mcWidth_t                  ),
-    .bank_req_t                     (bank_req_t                 )
+    .bank_req_t                     (bank_req_t                 ),
+    .wbuf_req_t                     (wbuf_req_t                 )
 ) u_slice_3 (
     .clk                            (clk                        ),
     .rst_n                          (rst_n                      ),
+    .bank_id                        (2'd3                       ),
     .u_bank_req_valid               (bank_3_htu_valid           ),
     .u_bank_req_ready               (bank_3_htu_ready           ),
     .u_bank_req                     (bank_3_htu_req             ),

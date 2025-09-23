@@ -43,6 +43,7 @@
 ../rtl/rc/rc_wrapper.sv
 ../rtl/mc/mc_wrapper.sv
 ../rtl/wbuf/write_buffer.sv
+../tb/mem_model/mem_intf_arbiter.sv
 ../tb/mem_model/mem_intf.sv
 ../rtl/slice/slice.sv
 ../rtl/mpc.sv

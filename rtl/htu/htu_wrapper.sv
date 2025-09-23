@@ -2,6 +2,9 @@ module htu_wrapper
     import mpc_types::*;
 # (
     parameter mpc_cfg_t Cfg = '0,   
+    parameter type opWidth_t       = logic,
+    parameter type dataWidth_t     = logic,
+    parameter type addrWidth_t     = logic,
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -9,6 +12,7 @@ module htu_wrapper
     parameter type wayNum_t        = logic,
     parameter type nlineWidth_t    = logic,
     parameter type offsetWidth_t   = logic,
+    parameter type byteWidth_t     = logic,
     parameter type metaWidth_t     = logic,
     parameter type robWidth_t      = logic,
     parameter type lsqWidth_t      = logic,
@@ -35,8 +39,10 @@ module htu_wrapper
     input  logic                        d_isu_ready                ,
     output logic           [  2: 0]     d_isu_channel_1hot_id      ,
     output logic           [  2: 0]     d_isu_op                   ,
+    output logic           [  2: 0]     d_isu_size                 ,
     output nlineWidth_t                 d_isu_id                   ,
     output offsetWidth_t                d_isu_offset               ,
+    output byteWidth_t                  d_isu_byte                 ,
     output wbufWidth_t                  d_isu_wbuf_id              ,
     
     // 4. to down stream memory interface
@@ -91,6 +97,9 @@ wayIndexWidth_t              replace_access_way                    ;
 
 htu_pipe # (
     .Cfg                               (Cfg                       ),
+    .opWidth_t                         (opWidth_t                 ),
+    .dataWidth_t                       (dataWidth_t               ),
+    .addrWidth_t                       (addrWidth_t               ),
     .setWidth_t                        (setWidth_t                ),
     .tagWidth_t                        (tagWidth_t                ),
     .wayIndexWidth_t                   (wayIndexWidth_t           ),
@@ -98,6 +107,7 @@ htu_pipe # (
     .wayNum_t                          (wayNum_t                  ),
     .nlineWidth_t                      (nlineWidth_t              ),
     .offsetWidth_t                     (offsetWidth_t             ),
+    .byteWidth_t                       (byteWidth_t               ),
     .metaWidth_t                       (metaWidth_t               ),
     .bank_req_t                        (bank_req_t                )
 ) u_htu_pipe (
@@ -116,8 +126,10 @@ htu_pipe # (
     .d_isu_ready          ,
     .d_isu_channel_1hot_id,
     .d_isu_op             ,
+    .d_isu_size           ,
     .d_isu_id             ,
     .d_isu_offset         ,
+    .d_isu_byte           ,
     .d_isu_wbuf_id        ,
 
     .d_memctl_awvalid     ,

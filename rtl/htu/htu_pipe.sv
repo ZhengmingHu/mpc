@@ -2,6 +2,9 @@ module htu_pipe
     import mpc_types::*;
 #(
     parameter mpc_cfg_t Cfg = '0,   
+    parameter type opWidth_t       = logic,
+    parameter type dataWidth_t     = logic,
+    parameter type addrWidth_t     = logic,
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -9,6 +12,7 @@ module htu_pipe
     parameter type wayNum_t        = logic,
     parameter type nlineWidth_t    = logic,
     parameter type offsetWidth_t   = logic,
+    parameter type byteWidth_t     = logic,
     parameter type metaWidth_t     = logic,
     parameter type bank_req_t      = logic
 )
@@ -31,21 +35,23 @@ module htu_pipe
     output logic                        d_isu_valid                ,
     input  logic                        d_isu_ready                ,
     output logic           [  2: 0]     d_isu_channel_1hot_id      ,
-    output logic           [  2: 0]     d_isu_op                   ,
+    output opWidth_t                    d_isu_op                   ,
+    output logic           [  2: 0]     d_isu_size                 ,
     output nlineWidth_t                 d_isu_id                   ,
     output offsetWidth_t                d_isu_offset               ,
+    output byteWidth_t                  d_isu_byte                 ,
     output wbufWidth_t                  d_isu_wbuf_id              ,
     
     // 4. to down stream memory interface
     output logic                        d_memctl_awvalid           ,
     input  logic                        d_memctl_awready           ,
     output nlineWidth_t                 d_memctl_awid              ,
-    output logic           [ 31: 0]     d_memctl_awaddr            ,
+    output addrWidth_t                  d_memctl_awaddr            ,
     
     output logic                        d_memctl_arvalid           ,
     input  logic                        d_memctl_arready           ,
     output nlineWidth_t                 d_memctl_arid              ,
-    output logic           [ 31: 0]     d_memctl_araddr            ,
+    output addrWidth_t                  d_memctl_araddr            ,
 
     // 5. tag_array interface
     output logic                        tag_read_valid             ,
@@ -90,12 +96,14 @@ module htu_pipe
 
 );
 
-localparam setMSB       = 31 - Cfg.tagWidth - Cfg.bankWidth;
+localparam setMSB       = Cfg.u.addrWidth - Cfg.tagWidth - Cfg.bankWidth - 1;
 localparam setLSB       = Cfg.offsetWidth + Cfg.byteWidth;
-localparam tagMSB       = 31;
+localparam tagMSB       = Cfg.u.addrWidth - 1;
 localparam tagLSB       = Cfg.bankWidth + Cfg.setWidth + Cfg.offsetWidth + Cfg.byteWidth;
-localparam offsetMSB    = 31 - Cfg.tagWidth - Cfg.bankWidth - Cfg.setWidth;
+localparam offsetMSB    = Cfg.u.addrWidth - Cfg.tagWidth - Cfg.bankWidth - Cfg.setWidth - 1;
 localparam offsetLSB    = Cfg.byteWidth;
+localparam byteMSB      = Cfg.byteWidth-1;
+localparam byteLSB      = 0;
 localparam bankReqWidth = $bits(u_bank_req);
 
 logic                                   s0_valid;
@@ -272,8 +280,10 @@ assign d_isu_op               =  s2_hit &  is_load(s2_bank_req.op)              
                                 !s2_hit &  is_load(s2_bank_req.op) & !is_unique(s2_meta[s2_way]) ? CACHE_OP_LOAD  :
                                 !s2_hit & is_store(s2_bank_req.op) &  is_unique(s2_meta[s2_way]) ? CACHE_OP_WAE   :
                                 !s2_hit & is_store(s2_bank_req.op) & !is_unique(s2_meta[s2_way]) ? CACHE_OP_STORE : CACHE_OP_LOAD;
+assign d_isu_size             = s2_bank_req.size;
 assign d_isu_id               = {s2_way, s2_set};
 assign d_isu_offset           = s2_bank_req.addr[offsetMSB:offsetLSB];
+assign d_isu_byte             = s2_bank_req.addr[byteMSB:byteLSB];
 assign d_isu_wbuf_id          = s2_bank_req_wbuf_id;
 
 assign d_isu_refill_valid     = s2_hsked & !s2_hit;

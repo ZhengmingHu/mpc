@@ -4,171 +4,80 @@
 #include <string.h>
 #include "svdpi.h"
 
-#define MEMORY_SIZE 131072
-#define DATA_WIDTH 8  // 255 bits needs 8 x 32-bit words (256 bits total)
+#define MEMORY_SIZE 262144
 
-typedef struct {
-    svBitVecVal words[DATA_WIDTH];
-} memory_data_t;
+static svBitVecVal memory[MEMORY_SIZE];
 
-static memory_data_t memory[MEMORY_SIZE];
+void write_memory(const int address, const svBitVecVal* data, 
+                         const svBit write_en, const int cacheline_width) {
 
-void write_slice_0_memory(const int address, const svBitVecVal* data, const svBit write_en) {
+    int words_per_line = cacheline_width / 32;
+    
     if (!write_en) {
-        // printf("Write operation disabled for address %d\n", address);
         return;
     }
+    
     if (address < 0 || address >= MEMORY_SIZE) {
         printf("Error: Memory address %d out of range (0-%d)\n", address, MEMORY_SIZE-1);
         return;
     }
+
+    if (cacheline_width % 32 != 0) {
+        printf("Error: cacheline_width (%d) must be a multiple of 32\n", cacheline_width);
+        return;
+    }
     
-    // Only perform write if enable is high
+    if (address + words_per_line > MEMORY_SIZE) {
+        printf("Error: Writing cacheline would exceed memory bounds (address %d, length %d)\n", 
+               address, words_per_line);
+        return;
+    }
+    
     if (write_en) {
-        for (int i = 0; i < DATA_WIDTH; i++) {
-            memory[address].words[i] = data[i];
+        for (int i = 0; i < words_per_line; i++) {
+            memory[address + i] = data[i];
         }
-        // printf("Write to address %d completed\n", address);
+        printf("Write to address %d (length %d) completed\n", address, words_per_line);
     }
 }
 
-void write_slice_1_memory(const int address, const svBitVecVal* data, const svBit write_en) {
-    if (!write_en) {
-        // printf("Write operation disabled for address %d\n", address);
-        return;
-    }
-    if (address < 0 || address >= MEMORY_SIZE) {
-        printf("Error: Memory address %d out of range (0-%d)\n", address, MEMORY_SIZE-1);
-        return;
-    }
-    
-    // Only perform write if enable is high
-    if (write_en) {
-        for (int i = 0; i < DATA_WIDTH; i++) {
-            memory[address].words[i] = data[i];
-        }
-        // printf("Write to address %d completed\n", address);
-    }
-}
-
-void write_slice_2_memory(const int address, const svBitVecVal* data, const svBit write_en) {
-    if (!write_en) {
-        // printf("Write operation disabled for address %d\n", address);
-        return;
-    }
-    if (address < 0 || address >= MEMORY_SIZE) {
-        printf("Error: Memory address %d out of range (0-%d)\n", address, MEMORY_SIZE-1);
-        return;
-    }
-    
-    // Only perform write if enable is high
-    if (write_en) {
-        for (int i = 0; i < DATA_WIDTH; i++) {
-            memory[address].words[i] = data[i];
-        }
-        // printf("Write to address %d completed\n", address);
-    }
-}
-
-void write_slice_3_memory(const int address, const svBitVecVal* data, const svBit write_en) {
-    if (!write_en) {
-        // printf("Write operation disabled for address %d\n", address);
-        return;
-    }
-    if (address < 0 || address >= MEMORY_SIZE) {
-        printf("Error: Memory address %d out of range (0-%d)\n", address, MEMORY_SIZE-1);
-        return;
-    }
-    
-    // Only perform write if enable is high
-    if (write_en) {
-        for (int i = 0; i < DATA_WIDTH; i++) {
-            memory[address].words[i] = data[i];
-        }
-        // printf("Write to address %d completed\n", address);
-    }
-}
-
-void read_slice_0_memory(const int address, svBitVecVal* data, const svBit read_en) {
+void read_memory(const int address, svBitVecVal* data, 
+                        const svBit read_en, const int cacheline_width) {
     if (!read_en) {
-        // printf("Read operation disabled for address %d\n", address);
         return;
     }
 
+    int words_per_line = cacheline_width / 32;
+
+    // 检查address是否对齐且有效
     if (address < 0 || address >= MEMORY_SIZE) {
         printf("Error: Memory address %d out of range (0-%d)\n", address, MEMORY_SIZE-1);
-        memset(data, 0, DATA_WIDTH * sizeof(svBitVecVal));
+        memset(data, 0, cacheline_width / 8);  // 清零整个cacheline（byte长度）
         return;
     }
     
-    // Only perform read if enable is high
-    if (read_en) {
-        for (int i = 0; i < DATA_WIDTH; i++) {
-            data[i] = memory[address].words[i];
-        }
-        // printf("Read from address %d completed\n", address);
-    }
-}
-
-void read_slice_1_memory(const int address, svBitVecVal* data, const svBit read_en) {
-    if (!read_en) {
-        // printf("Read operation disabled for address %d\n", address);
-        return;
-    }
-
-    if (address < 0 || address >= MEMORY_SIZE) {
-        printf("Error: Memory address %d out of range (0-%d)\n", address, MEMORY_SIZE-1);
-        memset(data, 0, DATA_WIDTH * sizeof(svBitVecVal));
+    // 计算cacheline包含多少个32bit字
+    
+    // 检查cacheline_width是否是32的倍数
+    if (cacheline_width % 32 != 0) {
+        printf("Error: cacheline_width (%d) must be a multiple of 32\n", cacheline_width);
+        memset(data, 0, cacheline_width / 8);
         return;
     }
     
-    // Only perform read if enable is high
-    if (read_en) {
-        for (int i = 0; i < DATA_WIDTH; i++) {
-            data[i] = memory[address].words[i];
-        }
-        // printf("Read from address %d completed\n", address);
-    }
-}
-
-void read_slice_2_memory(const int address, svBitVecVal* data, const svBit read_en) {
-    if (!read_en) {
-        // printf("Read operation disabled for address %d\n", address);
-        return;
-    }
-
-    if (address < 0 || address >= MEMORY_SIZE) {
-        printf("Error: Memory address %d out of range (0-%d)\n", address, MEMORY_SIZE-1);
-        memset(data, 0, DATA_WIDTH * sizeof(svBitVecVal));
+    // 检查读取不会越界
+    if (address + words_per_line > MEMORY_SIZE) {
+        printf("Error: Reading cacheline would exceed memory bounds (address %d, length %d)\n", 
+               address, words_per_line);
+        memset(data, 0, cacheline_width / 8);
         return;
     }
     
-    // Only perform read if enable is high
+    // 执行读取操作
     if (read_en) {
-        for (int i = 0; i < DATA_WIDTH; i++) {
-            data[i] = memory[address].words[i];
+        for (int i = 0; i < words_per_line; i++) {
+            data[i] = memory[address + i];
         }
-        // printf("Read from address %d completed\n", address);
-    }
-}
-
-void read_slice_3_memory(const int address, svBitVecVal* data, const svBit read_en) {
-    if (!read_en) {
-        // printf("Read operation disabled for address %d\n", address);
-        return;
-    }
-
-    if (address < 0 || address >= MEMORY_SIZE) {
-        printf("Error: Memory address %d out of range (0-%d)\n", address, MEMORY_SIZE-1);
-        memset(data, 0, DATA_WIDTH * sizeof(svBitVecVal));
-        return;
-    }
-    
-    // Only perform read if enable is high
-    if (read_en) {
-        for (int i = 0; i < DATA_WIDTH; i++) {
-            data[i] = memory[address].words[i];
-        }
-        // printf("Read from address %d completed\n", address);
+        printf("Read from address %d (length %d) completed\n", address, words_per_line);
     }
 }

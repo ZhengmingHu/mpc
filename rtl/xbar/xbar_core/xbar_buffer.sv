@@ -213,7 +213,7 @@ endgenerate
 generate
     for (genvar i = 0; i < 8; i++) 
     begin : req_entry_gen
-        ns_gnrl_dfflr # (3+32+128) req_entry_dfflr (req_entry_wen[i], u_ch_req, req_entry[i], clk, rst_n);
+        ns_gnrl_dfflr # ($bits(channel_req_t)) req_entry_dfflr (req_entry_wen[i], u_ch_req, req_entry[i], clk, rst_n);
     end
 endgenerate
 

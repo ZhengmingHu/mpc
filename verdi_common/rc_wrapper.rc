@@ -16,16 +16,18 @@ signalSpacing 5
 
 ; windowTimeUnit is used for zoom, cursor & marker
 ; waveform viewport range
-zoom 667.332008 754.822630
-cursor 690.000000
+zoom 672.376336 863.194358
+cursor 790.000000
 marker 0.000000
 
 ; user define markers
 ; userMarker time_pos marker_name color linestyle
+userMarker 750 M1 ID_GREEN5 long_dashed
+
 ; visible top row signal index
-top 23
+top 0
 ; marker line index
-markerPos 48
+markerPos 37
 
 ; event list
 ; addEvent event_name event_expression
@@ -52,30 +54,29 @@ addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/u_isu_ready
 addSignal -h 15 /tb_rc_wrapper/u_isu_channel_1hot_id[2:0]
 addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/u_isu_rob_id[3:0]
 addSignal -h 15 /tb_rc_wrapper/u_isu_op[2:0]
-addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/u_isu_set[2:0]
+addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/u_isu_size[2:0]
+addSignal -h 15 -holdScope u_isu_set[2:0]
 addSignal -h 15 -holdScope u_isu_way[1:0]
-addSignal -h 15 -holdScope u_isu_offset[0:0]
-addSignal -h 15 -holdScope u_isu_wbuf_id[6:0]
+addSignal -h 15 -holdScope u_isu_offset
+addSignal -h 15 -holdScope u_isu_byte[3:0]
 addSignal -h 15 -holdScope u_isu_refill_data[255:0]
 addGroup "s0"
 addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/s0_valid
 addSignal -h 15 -holdScope s0_ready
 addSignal -h 15 -holdScope s0_s1_conflict
+addSignal -h 15 -holdScope s0_s1_write_conflict
 addSignal -h 15 -holdScope s0_rob_id[3:0]
 addSignal -h 15 -holdScope s0_set[2:0]
 addSignal -h 15 -holdScope s0_way[1:0]
-addSignal -h 15 -holdScope s0_offset[0:0]
+addSignal -h 15 -holdScope s0_offset
+addSignal -h 15 -holdScope s0_byte[3:0]
 addSignal -h 15 -holdScope s0_refill_data[255:0]
 addSignal -h 15 -holdScope s0_op[2:0]
 addSignal -h 15 -holdScope s0_read_with_linefill
+addSignal -h 15 -holdScope s0_write_ptl
 addSignal -h 15 -holdScope s0_drop
 addSignal -h 15 -holdScope s0_way[1:0]
 addSignal -h 15 -holdScope s0_set[2:0]
-addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/u_data_array/w_en
-addSignal -h 15 -holdScope w_set[2:0]
-addSignal -h 15 -holdScope w_way[1:0]
-addSignal -h 15 -holdScope w_mask[1:0]
-addSignal -h 15 -holdScope w_data[255:0]
 addGroup "s1"
 addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/s0_s1_hsked
 addSignal -h 15 -holdScope s1_valid
@@ -83,10 +84,21 @@ addSignal -h 15 -holdScope s1_ready
 addSignal -h 15 -holdScope s1_drop
 addSignal -h 15 -holdScope s1_read_with_linefill
 addSignal -h 15 -holdScope s1_write_with_linefill
+addSignal -h 15 -holdScope s1_op[2:0]
+addSignal -h 15 -holdScope s1_size[2:0]
 addSignal -h 15 -holdScope s1_way[1:0]
 addSignal -h 15 -holdScope s1_set[2:0]
+addSignal -h 15 -holdScope s1_offset
+addSignal -h 15 -holdScope s1_byte[3:0]
 addSignal -h 15 -holdScope wbuf_rsp_data[127:0]
-addSignal -h 15 -holdScope s1_rdata[127:0]
+addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/u_data_array/w_en
+addSignal -h 15 -holdScope w_set[2:0]
+addSignal -h 15 -holdScope w_way[1:0]
+addSignal -h 15 -holdScope w_mask[1:0]
+addSignal -h 15 -holdScope w_data[255:0]
+addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/s1_rdata[127:0]
+addSignal -h 15 -holdScope s1_data_array_rsp_data[255:0]
+addSignal -h 15 -holdScope s1_wbuf_rsp_data_ext[255:0]
 addGroup "u_bank_rsp"
 addSignal -h 15 /tb_rc_wrapper/u_rc_wrapper/u_bank_rsp_valid
 addSignal -h 15 -holdScope u_bank_rsp_rob_id[3:0]

@@ -3,25 +3,32 @@ module tb_rc_wrapper;
 import mpc_types::*;
 
  parameter mpc_user_cfg_t UserCfg = '{
-     clWidth:256,
-     clWordWidth:128,
-     sets:8,
-     banks:4,
-     ways:4,
-     kobSize:16,
-     wbufSize:128,
-     robSize:16,
-     lsqSize:32,
-     rfbufSize:16
+    opWidth:3,
+    clWidth:256,
+    clWordWidth:128,
+    addrWidth:32,
+    sets:8,
+    banks:4,
+    ways:4,
+    kobSize:16,
+    wbufSize:16,
+    robSize:16,
+    lsqSize:32,
+    rfbufSize:16,
+    mcSize:4
  };
  parameter mpc_cfg_t Cfg = mpcBuildConfig(UserCfg);
+ parameter type clWidth_t       = logic [Cfg.u.clWidth-1:0];
+ parameter type dataWidth_t     = logic [Cfg.u.clWordWidth-1:0];
+ parameter type addrWidth_t     = logic [Cfg.u.addrWidth-1:0];
+ parameter type byteWidth_t     = logic [Cfg.byteWidth-1:0];
  parameter type setWidth_t      = logic [Cfg.setWidth-1:0];
  parameter type tagWidth_t      = logic [Cfg.tagWidth-1:0];
  parameter type wayIndexWidth_t = logic [Cfg.wayIndexWidth-1:0];
  parameter type wbufWidth_t     = logic [Cfg.wbufWidth-1:0];
  parameter type wayNum_t        = logic [Cfg.wayNum-1:0];
  parameter type nlineWidth_t    = logic [Cfg.nlineWidth-1:0];
- parameter type offsetWidth_t   = logic [Cfg.offsetWidth-1:0];
+ parameter type offsetWidth_t   = logic;
  parameter type metaWidth_t     = logic [Cfg.metaWidth-1:0];
  parameter type robWidth_t      = logic [Cfg.robWidth-1:0];
  parameter type lsqWidth_t      = logic [Cfg.lsqWidth-1:0];
@@ -36,9 +43,11 @@ logic                        u_isu_ready                ;
 logic            [  2: 0]    u_isu_channel_1hot_id      ;
 robWidth_t                   u_isu_rob_id               ;
 logic            [  2: 0]    u_isu_op                   ;
+logic            [  2: 0]    u_isu_size                 ;
 setWidth_t                   u_isu_set                  ;
 wayIndexWidth_t              u_isu_way                  ;
 offsetWidth_t                u_isu_offset               ;
+byteWidth_t                  u_isu_byte                 ;
 wbufWidth_t                  u_isu_wbuf_id              ;
 logic            [255: 0]    u_isu_refill_data          ;
 
@@ -84,9 +93,11 @@ initial begin
     u_isu_channel_1hot_id = 'd0;
     u_isu_rob_id = 'd0;
     u_isu_op = 'd0;
+    u_isu_size = 'd0;
     u_isu_set = 'd0;
     u_isu_way = 'd0;
     u_isu_offset = 'd0;
+    u_isu_byte = 'd0;
     u_isu_wbuf_id = 'd0;
     u_isu_refill_data = 'd0;
 
@@ -100,65 +111,79 @@ initial begin
     u_isu_channel_1hot_id <= 'd1;
     u_isu_rob_id <= 'd7;
     u_isu_op <= CACHE_OP_LOAD_REFILL;
+    u_isu_size <= DOUBLE;
     u_isu_set <= 'd1;
     u_isu_way <= 'd1;
     u_isu_offset <= 'd0;
-    u_isu_refill_data <= 'haaaa_bbbb_cccc_dddd;
+    u_isu_byte <= 'd0;
+    u_isu_refill_data <= 'haaaa_bbbb_cccc_dddd_dddd_cccc_bbbb_aaaa_aaaa_bbbb_cccc_dddd_dddd_cccc_bbbb_aaaa;
     @(posedge clk)
     u_isu_valid <= 1'b1;
     u_isu_channel_1hot_id <= 'd2;
     u_isu_rob_id <= 'd3;
     u_isu_op <= CACHE_OP_STORE_REFILL;
+    u_isu_size <= HALF;
     u_isu_set <= 'd1;
     u_isu_way <= 'd2;
     u_isu_offset <= 'd1;
-    u_isu_refill_data <= 'hffff_eeee_dddd_cccc;
+    u_isu_byte <= 'd2;
+    u_isu_refill_data <= 'hffff_eeee_dddd_cccc_cccc_dddd_eeee_ffff_ffff_eeee_dddd_cccc_cccc_dddd_eeee_ffff;
     @(posedge clk)
     u_isu_valid <= 1'b1;
     u_isu_channel_1hot_id <= 'd3;
     u_isu_rob_id <= 'd4;
     u_isu_op <= CACHE_OP_LOAD_REFILL;
+    u_isu_size <= BYTE; 
     u_isu_set <= 'd1;
     u_isu_way <= 'd2;
     u_isu_offset <= 'd0;
-    u_isu_refill_data <= 'haaaa_bbbb_cccc_dddd;
-    wbuf_rsp_data <= 'hdddd_cccc_bbbb_aaaa;
+    u_isu_byte <= 'd5;
+    u_isu_refill_data <= 'haaaa_bbbb_cccc_dddd_eeee_ffff_1111_2222_2222_1111_ffff_eeee_dddd_cccc_bbbb_aaaa;
+    wbuf_rsp_data <= 'habcd;
     @(posedge clk)
     u_isu_valid <= 1'b1;
     u_isu_channel_1hot_id <= 'd3;
     u_isu_rob_id <= 'd4;
     u_isu_op <= CACHE_OP_LOAD_REFILL;
+    u_isu_size <= WORD;
     u_isu_set <= 'd1;
     u_isu_way <= 'd2;
-    u_isu_offset <= 'd0;
-    u_isu_refill_data <= 'hbbbb_cccc_dddd_eeee;
+    u_isu_offset <= 'd1;
+    u_isu_byte <= 'd4;
+    u_isu_refill_data <= 'hbbbb_cccc_dddd_eeee_eeee_dddd_cccc_bbbb_bbbb_cccc_dddd_eeee_eeee_dddd_cccc_bbbb;
     wbuf_rsp_data <= 'd0;
     @(posedge clk)
     u_isu_valid <= 1'b1;
     u_isu_channel_1hot_id <= 'd5;
     u_isu_rob_id <= 'd6;
     u_isu_op <= CACHE_OP_LOAD;
+    u_isu_size <= WORD;
     u_isu_set <= 'd1;
     u_isu_way <= 'd2;
     u_isu_offset <= 'd1;
+    u_isu_byte <= 'd4;
     u_isu_refill_data <= 'd0;
     @(posedge clk)
     u_isu_valid <= 1'b1;
     u_isu_channel_1hot_id <= 'd5;
     u_isu_rob_id <= 'd6;
     u_isu_op <= CACHE_OP_LOAD;
+    u_isu_size <= WORD;
     u_isu_set <= 'd1;
     u_isu_way <= 'd2;
-    u_isu_offset <= 'd0;
+    u_isu_offset <= 'd1;
+    u_isu_byte <= 'd0;
     u_isu_refill_data <= 'd0;
     @(posedge clk)
     u_isu_valid <= 1'b1;
     u_isu_channel_1hot_id <= 'd3;
     u_isu_rob_id <= 'd7;
     u_isu_op <= CACHE_OP_STORE;
+    u_isu_size <= WORD;
     u_isu_set <= 'd1;
     u_isu_way <= 'd2;
     u_isu_offset <= 'd1;
+    u_isu_byte <= 'd4;
     @(posedge clk)
     u_isu_valid <= 1'b1;
     u_isu_channel_1hot_id <= 'd3;
@@ -167,7 +192,7 @@ initial begin
     u_isu_set <= 'd1;
     u_isu_way <= 'd2;
     u_isu_offset <= 'd0;
-    wbuf_rsp_data <= 'hdddd_cccc_bbbb_aaaa;
+    wbuf_rsp_data <= 'hdddd_cccc;
     @(posedge clk)
     u_isu_valid <= 1'b1;
     u_isu_channel_1hot_id <= 'd3;
@@ -182,18 +207,22 @@ initial begin
     u_isu_channel_1hot_id <= 'd6;
     u_isu_rob_id <= 'd7;
     u_isu_op <= CACHE_OP_STORE_REFILL;
+    u_isu_size <= DOUBLE;
     u_isu_set <= 'd1;
     u_isu_way <= 'd2;
     u_isu_offset <= 'd1;
-    u_isu_refill_data <= 'hffff_eeee_dddd_cccc;
+    u_isu_byte <= 'd8;
+    u_isu_refill_data <= 'hffff_eeee_dddd_cccc_bbbb_aaaa_bbbb_aaaa_aaaa_bbbb_aaaa_bbbb_cccc_dddd_eeee_ffff;
     @(posedge clk)
     u_isu_valid <= 'd1;
     u_isu_channel_1hot_id <= 'd6;
     u_isu_rob_id <= 'd7;
     u_isu_op <= CACHE_OP_STORE;
+    u_isu_size <= BYTE;
     u_isu_set <= 'd1;
     u_isu_way <= 'd2;
     u_isu_offset <= 'd0;
+    u_isu_byte <= 'd1;
     wbuf_rsp_data <= 'hcccc_dddd_eeee_ffff;
     u_isu_refill_data <= 'd0;
     @(posedge clk)
@@ -201,67 +230,82 @@ initial begin
     u_isu_channel_1hot_id <= 'd6;
     u_isu_rob_id <= 'd7;
     u_isu_op <= CACHE_OP_STORE;
+    u_isu_size <= BYTE;
     u_isu_set <= 'd1;
     u_isu_way <= 'd2;
     u_isu_offset <= 'd0;
+    u_isu_byte <= 'd1;
     wbuf_rsp_data <= 'h0;
      @(posedge clk)
     u_isu_valid <= 'd1;
     u_isu_channel_1hot_id <= 'd6;
     u_isu_rob_id <= 'd7;
     u_isu_op <= CACHE_OP_STORE;
+    u_isu_size <= BYTE;
     u_isu_set <= 'd1;
     u_isu_way <= 'd2;
     u_isu_offset <= 'd0;
-    wbuf_rsp_data <= 'hcccc_dddd_eeee_ffff;
+    u_isu_byte <= 'd3;
+    wbuf_rsp_data <= 'h77;
     u_isu_refill_data <= 'd0;
     @(posedge clk)
     u_isu_valid <= 'd1;
     u_isu_channel_1hot_id <= 'd6;
     u_isu_rob_id <= 'd7;
     u_isu_op <= CACHE_OP_STORE;
+    u_isu_size <= BYTE;
     u_isu_set <= 'd1;
     u_isu_way <= 'd2;
     u_isu_offset <= 'd0;
+    u_isu_byte <= 'd3;
     wbuf_rsp_data <= 'h0;
     @(posedge clk)
     u_isu_valid <= 'd1;
     u_isu_channel_1hot_id <= 'd6;
     u_isu_rob_id <= 'd7;
     u_isu_op <= CACHE_OP_LOAD;
+    u_isu_size <= BYTE;
     u_isu_set <= 'd1;
     u_isu_way <= 'd2;
     u_isu_offset <= 'd0;
-    wbuf_rsp_data <= 'h1111_2222_3333_4444;
+    u_isu_byte <= 'd3;
+    wbuf_rsp_data <= 'h66;
     @(posedge clk)
     u_isu_valid <= 'd1;
     u_isu_channel_1hot_id <= 'd6;
     u_isu_rob_id <= 'd7;
     u_isu_op <= CACHE_OP_LOAD;
+     u_isu_size <= BYTE;
     u_isu_set <= 'd1;
     u_isu_way <= 'd2;
-    u_isu_offset <= 'd1;
+    u_isu_offset <= 'd0;
+    u_isu_byte <= 'd3;
     wbuf_rsp_data <= 'h0;
     @(posedge clk)
     u_isu_valid <= 1'b0;
     u_isu_channel_1hot_id <= 'd0;
-    u_isu_rob_id <= 'd4;
+    u_isu_rob_id <= 'd0;
     u_isu_op <= 'd0;
+    u_isu_size <= 'd0;
     u_isu_set <= 'd0;
     u_isu_way <= 'd0;
     u_isu_offset <= 'd0;
+    u_isu_byte <= 'd0;
     u_isu_refill_data <= 'h0;
 end
 
 rc_wrapper # (
-    .Cfg                               (Cfg                ),      
+    .Cfg                               (Cfg                ),
+    .clWidth_t                         (clWidth_t          ),
+    .dataWidth_t                       (dataWidth_t        ),      
     .setWidth_t                        (setWidth_t         ),      
     .tagWidth_t                        (tagWidth_t         ),      
     .wayIndexWidth_t                   (wayIndexWidth_t    ),      
     .wbufWidth_t                       (wbufWidth_t        ),      
     .wayNum_t                          (wayNum_t           ),      
     .nlineWidth_t                      (nlineWidth_t       ),      
-    .offsetWidth_t                     (offsetWidth_t      ),      
+    .offsetWidth_t                     (offsetWidth_t      ),
+    .byteWidth_t                       (byteWidth_t        ),      
     .metaWidth_t                       (metaWidth_t        ),      
     .robWidth_t                        (robWidth_t         ),      
     .lsqWidth_t                        (lsqWidth_t         ),      

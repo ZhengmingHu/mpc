@@ -1,7 +1,7 @@
 module xbar_core
     import mpc_types::*;
 #(
-    parameter mpc_cfg_t Cfg = '0,   
+    parameter mpc_cfg_t Cfg = '0,
     parameter type setWidth_t      = logic,
     parameter type tagWidth_t      = logic,
     parameter type wayIndexWidth_t = logic,
@@ -137,21 +137,25 @@ u_xbar_buffer (
 
 assign d_bank_0_req.channel_1hot_id = bank_0_ch_1hot_id;
 assign d_bank_0_req.op              = d_bank_0_ch_req.op;
+assign d_bank_0_req.size            = d_bank_0_ch_req.size;
 assign d_bank_0_req.addr            = d_bank_0_ch_req.addr;
 assign d_bank_0_req.wdata           = d_bank_0_ch_req.wdata;
 
 assign d_bank_1_req.channel_1hot_id = bank_1_ch_1hot_id;
 assign d_bank_1_req.op              = d_bank_1_ch_req.op;
+assign d_bank_1_req.size            = d_bank_1_ch_req.size;
 assign d_bank_1_req.addr            = d_bank_1_ch_req.addr;
 assign d_bank_1_req.wdata           = d_bank_1_ch_req.wdata;
 
 assign d_bank_2_req.channel_1hot_id = bank_2_ch_1hot_id;
 assign d_bank_2_req.op              = d_bank_2_ch_req.op;
+assign d_bank_2_req.size            = d_bank_2_ch_req.size;
 assign d_bank_2_req.addr            = d_bank_2_ch_req.addr;
 assign d_bank_2_req.wdata           = d_bank_2_ch_req.wdata;
 
 assign d_bank_3_req.channel_1hot_id = bank_3_ch_1hot_id;
 assign d_bank_3_req.op              = d_bank_3_ch_req.op;
+assign d_bank_3_req.size            = d_bank_3_ch_req.size;
 assign d_bank_3_req.addr            = d_bank_3_ch_req.addr;
 assign d_bank_3_req.wdata           = d_bank_3_ch_req.wdata;
 
