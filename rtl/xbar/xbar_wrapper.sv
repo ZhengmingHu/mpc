@@ -198,7 +198,7 @@ wbuf_id_gen # (
 ) u_wbuf_id_gen_bank_0 (
     .clk                               (clk                                ),
     .rst_n                             (rst_n                              ),
-    .alloc_valid                       (d_bank_0_req_valid & d_bank_0_htu_ready),
+    .alloc_valid                       (d_bank_0_req_valid & is_store(d_bank_0_req.op) & d_bank_0_htu_ready),
     .alloc_ready                       (d_bank_0_wbuf_req_ready            ),
     .alloc_id                          (d_bank_0_req_wbuf_id               ),
     .free_valid                        (d_bank_0_wbuf_rsp_free_valid       ),
@@ -218,7 +218,7 @@ wbuf_id_gen # (
 ) u_wbuf_id_gen_bank_1 (
     .clk                               (clk                                ),
     .rst_n                             (rst_n                              ),
-    .alloc_valid                       (d_bank_1_req_valid & d_bank_1_htu_ready),
+    .alloc_valid                       (d_bank_1_req_valid & is_store(d_bank_1_req.op)& d_bank_1_htu_ready),
     .alloc_ready                       (d_bank_1_wbuf_req_ready            ),
     .alloc_id                          (d_bank_1_req_wbuf_id               ),
     .free_valid                        (d_bank_1_wbuf_rsp_free_valid       ),
@@ -238,7 +238,7 @@ wbuf_id_gen # (
 ) u_wbuf_id_gen_bank_2 (
     .clk                               (clk                                ),
     .rst_n                             (rst_n                              ),
-    .alloc_valid                       (d_bank_2_req_valid & d_bank_2_htu_ready),
+    .alloc_valid                       (d_bank_2_req_valid & is_store(d_bank_2_req.op) & d_bank_2_htu_ready),
     .alloc_ready                       (d_bank_2_wbuf_req_ready            ),
     .alloc_id                          (d_bank_2_req_wbuf_id               ),
     .free_valid                        (d_bank_2_wbuf_rsp_free_valid       ),
@@ -258,7 +258,7 @@ wbuf_id_gen # (
 ) u_wbuf_id_gen_bank_3 (
     .clk                               (clk                                ),
     .rst_n                             (rst_n                              ),
-    .alloc_valid                       (d_bank_3_req_valid & d_bank_3_htu_ready),
+    .alloc_valid                       (d_bank_3_req_valid & is_store(d_bank_3_req.op) & d_bank_3_htu_ready),
     .alloc_ready                       (d_bank_3_wbuf_req_ready            ),
     .alloc_id                          (d_bank_3_req_wbuf_id               ),
     .free_valid                        (d_bank_3_wbuf_rsp_free_valid       ),
