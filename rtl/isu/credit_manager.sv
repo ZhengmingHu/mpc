@@ -123,13 +123,13 @@ always_comb begin
         end
         else if (is_store(u_htu_op) | is_wae(u_htu_op)) begin
             n_entry_can_execute[lsq_w_ptr] = 1'b1;
-            // the channel related to new instr has pending entry that can be granted credit
+            // the channel related to oldest pending instr has pending entry that can be granted credit
             if (have_pending_entry_can_grt_crdt_decouple[u_htu_channel_id]) begin
                 n_entry_can_execute[oldest_pending_entry_decouple[u_htu_channel_id]] = 1'b1;
                 n_remain_crdt_cnt_decouple[u_htu_channel_id] = remain_crdt_cnt_decouple[u_htu_channel_id] - 'b1;
                 n_pending_entry_cnt_decouple[u_htu_channel_id] = pending_entry_cnt_decouple[u_htu_channel_id] - 'b1;
             end
-            // the channel related to new instr doesn't have pending entry that can be granted credit
+            // the channel related to oldest pending instr doesn't have pending entry that can be granted credit
             else begin
                 n_remain_crdt_cnt_decouple[u_htu_channel_id] = remain_crdt_cnt_decouple[u_htu_channel_id];
                 n_pending_entry_cnt_decouple[u_htu_channel_id] = pending_entry_cnt_decouple[u_htu_channel_id];
