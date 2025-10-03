@@ -16,16 +16,16 @@ signalSpacing 5
 
 ; windowTimeUnit is used for zoom, cursor & marker
 ; waveform viewport range
-zoom 760.769429 996.267143
-cursor 850.000000
+zoom 521.736280 562.167769
+cursor 670.000000
 marker 0.000000
 
 ; user define markers
 ; userMarker time_pos marker_name color linestyle
 ; visible top row signal index
-top 64
+top 1
 ; marker line index
-markerPos 85
+markerPos 17
 
 ; event list
 ; addEvent event_name event_expression
@@ -47,96 +47,65 @@ curSTATUS ByChange
 
 addGroup "G1"
 activeDirFile "" "/home/zcy/workspace/mpc/smoke_test/build/result/init_test/xbar_wrapper.fsdb"
-addSignal -h 15 /tb_xbar_wrapper/u_rtn_xbar_core/u_xbar_core/u_channel_0_req_valid
-addSignal -h 15 -holdScope u_channel_0_req_ready
-addSignal -h 15 -holdScope u_channel_0_req
-addSignal -h 15 -holdScope u_channel_1_req_ready
-addSignal -h 15 -holdScope u_channel_1_req_valid
-addSignal -h 15 -holdScope u_channel_1_req
-addSignal -h 15 -holdScope u_channel_2_req_valid
-addSignal -h 15 -holdScope u_channel_2_req_ready
-addSignal -h 15 -holdScope u_channel_2_req
-addSignal -h 15 -holdScope d_bank_0_req_valid
+addSignal -h 15 /tb_xbar_wrapper/u_xbar_wrapper/u_channel_0_req_bus_valid
+addSignal -h 15 -holdScope u_channel_0_req_bus_ready
+addSignal -h 15 -holdScope u_channel_0_req_bus
+addSignal -h 15 /tb_xbar_wrapper/u_xbar_wrapper/u_xbar_core/u_xbar_matrix/ch_0_req_bank_id[1:0]
+addSignal -h 15 /tb_xbar_wrapper/u_xbar_wrapper/u_channel_1_req_bus_valid
+addSignal -h 15 -holdScope u_channel_1_req_bus_ready
+addSignal -h 15 -holdScope u_channel_1_req_bus
+addSignal -h 15 /tb_xbar_wrapper/u_xbar_wrapper/u_xbar_core/u_xbar_matrix/ch_1_req_bank_id[1:0]
+addSignal -h 15 /tb_xbar_wrapper/u_xbar_wrapper/u_channel_2_req_bus_valid
+addSignal -h 15 -holdScope u_channel_2_req_bus_ready
+addSignal -h 15 -holdScope u_channel_2_req_bus
+addSignal -h 15 /tb_xbar_wrapper/u_xbar_wrapper/u_xbar_core/u_xbar_matrix/ch_2_req_bank_id[1:0]
+addSignal -h 15 /tb_xbar_wrapper/u_xbar_wrapper/u_age_gen/age_info[5:0]
+addSignal -h 15 -holdScope oldest_age_value[4:0]
+addSignal -h 15 -holdScope oldest_age_value_en
+addSignal -h 15 -holdScope age_empty
+addSignal -h 15 -holdScope age_multi_mapping_en[31:0]
+addSignal -h 15 -holdScope age_multi_mapping_nxt[31:0]
+addSignal -h 15 -holdScope age_multi_mapping[31:0]
+addGroup "G4"
+addSignal -h 15 /tb_xbar_wrapper/u_xbar_wrapper/u_xbar_core/u_xbar_buffer/ch_0_bank_0_r_entry_1hot_id[7:0]
+addSignal -h 15 -holdScope ch_0_bank_1_r_entry_1hot_id[7:0]
+addSignal -h 15 -holdScope ch_0_bank_2_r_entry_1hot_id[7:0]
+addSignal -h 15 -holdScope ch_0_bank_3_r_entry_1hot_id[7:0]
+addSignal -h 15 -holdScope ch_1_bank_0_r_entry_1hot_id[7:0]
+addSignal -h 15 -holdScope ch_1_bank_1_r_entry_1hot_id[7:0]
+addSignal -h 15 -holdScope ch_1_bank_2_r_entry_1hot_id[7:0]
+addSignal -h 15 -holdScope ch_1_bank_3_r_entry_1hot_id[7:0]
+addSignal -h 15 -holdScope ch_2_bank_0_r_entry_1hot_id[7:0]
+addSignal -h 15 -holdScope ch_2_bank_1_r_entry_1hot_id[7:0]
+addSignal -h 15 -holdScope ch_2_bank_2_r_entry_1hot_id[7:0]
+addSignal -h 15 -holdScope ch_2_bank_3_r_entry_1hot_id[7:0]
+addGroup "G5"
+addSignal -h 15 /tb_xbar_wrapper/u_xbar_wrapper/u_xbar_core/u_xbar_matrix/xbar_ch_bank_valid_matrix_t[0][2:0]
+addSignal -h 15 -holdScope xbar_ch_bank_valid_matrix_t[1][2:0]
+addSignal -h 15 -holdScope xbar_ch_bank_valid_matrix_t[2][2:0]
+addSignal -h 15 -holdScope xbar_ch_bank_valid_matrix_t[3][2:0]
+addSignal -h 15 -holdScope bank_0_req_age[2:0]
+addSignal -h 15 -holdScope bank_1_req_age[2:0]
+addSignal -h 15 -holdScope bank_2_req_age[2:0]
+addSignal -h 15 -holdScope bank_3_req_age[2:0]
+addGroup "G6"
+addSignal -h 15 /tb_xbar_wrapper/u_xbar_wrapper/u_xbar_core/d_bank_0_req_valid
 addSignal -h 15 -holdScope d_bank_0_req_ready
 addSignal -h 15 -holdScope d_bank_0_req
+addSignal -h 15 -holdScope retire_bank_0_req_age[5:0]
 addSignal -h 15 -holdScope d_bank_1_req_valid
 addSignal -h 15 -holdScope d_bank_1_req_ready
-addSignal -h 15 -holdScope d_bank_1_req
+addSignal -h 15 -holdScope retire_bank_1_req_age[5:0]
 addSignal -h 15 -holdScope d_bank_2_req_valid
 addSignal -h 15 -holdScope d_bank_2_req_ready
-addSignal -h 15 -holdScope d_bank_2_req
-addSignal -h 15 /tb_xbar_wrapper/u_rtn_xbar_core/d_bank_2_htu_req_wbuf_id[6:0]
-addSignal -h 15 /tb_xbar_wrapper/u_rtn_xbar_core/u_xbar_core/d_bank_3_req_valid
+addSignal -h 15 -holdScope retire_bank_2_req_age[5:0]
+addSignal -h 15 -holdScope d_bank_3_req_valid
 addSignal -h 15 -holdScope d_bank_3_req_ready
-addSignal -h 15 /tb_xbar_wrapper/u_rtn_xbar_core/d_bank_3_htu_req
-addGroup "kob"
-addSignal -h 15 /tb_xbar_wrapper/u_rtn_xbar_core/u_kob/u_channel_0_req_valid
-addSignal -h 15 -holdScope ch_0_alc_ptr_r[3:0]
-addSignal -h 15 -holdScope u_channel_0_req_ready
-addSignal -h 15 -holdScope u_channel_1_req_valid
-addSignal -h 15 -holdScope u_channel_1_req_ready
-addSignal -h 15 -holdScope ch_1_alc_ptr_r[3:0]
-addSignal -h 15 -holdScope u_channel_2_req_valid
-addSignal -h 15 -holdScope u_channel_2_req_ready
-addSignal -h 15 -holdScope ch_2_alc_ptr_r[3:0]
+addSignal -h 15 -holdScope retire_bank_3_req_age[5:0]
+addGroup "kob" -e FALSE
 addGroup "wbuf_id"
-addSignal -h 15 /tb_xbar_wrapper/u_rtn_xbar_core/u_wbuf_id_gen_bank_2/alloc_valid
-addSignal -h 15 -holdScope alloc_ready
-addSignal -h 15 -holdScope free_valid
-addSignal -h 15 -holdScope alloc_id[6:0]
-addSignal -h 15 -holdScope free_id[6:0]
-addGroup "G4"
-addSignal -h 15 /tb_xbar_wrapper/u_rtn_xbar_core/u_rtn_xbar_core/d_bank_0_rsp_valid
-addSignal -h 15 -holdScope d_bank_0_rsp_ready
-addSignal -h 15 -holdScope d_bank_0_rsp_data[127:0]
-addSignal -h 15 -holdScope d_bank_0_rsp_channel_id[1:0]
-addSignal -h 15 -holdScope d_bank_0_rsp_rob_id[3:0]
-addSignal -h 15 -holdScope d_bank_1_rsp_valid
-addSignal -h 15 -holdScope d_bank_1_rsp_ready
-addSignal -h 15 -holdScope d_bank_1_rsp_data[127:0]
-addSignal -h 15 -holdScope d_bank_1_rsp_channel_id[1:0]
-addSignal -h 15 -holdScope d_bank_1_rsp_rob_id[3:0]
-addSignal -h 15 -holdScope d_bank_2_rsp_valid
-addSignal -h 15 -holdScope d_bank_2_rsp_ready
-addSignal -h 15 -holdScope d_bank_2_rsp_data[127:0]
-addSignal -h 15 -holdScope d_bank_2_rsp_channel_id[1:0]
-addSignal -h 15 -holdScope d_bank_2_rsp_rob_id[3:0]
-addSignal -h 15 -holdScope d_bank_3_rsp_valid
-addSignal -h 15 -holdScope d_bank_3_rsp_ready
-addSignal -h 15 -holdScope d_bank_3_rsp_data[127:0]
-addSignal -h 15 -holdScope d_bank_3_rsp_channel_id[1:0]
-addSignal -h 15 -holdScope d_bank_3_rsp_rob_id[3:0]
-addGroup "G5"
-addSignal -h 15 /tb_xbar_wrapper/u_rtn_xbar_core/u_rtn_xbar_core/u_channel_0_rsp_valid
-addSignal -h 15 -holdScope u_channel_0_rsp_ready
-addSignal -h 15 -holdScope u_channel_0_rsp_data[127:0]
-addSignal -h 15 -holdScope u_channel_0_rsp_bank_id[1:0]
-addSignal -h 15 -holdScope u_channel_0_rsp_rob_id[3:0]
-addSignal -h 15 -holdScope u_channel_1_rsp_valid
-addSignal -h 15 -holdScope u_channel_1_rsp_ready
-addSignal -h 15 -holdScope u_channel_1_rsp_data[127:0]
-addSignal -h 15 -holdScope u_channel_1_rsp_bank_id[1:0]
-addSignal -h 15 -holdScope u_channel_1_rsp_rob_id[3:0]
-addSignal -h 15 -holdScope u_channel_2_rsp_valid
-addSignal -h 15 -holdScope u_channel_2_rsp_ready
-addSignal -h 15 -holdScope u_channel_2_rsp_data[127:0]
-addSignal -h 15 -holdScope u_channel_2_rsp_bank_id[1:0]
-addSignal -h 15 -holdScope u_channel_2_rsp_rob_id[3:0]
-addGroup "G6"
-addSignal -h 15 /tb_xbar_wrapper/u_rtn_xbar_core/u_channel_0_rsp_bus_valid
-addSignal -h 15 -holdScope u_channel_0_rsp_bus_ready
-addSignal -h 15 -holdScope u_channel_0_rsp_bus_rdata[127:0]
-addSignal -h 15 -holdScope u_channel_1_rsp_bus_valid
-addSignal -h 15 -holdScope u_channel_1_rsp_bus_ready
-addSignal -h 15 -holdScope u_channel_1_rsp_bus_rdata[127:0]
-addSignal -h 15 -holdScope u_channel_2_rsp_bus_valid
-addSignal -h 15 -holdScope u_channel_2_rsp_bus_ready
-addSignal -h 15 -holdScope u_channel_2_rsp_bus_rdata[127:0]
-addSignal -h 15 -holdScope d_bank_0_crdt_rtn[2:0]
-addSignal -h 15 -holdScope d_bank_1_crdt_rtn[2:0]
-addSignal -h 15 -holdScope d_bank_2_crdt_rtn[2:0]
-addSignal -h 15 -holdScope d_bank_3_crdt_rtn[2:0]
 addGroup "G7"
+addGroup "G8"
 
 ; getSignalForm Scope Hierarchy Status
 ; active file of getSignalForm

@@ -1,19 +1,29 @@
+`include "mpc_defs.svh"
+
 module tb_xbar_wrapper;
     import mpc_types::*;
 
     parameter mpc_user_cfg_t UserCfg = '{
+        opWidth:3,
         clWidth:256,
         clWordWidth:128,
+        addrWidth:32,
         sets:8,
         banks:4,
         ways:4,
         kobSize:16,
-        wbufSize:128,
+        wbufSize:16,
         robSize:16,
         lsqSize:32,
-        rfbufSize:16
+        rfbufSize:16,
+        mcSize:4
     };
+
     parameter mpc_cfg_t Cfg = mpcBuildConfig(UserCfg);
+    parameter type clWidth_t       = logic [Cfg.u.clWidth-1:0];
+    parameter type opWidth_t       = logic [Cfg.u.opWidth-1:0];
+    parameter type dataWidth_t     = logic [Cfg.u.clWordWidth-1:0];
+    parameter type addrWidth_t     = logic [Cfg.u.addrWidth-1:0];
     parameter type setWidth_t      = logic [Cfg.setWidth-1:0];
     parameter type tagWidth_t      = logic [Cfg.tagWidth-1:0];
     parameter type wayIndexWidth_t = logic [Cfg.wayIndexWidth-1:0];
@@ -21,11 +31,32 @@ module tb_xbar_wrapper;
     parameter type wayNum_t        = logic [Cfg.wayNum-1:0];
     parameter type nlineWidth_t    = logic [Cfg.nlineWidth-1:0];
     parameter type offsetWidth_t   = logic [Cfg.offsetWidth-1:0];
+    parameter type byteWidth_t     = logic [Cfg.byteWidth-1:0];
     parameter type metaWidth_t     = logic [Cfg.metaWidth-1:0];
     parameter type robWidth_t      = logic [Cfg.robWidth-1:0];
     parameter type lsqWidth_t      = logic [Cfg.lsqWidth-1:0];
     parameter type rfbufWidth_t    = logic [Cfg.rfbufWidth-1:0];
     parameter type kobWidth_t      = logic [Cfg.kobWidth-1:0];
+    parameter type mcWidth_t       = logic [Cfg.mcWidth-1:0];
+
+localparam type channel_req_t = 
+    `MPC_DECL_REQ_T(
+        opWidth_t,
+        opWidth_t,
+        dataWidth_t,
+        addrWidth_t);
+    
+localparam type bank_req_t =
+    `MPC_DECL_BANK_REQ_T(
+        opWidth_t,
+        opWidth_t,
+        dataWidth_t,
+        addrWidth_t);
+
+localparam type wbuf_req_t = 
+    `MPC_DECL_WBUF_REQ_T(
+        wbufWidth_t,
+        dataWidth_t);
 
 logic                        clk                        ;
 logic                        rst_n                      ;
@@ -317,6 +348,9 @@ end
 
 xbar_wrapper # (
             .Cfg                               (Cfg                                ),
+            .opWidth_t                         (opWidth_t                          ),
+            .dataWidth_t                       (dataWidth_t                        ),
+            .addrWidth_t                       (addrWidth_t                        ),
             .setWidth_t                        (setWidth_t                         ),
             .tagWidth_t                        (tagWidth_t                         ),
             .wayIndexWidth_t                   (wayIndexWidth_t                    ),
@@ -327,8 +361,11 @@ xbar_wrapper # (
             .metaWidth_t                       (metaWidth_t                        ),
             .robWidth_t                        (robWidth_t                         ),
             .lsqWidth_t                        (lsqWidth_t                         ),
-            .kobWidth_t                        (kobWidth_t                         )
-) u_rtn_xbar_core (
+            .kobWidth_t                        (kobWidth_t                         ),
+            .channel_req_t                     (channel_req_t                      ),
+            .bank_req_t                        (bank_req_t                         ),
+            .wbuf_req_t                        (wbuf_req_t                         )
+) u_xbar_wrapper (
     .clk                                (clk                       ),
     .rst_n                              (rst_n                     ),
     .*

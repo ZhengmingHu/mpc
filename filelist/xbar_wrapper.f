@@ -22,5 +22,6 @@
 ../rtl/xbar/rob/rob_ptr_gen.sv
 ../rtl/xbar/rob/rob_wrapper.sv
 ../rtl/xbar/rob/rob.sv
+../rtl/xbar/age_gen.sv
 ../rtl/xbar/xbar_wrapper.sv
 ../tb/tb_xbar_wrapper.sv

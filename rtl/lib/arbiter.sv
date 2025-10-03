@@ -133,3 +133,59 @@ assign grt_id = grt_id_sft + ref_weight;
 
 endmodule
 
+module ns_gnrl_weight_with_ref_one_hot # (
+  parameter ARBT_NUM = 4
+)
+(
+  input                               clk                        ,
+  input                               rst_n                      ,
+
+  output     [ ARBT_NUM-1: 0]         grt_vec                    ,
+  input      [ ARBT_NUM-1: 0]         req_vec                    ,
+
+  input      [$clog2(ARBT_NUM)-1: 0]  ref_weight        
+);
+
+logic [        ARBT_NUM-1:0] req_vec_circular_sft;
+logic [        ARBT_NUM-1:0] grt_vec_circular_sft; 
+
+assign req_vec_circular_sft = (req_vec >> ref_weight) | (req_vec << (ARBT_NUM - ref_weight));
+
+ns_gnrl_fixed # (ARBT_NUM) req_vec_priority_arbiter(grt_vec_circular_sft, req_vec_circular_sft);
+
+assign grt_vec = (grt_vec_circular_sft << ref_weight) | (grt_vec_circular_sft >> (ARBT_NUM - ref_weight));
+
+endmodule
+
+module ns_gnrl_priority_weight_3_channel (
+  input                               clk                        ,
+  input                               rst_n                      ,
+
+  output   [  2: 0]                   grt_vec                    ,
+  input    [  2: 0]                   req_vec                    ,
+
+  input    [  5: 0]                   weight          [  2: 0]   
+
+);
+
+wire  weight_0_greater_than_weight_1;
+wire  weight_0_greater_than_weight_2;
+wire  weight_1_greater_than_weight_2;
+
+assign weight_0_greater_than_weight_1 =  ((weight[0][5] ^ weight[1][5]) & (weight[0] >= weight[1]) |
+                                         ~(weight[0][5] ^ weight[1][5]) & (weight[0] <= weight[1]) |
+                                          ~req_vec[1]) & req_vec[0];
+
+assign weight_0_greater_than_weight_2 =  ((weight[0][5] ^ weight[2][5]) & (weight[0] >= weight[2]) |
+                                         ~(weight[0][5] ^ weight[2][5]) & (weight[0] <= weight[2]) |
+                                          ~req_vec[2]) & req_vec[0];
+
+assign weight_1_greater_than_weight_2 =  ((weight[1][5] ^ weight[2][5]) & (weight[1] >= weight[2]) |
+                                         ~(weight[1][5] ^ weight[2][5]) & (weight[1] <= weight[2]) |
+                                          ~req_vec[2]) & req_vec[1];                                         
+
+assign grt_vec[0] = req_vec[0] &  weight_0_greater_than_weight_1 &  weight_0_greater_than_weight_2;
+assign grt_vec[1] = req_vec[1] & ~weight_0_greater_than_weight_1 &  weight_1_greater_than_weight_2;
+assign grt_vec[2] = req_vec[2] & ~weight_0_greater_than_weight_2 & ~weight_1_greater_than_weight_2;
+ 
+endmodule

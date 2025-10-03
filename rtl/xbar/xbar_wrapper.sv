@@ -133,18 +133,22 @@ channel_req_t                u_channel_2_req                       ;
 
 logic       d_bank_0_req_valid                                     ;
 logic       d_bank_0_req_ready                                     ;
+logic       d_bank_0_req_hsked                                     ;
 bank_req_t  d_bank_0_req                                           ;
 wbufWidth_t d_bank_0_req_wbuf_id                                   ;
 logic       d_bank_1_req_valid                                     ;
 logic       d_bank_1_req_ready                                     ;
+logic       d_bank_1_req_hsked                                     ;
 bank_req_t  d_bank_1_req                                           ;
 wbufWidth_t d_bank_1_req_wbuf_id                                   ;
 logic       d_bank_2_req_valid                                     ;
 logic       d_bank_2_req_ready                                     ;
+logic       d_bank_2_req_hsked                                     ;
 bank_req_t  d_bank_2_req                                           ;
 wbufWidth_t d_bank_2_req_wbuf_id                                   ;
 logic       d_bank_3_req_valid                                     ;
 logic       d_bank_3_req_ready                                     ;
+logic       d_bank_3_req_hsked                                     ;
 bank_req_t  d_bank_3_req                                           ;
 wbufWidth_t d_bank_3_req_wbuf_id                                   ;
 
@@ -153,21 +157,56 @@ logic       d_bank_1_wbuf_req_ready                                ;
 logic       d_bank_2_wbuf_req_ready                                ;
 logic       d_bank_3_wbuf_req_ready                                ;
 
+logic [  5: 0] retire_bank_0_req_age                               ;
+logic [  5: 0] retire_bank_1_req_age                               ;
+logic [  5: 0] retire_bank_2_req_age                               ;
+logic [  5: 0] retire_bank_3_req_age                               ;
+
 logic       ch_0_kob_full                                          ;
 logic       ch_1_kob_full                                          ;
 logic       ch_2_kob_full                                          ;
 
+logic [  5: 0] age_info                                            ;
+logic          age_full                                            ;
+
 assign u_channel_0_req_valid     = u_channel_0_req_bus_valid;
-assign u_channel_0_req_bus_ready = u_channel_0_req_ready & !ch_0_kob_full; 
+assign u_channel_0_req_bus_ready = u_channel_0_req_ready; 
 assign u_channel_0_req           = u_channel_0_req_bus;
 
 assign u_channel_1_req_valid     = u_channel_1_req_bus_valid;
-assign u_channel_1_req_bus_ready = u_channel_1_req_ready & !ch_1_kob_full; 
+assign u_channel_1_req_bus_ready = u_channel_1_req_ready; 
 assign u_channel_1_req           = u_channel_1_req_bus;
 
 assign u_channel_2_req_valid     = u_channel_2_req_bus_valid;
-assign u_channel_2_req_bus_ready = u_channel_2_req_ready & !ch_2_kob_full; 
+assign u_channel_2_req_bus_ready = u_channel_2_req_ready; 
 assign u_channel_2_req           = u_channel_2_req_bus;
+
+age_gen # (
+    .Cfg                               (Cfg                                )
+) u_age_gen (
+    .clk                               (clk                                ), 
+    .rst_n                             (rst_n                              ), 
+    .u_channel_0_req_valid             (u_channel_0_req_valid              ), 
+    .u_channel_0_req_ready             (u_channel_0_req_ready              ), 
+    .u_channel_1_req_valid             (u_channel_1_req_valid              ), 
+    .u_channel_1_req_ready             (u_channel_1_req_ready              ), 
+    .u_channel_2_req_valid             (u_channel_2_req_valid              ), 
+    .u_channel_2_req_ready             (u_channel_2_req_ready              ), 
+    .d_bank_0_retire_valid             (d_bank_0_req_hsked                 ), 
+    .d_bank_0_retire_age_info          (retire_bank_0_req_age              ),
+    .d_bank_0_channel_1hot_id          (d_bank_0_req.channel_1hot_id       ),
+    .d_bank_1_retire_valid             (d_bank_1_req_hsked                 ), 
+    .d_bank_1_retire_age_info          (retire_bank_1_req_age              ),
+    .d_bank_1_channel_1hot_id          (d_bank_1_req.channel_1hot_id       ), 
+    .d_bank_2_retire_valid             (d_bank_2_req_hsked                 ), 
+    .d_bank_2_retire_age_info          (retire_bank_2_req_age              ),
+    .d_bank_2_channel_1hot_id          (d_bank_2_req.channel_1hot_id       ), 
+    .d_bank_3_retire_valid             (d_bank_3_req_hsked                 ), 
+    .d_bank_3_retire_age_info          (retire_bank_3_req_age              ),
+    .d_bank_3_channel_1hot_id          (d_bank_3_req.channel_1hot_id       ), 
+    .age_info                          (age_info                           ), 
+    .age_full                          (age_full                           )   
+);
 
 xbar_core # (
     .Cfg                               (Cfg                                ),
@@ -267,15 +306,19 @@ wbuf_id_gen # (
 
 assign d_bank_0_req_ready = d_bank_0_htu_ready & d_bank_0_wbuf_req_ready;
 assign d_bank_0_htu_valid = d_bank_0_req_valid & d_bank_0_wbuf_req_ready;
+assign d_bank_0_req_hsked = d_bank_0_req_ready & d_bank_0_htu_valid;
 
 assign d_bank_1_req_ready = d_bank_1_htu_ready & d_bank_1_wbuf_req_ready;
 assign d_bank_1_htu_valid = d_bank_1_req_valid & d_bank_1_wbuf_req_ready;
+assign d_bank_1_req_hsked = d_bank_1_req_ready & d_bank_0_htu_valid;
 
 assign d_bank_2_req_ready = d_bank_2_htu_ready & d_bank_2_wbuf_req_ready;
 assign d_bank_2_htu_valid = d_bank_2_req_valid & d_bank_2_wbuf_req_ready;
+assign d_bank_2_req_hsked = d_bank_2_req_ready & d_bank_2_htu_valid;
 
 assign d_bank_3_req_ready = d_bank_3_htu_ready & d_bank_3_wbuf_req_ready;
 assign d_bank_3_htu_valid = d_bank_3_req_valid & d_bank_3_wbuf_req_ready;
+assign d_bank_3_req_hsked = d_bank_3_req_ready & d_bank_3_htu_valid;
 
 assign d_bank_0_htu_req = d_bank_0_req;
 assign d_bank_1_htu_req = d_bank_1_req;
@@ -376,15 +419,15 @@ kob # (
     .clk                               (clk                                ),
     .rst_n                             (rst_n                              ),
     
-    .u_channel_0_req_valid             (u_channel_0_req_valid              ),
-    .u_channel_0_req_ready             (u_channel_0_req_ready              ),
-    .u_channel_0_req                   (u_channel_0_req                    ),
-    .u_channel_1_req_valid             (u_channel_1_req_valid              ),
-    .u_channel_1_req_ready             (u_channel_1_req_ready              ),
-    .u_channel_1_req                   (u_channel_1_req                    ),
-    .u_channel_2_req_valid             (u_channel_2_req_valid              ),
-    .u_channel_2_req_ready             (u_channel_2_req_ready              ),
-    .u_channel_2_req                   (u_channel_2_req                    ),
+    .u_channel_0_req_bus_valid         (u_channel_0_req_bus_valid          ),
+    .u_channel_0_req_bus_ready         (u_channel_0_req_bus_ready          ),
+    .u_channel_0_req_bus               (u_channel_0_req_bus                ),
+    .u_channel_1_req_bus_valid         (u_channel_1_req_bus_valid          ),
+    .u_channel_1_req_bus_ready         (u_channel_1_req_bus_ready          ),
+    .u_channel_1_req_bus               (u_channel_1_req_bus                ),
+    .u_channel_2_req_bus_valid         (u_channel_2_req_bus_valid          ),
+    .u_channel_2_req_bus_ready         (u_channel_2_req_bus_ready          ),
+    .u_channel_2_req_bus               (u_channel_2_req_bus                ),
     
     .d_ch_0_rob_req                    (kob_rob_req[0]                     ),
     .d_ch_0_rob_ack                    (kob_rob_ack[0]                     ),
