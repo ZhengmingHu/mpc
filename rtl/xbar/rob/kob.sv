@@ -18,17 +18,17 @@ module kob
     input  logic                        rst_n                          ,
 
 
-    input  logic                        u_channel_0_req_valid          ,
-    input  logic                        u_channel_0_req_ready          ,
-    input  channel_req_t                u_channel_0_req                ,
+    input  logic                        u_channel_0_req_bus_valid      ,
+    input  logic                        u_channel_0_req_bus_ready      ,
+    input  channel_req_t                u_channel_0_req_bus            ,
 
-    input  logic                        u_channel_1_req_valid          ,
-    input  logic                        u_channel_1_req_ready          ,
-    input  channel_req_t                u_channel_1_req                ,
+    input  logic                        u_channel_1_req_bus_valid      ,
+    input  logic                        u_channel_1_req_bus_ready      ,
+    input  channel_req_t                u_channel_1_req_bus            ,
 
-    input  logic                        u_channel_2_req_valid          ,
-    input  logic                        u_channel_2_req_ready          ,
-    input  channel_req_t                u_channel_2_req                ,
+    input  logic                        u_channel_2_req_bus_valid      ,
+    input  logic                        u_channel_2_req_bus_ready      ,
+    input  channel_req_t                u_channel_2_req_bus            ,
 
     output logic                        d_ch_0_rob_req                 ,
     input  logic                        d_ch_0_rob_ack                 ,
@@ -136,17 +136,17 @@ logic            [ Cfg.u.kobSize-1: 0]     ch_2_vld_r                      ;
 logic            [  1: 0]    ch_2_bank_id_entry [ Cfg.u.kobSize-1: 0]      ;
 
 
-assign u_ch_0_req_hsked = u_channel_0_req_valid & u_channel_0_req_ready;
-assign u_ch_1_req_hsked = u_channel_1_req_valid & u_channel_1_req_ready;
-assign u_ch_2_req_hsked = u_channel_2_req_valid & u_channel_2_req_ready;
+assign u_ch_0_req_hsked = u_channel_0_req_bus_valid & u_channel_0_req_bus_ready;
+assign u_ch_1_req_hsked = u_channel_1_req_bus_valid & u_channel_1_req_bus_ready;
+assign u_ch_2_req_hsked = u_channel_2_req_bus_valid & u_channel_2_req_bus_ready;
 
-assign ch_0_kob_wen   = u_ch_0_req_hsked & is_load(u_channel_0_req.op);
-assign ch_1_kob_wen   = u_ch_1_req_hsked & is_load(u_channel_1_req.op);
-assign ch_2_kob_wen   = u_ch_2_req_hsked & is_load(u_channel_2_req.op);
+assign ch_0_kob_wen   = u_ch_0_req_hsked & is_load(u_channel_0_req_bus.op);
+assign ch_1_kob_wen   = u_ch_1_req_hsked & is_load(u_channel_1_req_bus.op);
+assign ch_2_kob_wen   = u_ch_2_req_hsked & is_load(u_channel_2_req_bus.op);
 
-assign ch_0_kob_wdata = u_channel_0_req.addr[9:8];
-assign ch_1_kob_wdata = u_channel_1_req.addr[9:8];
-assign ch_2_kob_wdata = u_channel_2_req.addr[9:8];
+assign ch_0_kob_wdata = u_channel_0_req_bus.addr[9:8];
+assign ch_1_kob_wdata = u_channel_1_req_bus.addr[9:8];
+assign ch_2_kob_wdata = u_channel_2_req_bus.addr[9:8];
 
 assign ch_0_alc_ptr_flg_ena = (ch_0_alc_ptr_r == '1) & ch_0_alc_ptr_ena;
 assign ch_0_alc_ptr_flg_nxt = ~ch_0_alc_ptr_flg_r;
