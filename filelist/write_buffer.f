@@ -9,4 +9,4 @@
 ../rtl/lib/popcount.sv
 ../rtl/lib/mpc_sram.sv
 ../rtl/wbuf/write_buffer.sv
-../tb/tb_write_buffer.sv
+../vcs/tb_write_buffer.sv

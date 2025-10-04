@@ -24,4 +24,4 @@
 ../rtl/xbar/rob/rob.sv
 ../rtl/xbar/age_gen.sv
 ../rtl/xbar/xbar_wrapper.sv
-../tb/tb_xbar_wrapper.sv
+../vcs/tb_xbar_wrapper.sv

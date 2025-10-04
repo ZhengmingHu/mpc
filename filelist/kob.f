@@ -6,4 +6,4 @@
 ../rtl/lib/ns_gnrl_dfflrs.sv
 ../rtl/lib/1hot2bin.sv
 ../rtl/xbar/rob/kob.sv
-../tb/tb_kob.sv
+../vcs/tb_kob.sv

@@ -14,4 +14,4 @@
 ../rtl/lib/ns_gnrl_dfflr.sv
 ../rtl/lib/ns_gnrl_dfflrs.sv
 ../rtl/lib/priority_encoder.sv
-../tb/tb_isu.sv
+../vcs/tb_isu.sv

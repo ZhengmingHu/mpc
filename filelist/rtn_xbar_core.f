@@ -9,4 +9,4 @@
 ../rtl/xbar/xbar_core/rtn_xbar_core.sv
 ../rtl/xbar/xbar_core/rtn_xbar_matrix.sv
 ../rtl/xbar/xbar_core/rtn_xbar_ptr_gen.sv
-../tb/tb_rtn_xbar_core.sv
+../vcs/tb_rtn_xbar_core.sv

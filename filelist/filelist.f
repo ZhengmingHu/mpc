@@ -5,4 +5,4 @@
 // ../tb/tb_arbiter.sv
 
 ../rtl/lib/1hot2bin.sv
-../tb/tb_1hot2bin.sv
+../vcs/tb_1hot2bin.sv

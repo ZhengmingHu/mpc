@@ -5,4 +5,4 @@
 ../rtl/lib/ns_gnrl_dfflrs.sv
 ../rtl/lib/priority_encoder.sv
 ../rtl/isu/inflight_array.sv
-../tb/tb_inflight_array.sv
+../vcs/tb_inflight_array.sv
