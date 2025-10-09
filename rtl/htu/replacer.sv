@@ -115,7 +115,7 @@ generate
                 for (int i = 0; i < int'(Cfg.wayNum); i++)
                 begin
                     if (!way_is_valid[i]) begin
-                        replace_way_nxt = i;
+                        replace_way_nxt = $bits(replace_way_nxt)'(i);
                         break;
                     end
                 end
@@ -147,7 +147,7 @@ generate
                 for (int i = 0; i < int'(Cfg.wayNum); i++)
                 begin
                     if (!way_is_valid[i]) begin
-                        replace_way_nxt = i;
+                        replace_way_nxt = $bits(replace_way_nxt)'(i);
                         break;
                     end
                 end

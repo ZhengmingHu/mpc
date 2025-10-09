@@ -125,7 +125,7 @@ module ns_gnrl_weight_with_ref # (
 logic [        ARBT_NUM-1:0] req_vec_circular_sft;
 logic [$clog2(ARBT_NUM)-1:0] grt_id_sft; 
 
-assign req_vec_circular_sft = (req_vec >> ref_weight) | (req_vec << (ARBT_NUM - ref_weight));
+assign req_vec_circular_sft = (req_vec >> ref_weight) | (req_vec << ($bits(ref_weight)'(ARBT_NUM) - ref_weight));
 
 priority_encoder # (ARBT_NUM) req_vec_priority_encoder (req_vec_circular_sft, grt_id_sft);
 
@@ -149,11 +149,11 @@ module ns_gnrl_weight_with_ref_one_hot # (
 logic [        ARBT_NUM-1:0] req_vec_circular_sft;
 logic [        ARBT_NUM-1:0] grt_vec_circular_sft; 
 
-assign req_vec_circular_sft = (req_vec >> ref_weight) | (req_vec << (ARBT_NUM - ref_weight));
+assign req_vec_circular_sft = (req_vec >> ref_weight) | (req_vec << ($bits(ref_weight)'(ARBT_NUM) - ref_weight));
 
 ns_gnrl_fixed # (ARBT_NUM) req_vec_priority_arbiter(grt_vec_circular_sft, req_vec_circular_sft);
 
-assign grt_vec = (grt_vec_circular_sft << ref_weight) | (grt_vec_circular_sft >> (ARBT_NUM - ref_weight));
+assign grt_vec = (grt_vec_circular_sft << ref_weight) | (grt_vec_circular_sft >> ($bits(ref_weight)'(ARBT_NUM) - ref_weight));
 
 endmodule
 

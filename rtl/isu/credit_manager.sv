@@ -75,7 +75,7 @@ generate
         assign have_pending_entry_decouple[i] = |pending_entry_cnt_decouple[i];
         assign remain_crdt_decouple[i] = |remain_crdt_cnt_decouple[i];
         assign have_pending_entry_can_grt_crdt_decouple[i] = have_pending_entry_decouple[i] &&
-                                                         (remain_crdt_decouple[i] || |u_xbar_crdt_rtn[i]);
+                                                         (remain_crdt_decouple[i] || u_xbar_crdt_rtn[i]);
         // iterate through all pending instructions in each channel
         always_comb begin
             pending_entry_decouple[i] = pending_entry;
@@ -214,7 +214,7 @@ generate
                 remain_crdt_cnt_decouple[i] <= {{Cfg.robWidth{1'b1}}};
             end
             else begin
-                pending_entry_cnt_decouple[i] <= n_pending_entry_cnt_decouple[i] + u_xbar_crdt_rtn[i];
+                pending_entry_cnt_decouple[i] <= n_pending_entry_cnt_decouple[i] + {{($bits(n_pending_entry_cnt_decouple[i])-1){1'b0}}, u_xbar_crdt_rtn[i]};
                 remain_crdt_cnt_decouple[i] <= n_remain_crdt_cnt_decouple[i];
             end
         end

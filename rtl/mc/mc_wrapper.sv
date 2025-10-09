@@ -42,6 +42,7 @@ module mc_queue
     output logic                        s_rvalid                    ,
     input  logic                        s_rready                    ,
     output clWidth_t                    s_rdata                     ,
+    output nlineWidth_t                 s_rid                       ,
 
      // 5. Master AW Channel
     output logic                        m_awvalid                   ,
@@ -143,8 +144,16 @@ module mc_queue
     ns_gnrl_dfflr # (1) entry_cmd_dfflr (entry_cmd_en, entry_cmd_nxt, entry_cmd, clk, rst_n);
     ns_gnrl_dfflr # (2) entry_bank_id_dfflr (1'b1, entry_bank_id_nxt, entry_bank_id, clk, rst_n);
     ns_gnrl_dfflr # (Cfg.nlineWidth) entry_cacheline_id_dfflr (entry_cacheline_id_en, entry_cacheline_id_nxt, entry_cacheline_id, clk, rst_n);
-    ns_gnrl_dfflr # (Cfg.u.clWidth) entry_data_dfflr (entry_data_en, entry_data_nxt, entry_data, clk, rst_n);
+    // ns_gnrl_dfflr # (Cfg.u.clWidth) entry_data_dfflr (entry_data_en, entry_data_nxt, entry_data, clk, rst_n);
     ns_gnrl_dfflr # (Cfg.u.addrWidth) entry_addr_dfflr (entry_addr_en, entry_addr_nxt, entry_addr, clk, rst_n);    
+
+    always @ (posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            entry_data <= 'd0;
+        else if (entry_data_en)
+            entry_data <= #1 entry_data_nxt;
+    end
+
 
     assign s_awready = state == S_IDLE;
     assign s_wready  = state == S_WAIT_DAT;
@@ -154,17 +163,17 @@ module mc_queue
     assign s_rid     = entry_cacheline_id;
     assign s_rdata   = entry_data;
 
-    assign m_awvalid = state == S_SEND_REQ & entry_cmd == MEM_OP_STORE;
+    assign m_awvalid = state == S_SEND_REQ & entry_cmd == $bits(entry_cmd)'(MEM_OP_STORE);
     assign m_awaddr  = entry_addr;
-    assign m_wvalid  = state == S_SEND_REQ & entry_cmd == MEM_OP_STORE;
+    assign m_wvalid  = state == S_SEND_REQ & entry_cmd == $bits(entry_cmd)'(MEM_OP_STORE);
     assign m_wdata   = entry_data;
 
-    assign m_arvalid = state == S_SEND_REQ & entry_cmd == MEM_OP_LOAD;
+    assign m_arvalid = state == S_SEND_REQ & entry_cmd == $bits(entry_cmd)'(MEM_OP_LOAD);
     assign m_araddr  = entry_addr;
-    assign m_rready  = state == S_WAIT_RESP & entry_cmd == MEM_OP_LOAD;
+    assign m_rready  = state == S_WAIT_RESP & entry_cmd == $bits(entry_cmd)'(MEM_OP_LOAD);
 
 
-    assign m_bready  = state == S_WAIT_RESP & entry_cmd == MEM_OP_STORE;
+    assign m_bready  = state == S_WAIT_RESP & entry_cmd == $bits(entry_cmd)'(MEM_OP_STORE);
 
     assign entry_valid  = state != S_IDLE;
     assign cacheline_id = entry_cacheline_id;
@@ -272,6 +281,7 @@ logic [Cfg.u.mcSize-1:0] entry_wready;
 
 logic [Cfg.u.mcSize-1:0] entry_rvalid;
 clWidth_t                entry_rdata [Cfg.u.mcSize-1:0];
+nlineWidth_t             entry_rid [Cfg.u.mcSize-1:0];
 
 logic [Cfg.u.mcSize-1:0] entry_awvalid;
 addrWidth_t              entry_awaddr [Cfg.u.mcSize-1:0];
@@ -301,8 +311,8 @@ mcWidth_t                        r_ptr_v;
 assign w_ptr_v = w_ptr[$clog2(Cfg.u.mcSize)-1:0];
 assign r_ptr_v = r_ptr[$clog2(Cfg.u.mcSize)-1:0];
 
-assign w_ptr_nxt = w_ptr + ((s_axi_awready & s_axi_awvalid) | (s_axi_arready & s_axi_arvalid));
-assign r_ptr_nxt = r_ptr + ((m_axi_bready & m_axi_bvalid) | (s_axi_rvalid & s_axi_rready));
+assign w_ptr_nxt = w_ptr + {{($bits(w_ptr)-1){1'b0}}, (s_axi_awready & s_axi_awvalid) | (s_axi_arready & s_axi_arvalid)};
+assign r_ptr_nxt = r_ptr + {{($bits(r_ptr)-1){1'b0}}, (m_axi_bready & m_axi_bvalid) | (s_axi_rvalid & s_axi_rready)};
 
 ns_gnrl_dfflr # ($bits(w_ptr)) w_ptr_dfflr (1'b1, w_ptr_nxt, w_ptr, clk, rst_n);
 ns_gnrl_dfflr # ($bits(r_ptr)) r_ptr_dfflr (1'b1, r_ptr_nxt, r_ptr, clk, rst_n);
@@ -348,6 +358,7 @@ for (genvar i = 0; i < int'(Cfg.u.mcSize); i = i + 1) begin: mc_queue_gen
         .s_rvalid       (entry_rvalid[i]                        ),
         .s_rready       (r_ptr_v == i && s_axi_rready           ),
         .s_rdata        (entry_rdata[i]                         ),
+        .s_rid          (entry_rid[i]                           ),
 
         .m_awvalid      (entry_awvalid[i]                       ),
         .m_awready      (r_ptr_v == i && m_axi_awready          ),

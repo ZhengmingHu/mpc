@@ -11,7 +11,7 @@ always_comb begin
   for (int i = 0; i < WIDTH; i++)
   begin
     if (in[i]) begin
-      out = i;
+      out = $clog2(WIDTH)'(i);
       break;
     end
   end

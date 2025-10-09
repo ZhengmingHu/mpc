@@ -1,43 +1,86 @@
+`include "mpc_defs.svh"
+
 module mpc_wrapper 
     import mpc_types::*;
 #(
-    parameter mpc_cfg_t Cfg = '0, 
-    parameter type clWidth_t       = logic,  
-    parameter type opWidth_t       = logic,
-    parameter type dataWidth_t     = logic,
-    parameter type addrWidth_t     = logic,
-    parameter type setWidth_t      = logic,
-    parameter type tagWidth_t      = logic,
-    parameter type wayIndexWidth_t = logic,
-    parameter type wbufWidth_t     = logic,
-    parameter type wayNum_t        = logic,
-    parameter type nlineWidth_t    = logic,
-    parameter type offsetWidth_t   = logic,
-    parameter type byteWidth_t     = logic,
-    parameter type metaWidth_t     = logic,
-    parameter type robWidth_t      = logic,
-    parameter type lsqWidth_t      = logic,
-    parameter type rfbufWidth_t    = logic,
-    parameter type kobWidth_t      = logic,
-    parameter type mcWidth_t       = logic,
-    parameter type channel_req_t   = logic,
-    parameter type bank_req_t      = logic,
-    parameter type wbuf_req_t      = logic
+    parameter mpc_user_cfg_t UserCfg = '{
+        opWidth:3,
+        clWidth:256,
+        clWordWidth:128,
+        addrWidth:32,
+        sets:8,
+        banks:4,
+        ways:4,
+        kobSize:16,
+        wbufSize:16,
+        robSize:16,
+        lsqSize:32,
+        rfbufSize:16,
+        mcSize:4
+    },
+    parameter mpc_cfg_t Cfg = mpcBuildConfig(UserCfg),
+    parameter type clWidth_t       = logic [Cfg.u.clWidth-1:0],
+    parameter type opWidth_t       = logic [Cfg.u.opWidth-1:0],
+    parameter type dataWidth_t     = logic [Cfg.u.clWordWidth-1:0],
+    parameter type addrWidth_t     = logic [Cfg.u.addrWidth-1:0],
+    parameter type setWidth_t      = logic [Cfg.setWidth-1:0],
+    parameter type tagWidth_t      = logic [Cfg.tagWidth-1:0],
+    parameter type wayIndexWidth_t = logic [Cfg.wayIndexWidth-1:0],
+    parameter type wbufWidth_t     = logic [Cfg.wbufWidth-1:0],
+    parameter type wayNum_t        = logic [Cfg.wayNum-1:0],
+    parameter type nlineWidth_t    = logic [Cfg.nlineWidth-1:0],
+    parameter type offsetWidth_t   = logic [Cfg.offsetWidth-1:0],
+    parameter type byteWidth_t     = logic [Cfg.byteWidth-1:0],
+    parameter type metaWidth_t     = logic [Cfg.metaWidth-1:0],
+    parameter type robWidth_t      = logic [Cfg.robWidth-1:0],
+    parameter type lsqWidth_t      = logic [Cfg.lsqWidth-1:0],
+    parameter type rfbufWidth_t    = logic [Cfg.rfbufWidth-1:0],
+    parameter type kobWidth_t      = logic [Cfg.kobWidth-1:0],
+    parameter type mcWidth_t       = logic [Cfg.mcWidth-1:0],
+
+    parameter type channel_req_t = 
+        `MPC_DECL_REQ_T(
+            opWidth_t,
+            opWidth_t,
+            dataWidth_t,
+            addrWidth_t),
+
+    parameter type bank_req_t =
+        `MPC_DECL_BANK_REQ_T(
+            opWidth_t,
+            opWidth_t,
+            dataWidth_t,
+            addrWidth_t),
+
+    parameter type wbuf_req_t = 
+        `MPC_DECL_WBUF_REQ_T(
+            wbufWidth_t,
+            dataWidth_t)
 )(
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
     // upstream req from 3 channels
     input  logic                        u_channel_0_req_bus_valid  ,
     output logic                        u_channel_0_req_bus_ready  ,
-    input  channel_req_t                u_channel_0_req_bus        ,
+    input  opWidth_t                    u_channel_0_req_bus_op     ,
+    input  opWidth_t                    u_channel_0_req_bus_size   ,
+    input  dataWidth_t                  u_channel_0_req_bus_wdata  ,
+    input  addrWidth_t                  u_channel_0_req_bus_addr   ,
 
     input  logic                        u_channel_1_req_bus_valid  ,
     output logic                        u_channel_1_req_bus_ready  ,
-    input  channel_req_t                u_channel_1_req_bus        ,
+    input  opWidth_t                    u_channel_1_req_bus_op     ,
+    input  opWidth_t                    u_channel_1_req_bus_size   ,
+    input  dataWidth_t                  u_channel_1_req_bus_wdata  ,
+    input  addrWidth_t                  u_channel_1_req_bus_addr   ,
 
     input  logic                        u_channel_2_req_bus_valid  ,
     output logic                        u_channel_2_req_bus_ready  ,
-    input  channel_req_t                u_channel_2_req_bus        ,
+    input  opWidth_t                    u_channel_2_req_bus_op     ,
+    input  opWidth_t                    u_channel_2_req_bus_size   ,
+    input  dataWidth_t                  u_channel_2_req_bus_wdata  ,
+    input  addrWidth_t                  u_channel_2_req_bus_addr   ,
+
     // upstream rsp to 3 channels
     output logic                        u_channel_0_rsp_bus_valid  ,
     input  logic                        u_channel_0_rsp_bus_ready  ,
@@ -51,6 +94,10 @@ module mpc_wrapper
     input  logic                        u_channel_2_rsp_bus_ready  ,
     output dataWidth_t                  u_channel_2_rsp_bus_rdata  
 );
+
+channel_req_t                u_channel_0_req_bus ;
+channel_req_t                u_channel_1_req_bus ;
+channel_req_t                u_channel_2_req_bus ;
 
 logic                        slice_0_axi_awready ;
 logic                        slice_0_axi_awvalid ;
@@ -202,6 +249,21 @@ logic           [  1: 0]     axi_rid             ;
 logic           [255: 0]     axi_rdata           ;              
 logic           [  1: 0]     axi_rresp           ;              
 logic                        axi_rlast           ;              
+
+assign u_channel_0_req_bus.op    = u_channel_0_req_bus_op   ;
+assign u_channel_0_req_bus.size  = u_channel_0_req_bus_size ;
+assign u_channel_0_req_bus.wdata = u_channel_0_req_bus_wdata;
+assign u_channel_0_req_bus.addr  = u_channel_0_req_bus_addr ;
+
+assign u_channel_1_req_bus.op    = u_channel_1_req_bus_op   ;
+assign u_channel_1_req_bus.size  = u_channel_1_req_bus_size ;
+assign u_channel_1_req_bus.wdata = u_channel_1_req_bus_wdata;
+assign u_channel_1_req_bus.addr  = u_channel_1_req_bus_addr ;
+
+assign u_channel_2_req_bus.op    = u_channel_2_req_bus_op   ;
+assign u_channel_2_req_bus.size  = u_channel_2_req_bus_size ;
+assign u_channel_2_req_bus.wdata = u_channel_2_req_bus_wdata;
+assign u_channel_2_req_bus.addr  = u_channel_2_req_bus_addr ;
 
 
 mpc # (

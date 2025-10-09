@@ -37,7 +37,7 @@ ns_gnrl_dfflr  # ($clog2(SRB_DEPTH)) w_ptr_dfflr (w_ptr_ena, w_ptr_nxt, w_ptr, c
 
 // bottom ptr update //////////////////////////////////////////////
 
-assign  entry_valid_shifted = (entry_valid >> btm_ptr) | (entry_valid << (SRB_DEPTH - btm_ptr));
+assign  entry_valid_shifted = (entry_valid >> btm_ptr) | (entry_valid << ($bits(btm_ptr)'(SRB_DEPTH) - btm_ptr));
 
 generate
     for (genvar i = 0; i < SRB_DEPTH; i++)
