@@ -5,4 +5,4 @@
 ../rtl/lib/ns_gnrl_dfflrs.sv
 ../rtl/lib/priority_encoder.sv
 ../rtl/wbuf/wbuf_id_gen.sv
-../tb/tb_wbuf_id_gen.sv
+../vcs/tb_wbuf_id_gen.sv

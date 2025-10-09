@@ -67,11 +67,11 @@ module rc_wrapper
 //               byte_sel
 // 5. read       rdata + WB 
 
-localparam BYTE_MASK = 255'hff;
-localparam HALF_MASK = 255'hffff;
-localparam WORD_MASK = 255'hffff_ffff;
-localparam DOUBLE_MASK = 255'hffff_ffff_ffff_ffff;
-localparam QUAD_MASK = 255'hffff_ffff_ffff_ffff_ffff_ffff_ffff_ffff;
+localparam BYTE_MASK = 256'hff;
+localparam HALF_MASK = 256'hffff;
+localparam WORD_MASK = 256'hffff_ffff;
+localparam DOUBLE_MASK = 256'hffff_ffff_ffff_ffff;
+localparam QUAD_MASK = 256'hffff_ffff_ffff_ffff_ffff_ffff_ffff_ffff;
 
 logic                                   s0_valid;
 logic                                   s0_ready;
@@ -92,6 +92,7 @@ logic             [  1: 0]              s0_rmask;
 wbufWidth_t                             s0_wbuf_id;
 logic             [255: 0]              s0_refill_data;
 logic             [127: 0]              s0_rsp_data;
+clWidth_t                               s0_rsp_data_ext;
 logic                                   s0_s1_hsked;
 logic                                   s0_drop;
 logic                                   s0_can_go;
@@ -122,11 +123,12 @@ logic             [127: 0]              s1_wbuf_rsp_data_aligned;
 logic             [255: 0]              s1_wbuf_rsp_data_ext;
 logic             [255: 0]              s1_wstrb;
 dataWidth_t                             s1_rdata;
+clWidth_t                               s1_rdata_ext;
 logic             [255: 0]              s1_wdata;
 logic             [  1: 0]              s1_wmask;
 
 logic s0_s1_conflict;
-logic s0_s1_write_conflcit;
+logic s0_s1_write_conflict;
 assign s0_s1_conflict = s0_way == s1_way && s1_valid && s1_wmask[s0_offset];
 assign s0_s1_write_conflict = s0_way == s1_way && s1_valid && |s1_wmask;
 
@@ -148,11 +150,12 @@ assign s0_refill_data        = u_isu_refill_data;
 assign s0_op                 = u_isu_op;
 assign s0_size               = u_isu_size;
 assign s0_read_with_linefill = s0_valid && (s0_op == CACHE_OP_LOAD_REFILL);
-assign s0_rsp_data           =  s0_size == BYTE ? (s0_refill_data >> {s0_offset, s0_byte, 3'b0}) & BYTE_MASK :
+assign s0_rsp_data_ext       =  s0_size == BYTE ? (s0_refill_data >> {s0_offset, s0_byte, 3'b0}) & BYTE_MASK :
                                 s0_size == HALF ? (s0_refill_data >> {s0_offset, s0_byte, 3'b0}) & HALF_MASK :
                                 s0_size == WORD ? (s0_refill_data >> {s0_offset, s0_byte, 3'b0}) & WORD_MASK :
                                 s0_size == DOUBLE ? (s0_refill_data >> {s0_offset, s0_byte, 3'b0}) & DOUBLE_MASK :
                                 s0_size == QUAD ? (s0_refill_data >> {s0_offset, s0_byte, 3'b0}) & QUAD_MASK : 'd0;
+assign s0_rsp_data           = s0_rsp_data_ext[127:0];
 
 assign s0_read_wbuf          = s0_valid && (s0_op == CACHE_OP_STORE_REFILL || s0_op == CACHE_OP_STORE);
 assign s0_read               = s0_valid && (s0_op == CACHE_OP_LOAD);
@@ -211,7 +214,7 @@ assign s1_write_with_linefill = s1_valid && (s1_op == CACHE_OP_STORE_REFILL);
 assign s1_write               = s1_valid && (s1_op == CACHE_OP_STORE);
 assign s1_wb                  = s1_valid && (s1_op == CACHE_OP_WB);
 assign {s1_refill_data_hi, s1_refill_data_lo} = s1_refill_data;
-assign s1_rdata               = s1_read_with_linefill ? (
+assign s1_rdata_ext           = s1_read_with_linefill ? (
                                     s1_size == BYTE ? (s1_refill_data >> {s1_offset, s1_byte, 3'b0}) & BYTE_MASK :
                                     s1_size == HALF ? (s1_refill_data >> {s1_offset, s1_byte, 3'b0}) & HALF_MASK :
                                     s1_size == WORD ? (s1_refill_data >> {s1_offset, s1_byte, 3'b0}) & WORD_MASK :
@@ -225,6 +228,7 @@ assign s1_rdata               = s1_read_with_linefill ? (
                                     s1_size == DOUBLE ? (s1_data_array_rsp_data >> {s1_offset, s1_byte, 3'b0}) & DOUBLE_MASK :
                                     s1_size == QUAD ? (s1_data_array_rsp_data >> {s1_offset, s1_byte, 3'b0}) & QUAD_MASK : 'd0
                                 ) : 'd0;
+assign s1_rdata               = s1_rdata_ext[127:0];
 assign s1_wbuf_rsp_data_aligned = wbuf_rsp_data << {s1_byte, 3'b0};
 assign s1_wbuf_rsp_data_ext   = s1_offset ? {s1_wbuf_rsp_data_aligned, {128{1'b0}}} : {{128{1'b0}}, s1_wbuf_rsp_data_aligned};
 assign s1_wstrb               = s1_size == BYTE ? BYTE_MASK << {s1_offset, s1_byte, 3'b0} :

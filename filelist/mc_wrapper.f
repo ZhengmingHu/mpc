@@ -9,4 +9,4 @@
 ../rtl/lib/popcount.sv
 ../rtl/lib/mpc_sram.sv
 ../rtl/mc/mc_wrapper.sv
-../tb/tb_mc_wrapper.sv
+../vcs/tb_mc_wrapper.sv

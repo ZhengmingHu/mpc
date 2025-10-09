@@ -39,7 +39,7 @@ logic                       [127: 0]    r_data_lo                  ;
 logic                       [127: 0]    w_data_hi                  ;
 logic                       [127: 0]    w_data_lo                  ;
 
-assign addr = we ? w_addr : r_addr;
+assign addr = |we ? w_addr : r_addr;
 
 assign cs = {r_en & r_mask[1] | w_en & w_mask[1], r_en & r_mask[0] | w_en & w_mask[0]};
 assign we = { w_en & w_mask[1],  w_en & w_mask[0]}; 

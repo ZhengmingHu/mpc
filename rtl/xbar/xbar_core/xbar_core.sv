@@ -19,31 +19,41 @@ module xbar_core
 
     input  logic                        u_channel_0_req_valid      ,
     output logic                        u_channel_0_req_ready      ,
+    input  logic                        ch_0_kob_full              ,
     input  channel_req_t                u_channel_0_req            ,
 
     input  logic                        u_channel_1_req_valid      ,
     output logic                        u_channel_1_req_ready      ,
+    input  logic                        ch_1_kob_full              ,
     input  channel_req_t                u_channel_1_req            ,
 
     input  logic                        u_channel_2_req_valid      ,
     output logic                        u_channel_2_req_ready      ,
+    input  logic                        ch_2_kob_full              ,
     input  channel_req_t                u_channel_2_req            ,
+
+    input  logic                        age_full                   ,
+    input  logic          [  5: 0]      age_info                   ,
 
     output logic                        d_bank_0_req_valid         ,
     input  logic                        d_bank_0_req_ready         ,
     output bank_req_t                   d_bank_0_req               ,
+    output logic          [  5: 0]      retire_bank_0_req_age      ,
 
     output logic                        d_bank_1_req_valid         ,
     input  logic                        d_bank_1_req_ready         ,
     output bank_req_t                   d_bank_1_req               ,
+    output logic          [  5: 0]      retire_bank_1_req_age      ,
 
     output logic                        d_bank_2_req_valid         ,
     input  logic                        d_bank_2_req_ready         ,
     output bank_req_t                   d_bank_2_req               ,
+    output logic          [  5: 0]      retire_bank_2_req_age      ,
 
     output logic                        d_bank_3_req_valid         ,
     input  logic                        d_bank_3_req_ready         ,
-    output bank_req_t                   d_bank_3_req               
+    output bank_req_t                   d_bank_3_req               ,
+    output logic          [  5: 0]      retire_bank_3_req_age      
 );
 
 logic            [  2: 0]    ch_0_w_ptr                         ;
@@ -87,6 +97,11 @@ logic            [  7: 0]    ch_2_bank_0_r_entry_1hot_id        ;
 logic            [  7: 0]    ch_2_bank_1_r_entry_1hot_id        ;
 logic            [  7: 0]    ch_2_bank_2_r_entry_1hot_id        ;
 logic            [  7: 0]    ch_2_bank_3_r_entry_1hot_id        ;
+
+logic            [  5: 0]    bank_0_req_age             [  2: 0];
+logic            [  5: 0]    bank_1_req_age             [  2: 0];
+logic            [  5: 0]    bank_2_req_age             [  2: 0];
+logic            [  5: 0]    bank_3_req_age             [  2: 0];
 
 channel_req_t   d_bank_0_ch_req;
 channel_req_t   d_bank_1_ch_req;

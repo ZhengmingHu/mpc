@@ -11,4 +11,4 @@
 ../rtl/rc/data_array_sram.sv
 ../rtl/rc/data_array.sv
 ../rtl/rc/rc_wrapper.sv
-../tb/tb_rc_wrapper.sv
+../vcs/tb_rc_wrapper.sv

@@ -11,6 +11,12 @@ module xbar_ptr_gen
     input  logic                        u_channel_2_req_valid               ,
     output logic                        u_channel_2_req_ready               ,
 
+    input  logic                        ch_0_kob_full                       ,
+    input  logic                        ch_1_kob_full                       ,
+    input  logic                        ch_2_kob_full                       ,
+
+    input  logic                        age_full                            ,
+
     input  logic                        ch_0_bank_0_last_entry_already_pop  ,
     input  logic                        ch_0_bank_1_last_entry_already_pop  ,
     input  logic                        ch_0_bank_2_last_entry_already_pop  ,
@@ -40,6 +46,8 @@ xbar_sub_ptr_gen u_ch_0_xbar_sub_ptr_gen (
 
     .u_ch_req_valid                     (u_channel_0_req_valid             ),
     .u_ch_req_ready                     (u_channel_0_req_ready             ),
+    .ch_kob_full                        (ch_0_kob_full                     ),
+    .age_full                           (age_full                          ),
 
     .bank_0_last_entry_already_pop      (ch_0_bank_0_last_entry_already_pop),
     .bank_1_last_entry_already_pop      (ch_0_bank_1_last_entry_already_pop),
@@ -56,6 +64,8 @@ xbar_sub_ptr_gen u_ch_1_xbar_sub_ptr_gen (
 
     .u_ch_req_valid                     (u_channel_1_req_valid             ),
     .u_ch_req_ready                     (u_channel_1_req_ready             ),
+    .ch_kob_full                        (ch_1_kob_full                     ),
+    .age_full                           (age_full                          ),
 
     .bank_0_last_entry_already_pop      (ch_1_bank_0_last_entry_already_pop),
     .bank_1_last_entry_already_pop      (ch_1_bank_1_last_entry_already_pop),
@@ -72,6 +82,8 @@ xbar_sub_ptr_gen u_ch_2_xbar_sub_ptr_gen (
 
     .u_ch_req_valid                     (u_channel_2_req_valid             ),
     .u_ch_req_ready                     (u_channel_2_req_ready             ),
+    .ch_kob_full                        (ch_2_kob_full                     ),
+    .age_full                           (age_full                          ),
 
     .bank_0_last_entry_already_pop      (ch_2_bank_0_last_entry_already_pop),
     .bank_1_last_entry_already_pop      (ch_2_bank_1_last_entry_already_pop),
@@ -92,6 +104,8 @@ module xbar_sub_ptr_gen
 
     input  logic                        u_ch_req_valid                 ,
     output logic                        u_ch_req_ready                 ,
+    input  logic                        ch_kob_full                    ,
+    input  logic                        age_full                       ,               
 
     input  logic                        bank_0_last_entry_already_pop  ,
     input  logic                        bank_1_last_entry_already_pop  ,
@@ -147,7 +161,7 @@ assign last_entry_already_pop = bank_0_last_entry_already_pop &
                                 bank_2_last_entry_already_pop &
                                 bank_3_last_entry_already_pop ;
                         
-assign u_ch_req_ready = ~(&used_entry);
+assign u_ch_req_ready = ~(&used_entry) & !ch_kob_full & !age_full;
 
 assign w_ptr = w_ptr_r;
 assign r_ptr = r_ptr_r;

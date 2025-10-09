@@ -54,7 +54,7 @@ generate
             assign ref_cnt_incr[way_w][set_w] = ref_cnt_access_valid & ref_cnt_access_set == set_w & ref_cnt_access_way == way_w;
             assign ref_cnt_decr[way_w][set_w] = d_isu_crdt_valid & isu_crdt_set == set_w & isu_crdt_way == way_w;
             assign ref_cnt_en  [way_w][set_w] = ref_cnt_incr[way_w][set_w] | ref_cnt_decr[way_w][set_w];
-            assign ref_cnt_nxt [way_w][set_w] = ref_cnt[way_w][set_w] + ref_cnt_incr[way_w][set_w] - ref_cnt_decr[way_w][set_w]; 
+            assign ref_cnt_nxt [way_w][set_w] = ref_cnt[way_w][set_w] + {{($bits(ref_cnt[0][0])-1){1'b0}}, ref_cnt_incr[way_w][set_w]} - {{($bits(ref_cnt[0][0])-1){1'b0}}, ref_cnt_decr[way_w][set_w]}; 
             ns_gnrl_dfflr # (3) ref_cnt_dfflr (ref_cnt_en[way_w][set_w], ref_cnt_nxt[way_w][set_w], ref_cnt[way_w][set_w], clk, rst_n);
         end    
     end

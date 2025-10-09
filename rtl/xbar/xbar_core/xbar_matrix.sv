@@ -52,6 +52,11 @@ module xbar_matrix
     output logic            [  7: 0]    ch_2_bank_2_r_entry_1hot_id         ,
     output logic            [  7: 0]    ch_2_bank_3_r_entry_1hot_id         ,
 
+    input  logic            [  5: 0]    bank_0_req_age             [  2: 0] ,
+    input  logic            [  5: 0]    bank_1_req_age             [  2: 0] ,
+    input  logic            [  5: 0]    bank_2_req_age             [  2: 0] ,
+    input  logic            [  5: 0]    bank_3_req_age             [  2: 0] ,
+
     output logic            [  2: 0]    bank_0_ch_1hot_id                   ,
     output logic            [  2: 0]    bank_1_ch_1hot_id                   ,
     output logic            [  2: 0]    bank_2_ch_1hot_id                   ,
@@ -206,18 +211,18 @@ endgenerate
 //                  //
 //******************//
 
-ns_gnrl_rrobin_mask # (8) ch_0_bank_0_ns_gnrl_rrobin_mask (.grt_vec(xbar_r_entry_id_1hot[0][0]), .req_vec(xbar_valid_matrix[0][0]), .req_mask_idx(ch_0_r_ptr), .arbt_ena(xbar_ch_bank_hsked_matrix[0][0]), .clk(clk), .rst_n(rst_n));
-ns_gnrl_rrobin_mask # (8) ch_0_bank_1_ns_gnrl_rrobin_mask (.grt_vec(xbar_r_entry_id_1hot[0][1]), .req_vec(xbar_valid_matrix[0][1]), .req_mask_idx(ch_0_r_ptr), .arbt_ena(xbar_ch_bank_hsked_matrix[0][1]), .clk(clk), .rst_n(rst_n));
-ns_gnrl_rrobin_mask # (8) ch_0_bank_2_ns_gnrl_rrobin_mask (.grt_vec(xbar_r_entry_id_1hot[0][2]), .req_vec(xbar_valid_matrix[0][2]), .req_mask_idx(ch_0_r_ptr), .arbt_ena(xbar_ch_bank_hsked_matrix[0][2]), .clk(clk), .rst_n(rst_n));
-ns_gnrl_rrobin_mask # (8) ch_0_bank_3_ns_gnrl_rrobin_mask (.grt_vec(xbar_r_entry_id_1hot[0][3]), .req_vec(xbar_valid_matrix[0][3]), .req_mask_idx(ch_0_r_ptr), .arbt_ena(xbar_ch_bank_hsked_matrix[0][3]), .clk(clk), .rst_n(rst_n));
-ns_gnrl_rrobin_mask # (8) ch_1_bank_0_ns_gnrl_rrobin_mask (.grt_vec(xbar_r_entry_id_1hot[1][0]), .req_vec(xbar_valid_matrix[1][0]), .req_mask_idx(ch_1_r_ptr), .arbt_ena(xbar_ch_bank_hsked_matrix[1][0]), .clk(clk), .rst_n(rst_n));
-ns_gnrl_rrobin_mask # (8) ch_1_bank_1_ns_gnrl_rrobin_mask (.grt_vec(xbar_r_entry_id_1hot[1][1]), .req_vec(xbar_valid_matrix[1][1]), .req_mask_idx(ch_1_r_ptr), .arbt_ena(xbar_ch_bank_hsked_matrix[1][1]), .clk(clk), .rst_n(rst_n));
-ns_gnrl_rrobin_mask # (8) ch_1_bank_2_ns_gnrl_rrobin_mask (.grt_vec(xbar_r_entry_id_1hot[1][2]), .req_vec(xbar_valid_matrix[1][2]), .req_mask_idx(ch_1_r_ptr), .arbt_ena(xbar_ch_bank_hsked_matrix[1][2]), .clk(clk), .rst_n(rst_n));
-ns_gnrl_rrobin_mask # (8) ch_1_bank_3_ns_gnrl_rrobin_mask (.grt_vec(xbar_r_entry_id_1hot[1][3]), .req_vec(xbar_valid_matrix[1][3]), .req_mask_idx(ch_1_r_ptr), .arbt_ena(xbar_ch_bank_hsked_matrix[1][3]), .clk(clk), .rst_n(rst_n));
-ns_gnrl_rrobin_mask # (8) ch_2_bank_0_ns_gnrl_rrobin_mask (.grt_vec(xbar_r_entry_id_1hot[2][0]), .req_vec(xbar_valid_matrix[2][0]), .req_mask_idx(ch_2_r_ptr), .arbt_ena(xbar_ch_bank_hsked_matrix[2][0]), .clk(clk), .rst_n(rst_n));
-ns_gnrl_rrobin_mask # (8) ch_2_bank_1_ns_gnrl_rrobin_mask (.grt_vec(xbar_r_entry_id_1hot[2][1]), .req_vec(xbar_valid_matrix[2][1]), .req_mask_idx(ch_2_r_ptr), .arbt_ena(xbar_ch_bank_hsked_matrix[2][1]), .clk(clk), .rst_n(rst_n));
-ns_gnrl_rrobin_mask # (8) ch_2_bank_2_ns_gnrl_rrobin_mask (.grt_vec(xbar_r_entry_id_1hot[2][2]), .req_vec(xbar_valid_matrix[2][2]), .req_mask_idx(ch_2_r_ptr), .arbt_ena(xbar_ch_bank_hsked_matrix[2][2]), .clk(clk), .rst_n(rst_n));
-ns_gnrl_rrobin_mask # (8) ch_2_bank_3_ns_gnrl_rrobin_mask (.grt_vec(xbar_r_entry_id_1hot[2][3]), .req_vec(xbar_valid_matrix[2][3]), .req_mask_idx(ch_2_r_ptr), .arbt_ena(xbar_ch_bank_hsked_matrix[2][3]), .clk(clk), .rst_n(rst_n));
+ns_gnrl_weight_with_ref_one_hot # (8) ch_0_bank_0_ns_gnrl_weight_with_ref_oh (.clk(clk), .rst_n(rst_n), .grt_vec(xbar_r_entry_id_1hot[0][0]), .req_vec(xbar_valid_matrix[0][0]), .ref_weight(ch_0_r_ptr));
+ns_gnrl_weight_with_ref_one_hot # (8) ch_0_bank_1_ns_gnrl_weight_with_ref_oh (.clk(clk), .rst_n(rst_n), .grt_vec(xbar_r_entry_id_1hot[0][1]), .req_vec(xbar_valid_matrix[0][1]), .ref_weight(ch_0_r_ptr));
+ns_gnrl_weight_with_ref_one_hot # (8) ch_0_bank_2_ns_gnrl_weight_with_ref_oh (.clk(clk), .rst_n(rst_n), .grt_vec(xbar_r_entry_id_1hot[0][2]), .req_vec(xbar_valid_matrix[0][2]), .ref_weight(ch_0_r_ptr));
+ns_gnrl_weight_with_ref_one_hot # (8) ch_0_bank_3_ns_gnrl_weight_with_ref_oh (.clk(clk), .rst_n(rst_n), .grt_vec(xbar_r_entry_id_1hot[0][3]), .req_vec(xbar_valid_matrix[0][3]), .ref_weight(ch_0_r_ptr));
+ns_gnrl_weight_with_ref_one_hot # (8) ch_1_bank_0_ns_gnrl_weight_with_ref_oh (.clk(clk), .rst_n(rst_n), .grt_vec(xbar_r_entry_id_1hot[1][0]), .req_vec(xbar_valid_matrix[1][0]), .ref_weight(ch_1_r_ptr));
+ns_gnrl_weight_with_ref_one_hot # (8) ch_1_bank_1_ns_gnrl_weight_with_ref_oh (.clk(clk), .rst_n(rst_n), .grt_vec(xbar_r_entry_id_1hot[1][1]), .req_vec(xbar_valid_matrix[1][1]), .ref_weight(ch_1_r_ptr));
+ns_gnrl_weight_with_ref_one_hot # (8) ch_1_bank_2_ns_gnrl_weight_with_ref_oh (.clk(clk), .rst_n(rst_n), .grt_vec(xbar_r_entry_id_1hot[1][2]), .req_vec(xbar_valid_matrix[1][2]), .ref_weight(ch_1_r_ptr));
+ns_gnrl_weight_with_ref_one_hot # (8) ch_1_bank_3_ns_gnrl_weight_with_ref_oh (.clk(clk), .rst_n(rst_n), .grt_vec(xbar_r_entry_id_1hot[1][3]), .req_vec(xbar_valid_matrix[1][3]), .ref_weight(ch_1_r_ptr));
+ns_gnrl_weight_with_ref_one_hot # (8) ch_2_bank_0_ns_gnrl_weight_with_ref_oh (.clk(clk), .rst_n(rst_n), .grt_vec(xbar_r_entry_id_1hot[2][0]), .req_vec(xbar_valid_matrix[2][0]), .ref_weight(ch_2_r_ptr));
+ns_gnrl_weight_with_ref_one_hot # (8) ch_2_bank_1_ns_gnrl_weight_with_ref_oh (.clk(clk), .rst_n(rst_n), .grt_vec(xbar_r_entry_id_1hot[2][1]), .req_vec(xbar_valid_matrix[2][1]), .ref_weight(ch_2_r_ptr));
+ns_gnrl_weight_with_ref_one_hot # (8) ch_2_bank_2_ns_gnrl_weight_with_ref_oh (.clk(clk), .rst_n(rst_n), .grt_vec(xbar_r_entry_id_1hot[2][2]), .req_vec(xbar_valid_matrix[2][2]), .ref_weight(ch_2_r_ptr));
+ns_gnrl_weight_with_ref_one_hot # (8) ch_2_bank_3_ns_gnrl_weight_with_ref_oh (.clk(clk), .rst_n(rst_n), .grt_vec(xbar_r_entry_id_1hot[2][3]), .req_vec(xbar_valid_matrix[2][3]), .ref_weight(ch_2_r_ptr));
 
 
 assign ch_0_bank_0_r_entry_1hot_id = xbar_r_entry_id_1hot[0][0];
@@ -239,10 +244,10 @@ assign ch_2_bank_3_r_entry_1hot_id = xbar_r_entry_id_1hot[2][3];
 //                  //
 //******************//
 
-ns_gnrl_rrobin      # (3) bank_0_sel_ch_gnrl_rrobin       (.grt_vec(bank_0_ch_1hot_id), .req_vec(xbar_ch_bank_valid_matrix_t[0]), .arbt_ena(d_bank_0_req_hsked), .clk(clk), .rst_n(rst_n)); 
-ns_gnrl_rrobin      # (3) bank_1_sel_ch_gnrl_rrobin       (.grt_vec(bank_1_ch_1hot_id), .req_vec(xbar_ch_bank_valid_matrix_t[1]), .arbt_ena(d_bank_1_req_hsked), .clk(clk), .rst_n(rst_n)); 
-ns_gnrl_rrobin      # (3) bank_2_sel_ch_gnrl_rrobin       (.grt_vec(bank_2_ch_1hot_id), .req_vec(xbar_ch_bank_valid_matrix_t[2]), .arbt_ena(d_bank_2_req_hsked), .clk(clk), .rst_n(rst_n)); 
-ns_gnrl_rrobin      # (3) bank_3_sel_ch_gnrl_rrobin       (.grt_vec(bank_3_ch_1hot_id), .req_vec(xbar_ch_bank_valid_matrix_t[3]), .arbt_ena(d_bank_3_req_hsked), .clk(clk), .rst_n(rst_n)); 
+ns_gnrl_priority_weight_3_channel bank_0_sel_ch_gnrl_priority_weight (.grt_vec(bank_0_ch_1hot_id), .req_vec(xbar_ch_bank_valid_matrix_t[0]), .weight(bank_0_req_age), .clk(clk), .rst_n(rst_n)); 
+ns_gnrl_priority_weight_3_channel bank_1_sel_ch_gnrl_priority_weight (.grt_vec(bank_1_ch_1hot_id), .req_vec(xbar_ch_bank_valid_matrix_t[1]), .weight(bank_1_req_age), .clk(clk), .rst_n(rst_n)); 
+ns_gnrl_priority_weight_3_channel bank_2_sel_ch_gnrl_priority_weight (.grt_vec(bank_2_ch_1hot_id), .req_vec(xbar_ch_bank_valid_matrix_t[2]), .weight(bank_2_req_age), .clk(clk), .rst_n(rst_n)); 
+ns_gnrl_priority_weight_3_channel bank_3_sel_ch_gnrl_priority_weight (.grt_vec(bank_3_ch_1hot_id), .req_vec(xbar_ch_bank_valid_matrix_t[3]), .weight(bank_3_req_age), .clk(clk), .rst_n(rst_n));
 
 
 //********************//

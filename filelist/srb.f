@@ -6,4 +6,4 @@
 ../rtl/lib/1hot2bin.sv
 ../rtl/isu/srb.sv
 ../rtl/lib/mux1h.sv
-../tb/tb_srb.sv
+../vcs/tb_srb.sv

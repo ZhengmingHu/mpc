@@ -24,6 +24,7 @@
 ../rtl/xbar/rob/rob_ptr_gen.sv
 ../rtl/xbar/rob/rob_wrapper.sv
 ../rtl/xbar/rob/rob.sv
+../rtl/xbar/age_gen.sv
 ../rtl/xbar/xbar_wrapper.sv
 ../rtl/htu/htu_pipe.sv
 ../rtl/htu/htu_wrapper.sv
@@ -43,9 +44,9 @@
 ../rtl/rc/rc_wrapper.sv
 ../rtl/mc/mc_wrapper.sv
 ../rtl/wbuf/write_buffer.sv
-../tb/mem_model/mem_intf_arbiter.sv
-../tb/mem_model/mem_intf.sv
+../rtl/mem/mem_intf_arbiter.sv
+../rtl/mem/mem_intf.sv
 ../rtl/slice/slice.sv
 ../rtl/mpc.sv
-../tb/mpc_wrapper.sv
-../tb/tb_mpc_wrapper.sv
+../rtl/mpc_wrapper.sv
+../vcs/tb_mpc_wrapper.sv

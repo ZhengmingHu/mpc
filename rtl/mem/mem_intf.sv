@@ -61,27 +61,27 @@ module memory_interface
     import "DPI-C" function void read_memory(input int address, output bit [Cfg.u.clWidth-1:0] data, input bit read_en, input int cacheline_width);
     
     
-    
+    bit   [255:0] temp_data;
 
     logic         awaddr_en;
-    logic [ 29:0] awaddr_nxt;
-    logic [ 29:0] awaddr;
+    logic [ 31:0] awaddr_nxt;
+    logic [ 31:0] awaddr;
 
     logic         wdata_en;
     clWidth_t     wdata;
 
     logic         read_en;
-    logic [ 29:0] araddr;
+    logic [ 31:0] araddr;
 
     localparam bankMSB       = Cfg.u.addrWidth - Cfg.tagWidth - 1;
     localparam bankLSB       = Cfg.offsetWidth + Cfg.byteWidth + Cfg.setWidth; 
     assign awaddr_en  = s_axi_awvalid && s_axi_awready;
-    assign awaddr = s_axi_awaddr[31:2];
+    assign awaddr = s_axi_awaddr[31:0];
     assign wdata_en = s_axi_wvalid && s_axi_wready;
     assign wdata    = s_axi_wdata;
     
     assign read_en = s_axi_arvalid && s_axi_arready; 
-    assign araddr = s_axi_araddr[31:2];
+    assign araddr = s_axi_araddr[31:0];
     ns_gnrl_dfflr # (1) rvalid_dfflr (1'b1, read_en, s_axi_rvalid, clk, rst_n);
     ns_gnrl_dfflr # (1) rlast_dfflr (1'b1, read_en, s_axi_rlast, clk, rst_n);
     ns_gnrl_dfflr # (2) rid_dfflr (read_en, s_axi_arid, s_axi_rid, clk, rst_n);
@@ -94,9 +94,15 @@ module memory_interface
     always @ (posedge clk) begin
         write_memory(awaddr, wdata, wdata_en, Cfg.u.clWidth);
     end
+
+    always @ (*)
+        read_memory(araddr, temp_data, read_en, Cfg.u.clWidth);
     
     always @ (posedge clk) begin
-        read_memory(araddr, s_axi_rdata, read_en, Cfg.u.clWidth);
+        if (!rst_n)
+            s_axi_rdata <= 'd0;
+        else if (read_en)
+            s_axi_rdata <= temp_data;
     end
     
     assign s_axi_awready = 1'b1;

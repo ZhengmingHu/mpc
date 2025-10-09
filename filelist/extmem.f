@@ -9,5 +9,5 @@
 ../rtl/lib/popcount.sv
 ../rtl/lib/mpc_sram.sv
 ../rtl/mc/mc_wrapper.sv
-../tb/mem_model/mem_intf.sv
-../tb/tb_extmem.sv
+../rtl/mem/mem_intf.sv
+../rtl/mem/tb_extmem.sv

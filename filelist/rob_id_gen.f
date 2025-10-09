@@ -6,4 +6,4 @@
 ../rtl/lib/1hot2bin.sv
 ../rtl/lib/priority_encoder.sv
 ../rtl/isu/rob_id_gen.sv
-../tb/tb_rob_id_gen.sv
+../vcs/tb_rob_id_gen.sv

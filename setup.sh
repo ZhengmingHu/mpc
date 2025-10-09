@@ -1,1 +1,2 @@
+export MPC_HOME=$(pwd)
 export SNPSLMD_LICENSE_FILE=27000@MADjerk

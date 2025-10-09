@@ -205,7 +205,7 @@ logic           [  3: 0]     mask, req_mask    ;
 logic                        slice_0_axi_req, slice_0_axi_req_mask, slice_0_axi_req_nomask;
 logic                        slice_1_axi_req, slice_1_axi_req_mask, slice_1_axi_req_nomask;
 logic                        slice_2_axi_req, slice_2_axi_req_mask, slice_2_axi_req_nomask;
-logic                        slice_3_axi_req   ;
+logic                        slice_3_axi_req, slice_3_axi_req_mask, slice_3_axi_req_nomask;
 
 logic                        slice_0_axi_done  ;
 logic                        slice_1_axi_done  ;

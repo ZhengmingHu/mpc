@@ -28,6 +28,8 @@ module xbar_buffer
     input  logic                        u_channel_2_req_ready      ,
     input  channel_req_t                u_channel_2_req            ,
 
+    input  logic           [  5: 0]     age_info                   ,
+
     input  logic           [  2: 0]     ch_0_w_ptr                 ,
     input  logic           [  2: 0]     ch_1_w_ptr                 ,
     input  logic           [  2: 0]     ch_2_w_ptr                 ,
@@ -55,7 +57,17 @@ module xbar_buffer
     output channel_req_t                d_bank_0_ch_req            ,
     output channel_req_t                d_bank_1_ch_req            ,
     output channel_req_t                d_bank_2_ch_req            ,
-    output channel_req_t                d_bank_3_ch_req            
+    output channel_req_t                d_bank_3_ch_req            ,
+
+    output logic           [  5: 0]     bank_0_req_age   [  2: 0]  ,
+    output logic           [  5: 0]     bank_1_req_age   [  2: 0]  ,
+    output logic           [  5: 0]     bank_2_req_age   [  2: 0]  ,
+    output logic           [  5: 0]     bank_3_req_age   [  2: 0]  ,
+
+    output logic           [  5: 0]     retire_bank_0_req_age      ,
+    output logic           [  5: 0]     retire_bank_1_req_age      ,
+    output logic           [  5: 0]     retire_bank_2_req_age      ,
+    output logic           [  5: 0]     retire_bank_3_req_age      
 );
 
 logic u_ch_2_req_hsked, u_ch_1_req_hsked, u_ch_0_req_hsked;
@@ -132,6 +144,10 @@ generate
             .d_bank_1_req                       (bank_1_req[i]                  ),
             .d_bank_2_req                       (bank_2_req[i]                  ),
             .d_bank_3_req                       (bank_3_req[i]                  ),
+            .bank_0_req_age                     (bank_0_req_age[i]              ),
+            .bank_1_req_age                     (bank_1_req_age[i]              ),
+            .bank_2_req_age                     (bank_2_req_age[i]              ),
+            .bank_3_req_age                     (bank_3_req_age[i]              ),
             .*
         );
     end 
@@ -153,7 +169,21 @@ assign d_bank_3_ch_req = bank_3_ch_1hot_id[0] ? bank_3_req[0] :
                          bank_3_ch_1hot_id[1] ? bank_3_req[1] :
                          bank_3_ch_1hot_id[2] ? bank_3_req[2] : '0;
 
-                
+assign retire_bank_0_req_age = bank_0_ch_1hot_id[0] ? bank_0_req_age[0] :
+                               bank_0_ch_1hot_id[1] ? bank_0_req_age[1] :
+                               bank_0_ch_1hot_id[2] ? bank_0_req_age[2] : '0;
+
+assign retire_bank_1_req_age = bank_1_ch_1hot_id[0] ? bank_1_req_age[0] :
+                               bank_1_ch_1hot_id[1] ? bank_1_req_age[1] :
+                               bank_1_ch_1hot_id[2] ? bank_1_req_age[2] : '0;
+
+assign retire_bank_2_req_age = bank_2_ch_1hot_id[0] ? bank_2_req_age[0] :
+                               bank_2_ch_1hot_id[1] ? bank_2_req_age[1] :
+                               bank_2_ch_1hot_id[2] ? bank_2_req_age[2] : '0;
+
+assign retire_bank_3_req_age = bank_3_ch_1hot_id[0] ? bank_3_req_age[0] :
+                               bank_3_ch_1hot_id[1] ? bank_3_req_age[1] :
+                               bank_3_ch_1hot_id[2] ? bank_3_req_age[2] : '0;
 
 endmodule
 
@@ -185,14 +215,22 @@ module xbar_sub_buffer
     input  logic           [  7: 0]     bank_2_r_entry_1hot_id     ,
     input  logic           [  7: 0]     bank_3_r_entry_1hot_id     ,
 
+    input  logic           [  5: 0]     age_info                   ,
+
     output channel_req_t                d_bank_0_req               ,
     output channel_req_t                d_bank_1_req               ,
     output channel_req_t                d_bank_2_req               ,
-    output channel_req_t                d_bank_3_req               
+    output channel_req_t                d_bank_3_req               ,
+
+    output logic           [  5: 0]     bank_0_req_age             ,
+    output logic           [  5: 0]     bank_1_req_age             ,
+    output logic           [  5: 0]     bank_2_req_age             ,
+    output logic           [  5: 0]     bank_3_req_age
 
 );
 
 channel_req_t              req_entry         [  7: 0]  ;
+logic          [  5: 0]    age_entry         [  7: 0]  ;
 channel_req_t              req_entry_nxt               ;
 logic          [  7: 0]    req_entry_wen               ;
 
@@ -214,6 +252,7 @@ generate
     for (genvar i = 0; i < 8; i++) 
     begin : req_entry_gen
         ns_gnrl_dfflr # ($bits(channel_req_t)) req_entry_dfflr (req_entry_wen[i], u_ch_req, req_entry[i], clk, rst_n);
+        ns_gnrl_dfflr # (6) age_entry_dfflr (req_entry_wen[i], age_info, age_entry[i], clk, rst_n);
     end
 endgenerate
 
@@ -226,5 +265,11 @@ assign d_bank_0_req = req_entry[bank_0_r_entry_id];
 assign d_bank_1_req = req_entry[bank_1_r_entry_id];
 assign d_bank_2_req = req_entry[bank_2_r_entry_id];
 assign d_bank_3_req = req_entry[bank_3_r_entry_id];
+
+assign bank_0_req_age = age_entry[bank_0_r_entry_id];
+assign bank_1_req_age = age_entry[bank_1_r_entry_id];
+assign bank_2_req_age = age_entry[bank_2_r_entry_id];
+assign bank_3_req_age = age_entry[bank_3_r_entry_id];
+
 
 endmodule

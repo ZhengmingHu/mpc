@@ -12,4 +12,4 @@
 ../rtl/htu/reference_counter.sv
 ../rtl/htu/replacer.sv
 ../rtl/htu/tag_array.sv
-../tb/tb_htu.sv
+../vcs/tb_htu.sv
