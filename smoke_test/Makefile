@@ -143,8 +143,8 @@ SVSRC=$(INCSRC) $(RTLSRC)
 
 # rules for verilator
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build --trace --trace-structs\
-					--assert -cc\
+VERILATOR_CFLAGS += -O3 -MMD --build --trace\
+					--assert --autoflush --cc\
 					--x-assign unique --x-initial unique \
 					--timescale "1ns/1ns" --no-timing \
 					-I$(MPC_INCPATH)

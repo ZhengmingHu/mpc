@@ -10,14 +10,13 @@ extern Vmpc_wrapper* top;
 extern int first_inst;
 
 inline void step_and_dump_wave(){
+  top->clk ^= 1;
+#ifdef CONFIG_WAVETRACE
+  contextp->timeInc(1);
+#endif
   top->eval();
 #ifdef CONFIG_WAVETRACE
   tfp->dump(contextp->time());
-#endif
-
-  top->clk ^= 1;
-#ifdef CONFIG_WAVETRACE  
-  contextp->timeInc(1);
 #endif
 }
 
@@ -38,9 +37,11 @@ inline void sim_delay(int cycles) {
 inline void sim_reset() {
     top->rst_n = 1; sim_delay(2);
     top->rst_n = 0; sim_delay(20);
-    top->rst_n = 1;
+    top->rst_n = 1; sim_delay(2);
 }
 
 void sim_exec();
+
+void execute_trace(const char* trace_file); 
 
 #endif

@@ -85,7 +85,7 @@ assign entry_vld_nxt = enq_valid | (deq_hsked & (is_rae(entry_op) | is_wae(entry
 
 assign entry_inflight_en =  (enq_valid & enq_inflight_flg & !(memctl_refill_valid & memctl_refill_set == enq_set & memctl_refill_way == enq_way)) | 
                             (memctl_refill_valid & memctl_refill_set == entry_set & memctl_refill_way == entry_way);
-assign entry_inflight_nxt =  enq_valid & enq_inflight_flg;
+assign entry_inflight_nxt =  enq_valid & enq_inflight_flg & !(memctl_refill_valid & memctl_refill_set == enq_set & memctl_refill_way == enq_way);
 
 assign entry_op_en  = enq_valid | (deq_hsked & (is_rae(entry_op) | is_wae(entry_op)));
 assign entry_op_nxt = enq_valid                    ? enq_op                : 

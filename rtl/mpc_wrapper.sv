@@ -13,7 +13,7 @@ module mpc_wrapper
         ways:4,
         kobSize:16,
         wbufSize:16,
-        robSize:16,
+        robSize:4,
         lsqSize:32,
         rfbufSize:16,
         mcSize:4

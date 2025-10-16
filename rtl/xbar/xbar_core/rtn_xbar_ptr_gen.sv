@@ -155,8 +155,9 @@ assign r_ptr_nxt      =   ({3{r_ptr_clr}}  & 3'h0)
 ns_gnrl_dfflr # (3) r_ptr_dfflr (r_ptr_ena, r_ptr_nxt, r_ptr_r, clk, rst_n);
 
 assign used_entry_ena = w_ptr_ena | r_ptr_ena;
-assign used_entry_nxt =   ({3{w_ptr_ena}} & (used_entry + 'h1)) 
-                        | ({3{r_ptr_ena}} & (used_entry - 'h1));
+assign used_entry_nxt =   ({3{w_ptr_ena & !r_ptr_ena}} & (used_entry + 'h1)) 
+                        | ({3{r_ptr_ena & !w_ptr_ena}} & (used_entry - 'h1))
+                        | ({3{w_ptr_ena &  r_ptr_ena}} & used_entry);
 ns_gnrl_dfflr # (3) used_entry_dfflr (used_entry_ena, used_entry_nxt, used_entry, clk, rst_n);
 
 assign last_entry_already_pop = ch_0_last_entry_already_pop &

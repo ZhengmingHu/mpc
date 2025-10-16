@@ -214,8 +214,8 @@ generate
                 remain_crdt_cnt_decouple[i] <= {{Cfg.robWidth{1'b1}}};
             end
             else begin
-                pending_entry_cnt_decouple[i] <= n_pending_entry_cnt_decouple[i] + {{($bits(n_pending_entry_cnt_decouple[i])-1){1'b0}}, u_xbar_crdt_rtn[i]};
-                remain_crdt_cnt_decouple[i] <= n_remain_crdt_cnt_decouple[i];
+                pending_entry_cnt_decouple[i] <= n_pending_entry_cnt_decouple[i];
+                remain_crdt_cnt_decouple[i] <= n_remain_crdt_cnt_decouple[i] + {{($bits(n_remain_crdt_cnt_decouple[i])-1){1'b0}}, u_xbar_crdt_rtn[i]};
             end
         end
     end

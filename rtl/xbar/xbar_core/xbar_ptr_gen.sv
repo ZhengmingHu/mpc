@@ -137,6 +137,7 @@ logic            used_entry_ena;
 logic            last_entry_already_pop;
 
 assign u_ch_req_hsked = u_ch_req_valid & u_ch_req_ready;
+
 assign w_ptr_incr     = u_ch_req_hsked & ~(&w_ptr_r);
 assign w_ptr_clr      = u_ch_req_hsked & (&w_ptr_r);
 assign w_ptr_ena      = w_ptr_incr | w_ptr_clr;
@@ -152,8 +153,9 @@ assign r_ptr_nxt      =   ({3{r_ptr_clr}}  & 3'h0)
 ns_gnrl_dfflr # (3) r_ptr_dfflr (r_ptr_ena, r_ptr_nxt, r_ptr_r, clk, rst_n);
 
 assign used_entry_ena = w_ptr_ena | r_ptr_ena;
-assign used_entry_nxt =   ({3{w_ptr_ena}} & (used_entry + 'h1)) 
-                        | ({3{r_ptr_ena}} & (used_entry - 'h1));
+assign used_entry_nxt =   ({3{w_ptr_ena & !r_ptr_ena}} & (used_entry + 'h1)) 
+                        | ({3{r_ptr_ena & !w_ptr_ena}} & (used_entry - 'h1))
+                        | ({3{w_ptr_ena &  r_ptr_ena}} & used_entry);
 ns_gnrl_dfflr # (3) used_entry_dfflr (used_entry_ena, used_entry_nxt, used_entry, clk, rst_n);
 
 assign last_entry_already_pop = bank_0_last_entry_already_pop &
