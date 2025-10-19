@@ -158,7 +158,7 @@ generate
             .entry_way                         (entry_way_vec[i]          ),
 
             .deq_valid                         (deq_valid_vec[i]          ),
-            .deq_ready                         (d_rc_ready && deq_ptr == i && lsq_deq_confirm),
+            .deq_ready                         (d_rc_ready && hit_refill_buf_vec[i]),
             .deq_data                          (deq_data_vec[i]           ) 
         );
     end

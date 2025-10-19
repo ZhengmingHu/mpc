@@ -76,12 +76,12 @@ module memory_interface
     localparam bankMSB       = Cfg.u.addrWidth - Cfg.tagWidth - 1;
     localparam bankLSB       = Cfg.offsetWidth + Cfg.byteWidth + Cfg.setWidth; 
     assign awaddr_en  = s_axi_awvalid && s_axi_awready;
-    assign awaddr = s_axi_awaddr[31:0];
+    assign awaddr = {s_axi_awaddr[31:5], 5'b0};
     assign wdata_en = s_axi_wvalid && s_axi_wready;
     assign wdata    = s_axi_wdata;
     
     assign read_en = s_axi_arvalid && s_axi_arready; 
-    assign araddr = s_axi_araddr[31:0];
+    assign araddr = {s_axi_araddr[31:5], 5'b0};
     ns_gnrl_dfflr # (1) rvalid_dfflr (1'b1, read_en, s_axi_rvalid, clk, rst_n);
     ns_gnrl_dfflr # (1) rlast_dfflr (1'b1, read_en, s_axi_rlast, clk, rst_n);
     ns_gnrl_dfflr # (2) rid_dfflr (read_en, s_axi_arid, s_axi_rid, clk, rst_n);

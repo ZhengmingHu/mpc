@@ -30,7 +30,7 @@ int parse_trace_line(const char* line, int* op_type, int* size_type,
         *size_type = HALF;
     } else if (strcmp(size_str, "word") == 0) {
         *size_type = WORD;
-    } else if (strstr(line, "double word")) {
+    } else if (strstr(line, "doubleword")) {
         *size_type = DOUBLE;
     } else {
         return 0; // 未知大小
@@ -81,9 +81,9 @@ void send_trace_request(int op_type, int size_type, uint64_t addr, uint64_t data
         if (size_type == DOUBLE) {
             uint32_t high = (uint32_t)(data >> 32);
             uint32_t low = (uint32_t)(data & 0xFFFFFFFF);
-            top->u_channel_0_req_bus_wdata = create_vlwide<4>({high, low, 0, 0});
+            top->u_channel_0_req_bus_wdata = create_vlwide<4>({0, 0, high, low});
         } else {
-            top->u_channel_0_req_bus_wdata = create_vlwide<4>({(uint32_t)data, 0, 0, 0});
+            top->u_channel_0_req_bus_wdata = create_vlwide<4>({0, 0, 0, (uint32_t)data});
         }
     } else {
         // 对于load操作，写数据为0
@@ -117,7 +117,7 @@ void execute_trace(const char* trace_file) {
 
     sim_delay(2);
     
-    while (line_num < 10) {
+    while (line_num < 1000) {
         line_num++;
     
         fgets(line, sizeof(line), file);
@@ -144,10 +144,10 @@ void execute_trace(const char* trace_file) {
             printf("\n");
             
             int request_sent = 0;
+            int j = 0;
             while (!request_sent) {
                 // 发送请求
                 send_trace_request(op_type, size_type, addr, data);
-                
                 // 等待握手
                 while (1) {
                     if (top->u_channel_0_req_bus_valid && top->u_channel_0_req_bus_ready) {
@@ -155,13 +155,23 @@ void execute_trace(const char* trace_file) {
                         request_sent = 1;
                         sim_delay(2);
                         break;
-                    } else {
+                    } else if (j < 20){
                         // 未握手，延迟1拍后继续尝试
                         sim_delay(2);
+                        // printf("here we go, %d\n", j);
+                        j++;
+                        if (j == 20) {
+                            break;
+                        }
                     }
                 }
+                if (j == 20) {
+                    break;
+                }
             }
-            
+            if (j == 20) {
+                break;
+            }
             // 复位请求信号
             // 
             
