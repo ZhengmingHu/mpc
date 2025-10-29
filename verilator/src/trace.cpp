@@ -117,10 +117,9 @@ void execute_trace(const char* trace_file) {
 
     sim_delay(2);
     
-    while (line_num < 1000) {
+    while (fgets(line, sizeof(line), file)) {
+        
         line_num++;
-    
-        fgets(line, sizeof(line), file);
     
         // 跳过空行和注释行
         if (strlen(line) <= 1 || line[0] == '#') {
@@ -183,5 +182,6 @@ void execute_trace(const char* trace_file) {
     sim_delay(200);
 
     fclose(file);
+    printf(".................................................\n");
     printf("Trace execution completed. Processed %d lines.\n", line_num);
 }

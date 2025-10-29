@@ -153,6 +153,7 @@ wayIndexWidth_t                         s2_way;
 logic                                   s2_hit;
 setWidth_t                              s2_set;
 tagWidth_t                              s2_tag;
+tagWidth_t                              s2_tag_rsp [Cfg.wayNum-1:0];
 metaWidth_t                             s2_meta [Cfg.wayNum-1:0];
 metaWidth_t                             s2_new_meta;
 logic                                   s2_meta_wen;                                   
@@ -233,6 +234,14 @@ generate
         ns_gnrl_dfflr # (Cfg.metaWidth) s2_meta_dfflr (s1_hsked, s1_meta_rsp[i], s2_meta[i], clk, rst_n);
     end
 endgenerate
+
+generate
+    for (genvar i = 0; i < int'(Cfg.wayNum); i++)
+    begin
+        ns_gnrl_dfflr # (Cfg.tagWidth) s2_tag_rsp_dfflr (s1_hsked, s1_tag_rsp[i], s2_tag_rsp[i], clk, rst_n);
+    end
+endgenerate
+
 ns_gnrl_dfflr # (1) s1_hsked_r_dfflr (1'b1, s1_hsked, s1_hsked_r, clk, rst_n);
 
 
@@ -290,8 +299,8 @@ assign d_isu_refill_valid     = s2_hsked & !s2_hit;
 assign d_isu_refill_set       = s2_set;
 assign d_isu_refill_way       = s2_way;
 
-assign d_memctl_awvalid       = s2_hsked & !s2_hit & is_store(s2_bank_req.op) & is_unique(s2_meta[s2_way]);
-assign d_memctl_awaddr        = s2_bank_req.addr;
+assign d_memctl_awvalid       = s2_hsked & !s2_hit & is_unique(s2_meta[s2_way]);
+assign d_memctl_awaddr        = {s2_tag_rsp[s2_way], s2_bank_req.addr[tagLSB-1:0]};
 assign d_memctl_awid          = {s2_way, s2_set};
 
 assign d_memctl_arvalid       = s2_hsked & !s2_hit;
