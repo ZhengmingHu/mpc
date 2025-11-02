@@ -1,29 +1,30 @@
 #include <common.h>
 #include <opcode.h>
 #include <sim.h>
+#include <debug.h>
 
-// 解析单行trace
+// parse trace per line
 int parse_trace_line(const char* line, int* op_type, int* size_type, 
                     uint64_t* addr, uint64_t* data) {
     char op_str[16], size_str[16];
     char addr_str[32], data_str[32];
     
-    // 解析每行
+    // parse line
     int parsed = sscanf(line, "%15s %15s %31s %31s", op_str, size_str, addr_str, data_str);
     if (parsed < 3) {
-        return 0; // 解析失败
+        return 0; // parse failed
     }
     
-    // 解析操作类型
+    // parse op type
     if (strcmp(op_str, "read") == 0) {
         *op_type = LOAD;
     } else if (strcmp(op_str, "store") == 0) {
         *op_type = STORE;
     } else {
-        return 0; // 未知操作
+        return 0; // unknown type
     }
     
-    // 解析大小类型
+    // parse op size
     if (strcmp(size_str, "byte") == 0) {
         *size_type = BYTE;
     } else if (strcmp(size_str, "halfword") == 0) {
@@ -33,28 +34,51 @@ int parse_trace_line(const char* line, int* op_type, int* size_type,
     } else if (strstr(line, "doubleword")) {
         *size_type = DOUBLE;
     } else {
-        return 0; // 未知大小
+        return 0; // unknown size
     }
     
-    // 解析地址
+    // parse addr
     char* addr_clean = addr_str;
     if (strncmp(addr_str, "0x", 2) == 0) {
         addr_clean = addr_str + 2;
     }
     *addr = strtoull(addr_clean, NULL, 16);
     
-    // 解析数据（对于store操作）
-    if (*op_type == STORE && parsed >= 4) {
-        char* data_clean = data_str;
-        if (strncmp(data_str, "0x", 2) == 0) {
-            data_clean = data_str + 2;
-        }
-        *data = strtoull(data_clean, NULL, 16);
-    } else {
-        *data = 0;
+    // parse data（for store）
+    char* data_clean = data_str;
+    if (strncmp(data_str, "0x", 2) == 0) {
+        data_clean = data_str + 2;
     }
+    *data = strtoull(data_clean, NULL, 16);
+
+    // do some correction
+    // check instruction type
+    const char* is_ins = strchr(line, '#');
+    if (is_ins != NULL) {
+        
+        // 1. check if it is a compress instruction
+        if ((*data & 0x1) == 0) {
+            *size_type = HALF;
+        }
+
+        // 2. check cross cacheline boundary
+        if (*size_type == WORD) {
+            uint8_t addr_bits = *addr & 0xf;
+            if (addr_bits == 0xe) { 
+#ifdef CONFIG_DEBUG
+                printf("DEBUG: Cross cacheline detected, forcing size to halfword\n");
+#endif
+                *size_type = HALF;
+                // only keep low 16 bit
+                *data = *data & 0xFFFF;
+            }
+        }
+    }
+
     
-    return 1; // 解析成功
+    
+    
+    return 1; // successfully parsed
 }
 
 template<size_t N>
@@ -68,15 +92,15 @@ VlWide<N> create_vlwide(std::initializer_list<uint32_t> values) {
     return data;
 }
 
-// 发送单个trace请求
+// send single trace request
 void send_trace_request(int op_type, int size_type, uint64_t addr, uint64_t data) {
-    // 设置请求基本信息
+    // set basical request info
     top->u_channel_0_req_bus_valid = 1;
     top->u_channel_0_req_bus_op = op_type;
     top->u_channel_0_req_bus_size = size_type;
     top->u_channel_0_req_bus_addr = addr;
     
-    // 设置写数据（对于store操作）
+    // set wdata（for store）, default 128 bit
     if (op_type == STORE) {
         if (size_type == DOUBLE) {
             uint32_t high = (uint32_t)(data >> 32);
@@ -86,14 +110,14 @@ void send_trace_request(int op_type, int size_type, uint64_t addr, uint64_t data
             top->u_channel_0_req_bus_wdata = create_vlwide<4>({0, 0, 0, (uint32_t)data});
         }
     } else {
-        // 对于load操作，写数据为0
+        // for load op，write data is 0
         top->u_channel_0_req_bus_wdata = create_vlwide<4>({0, 0, 0, 0});
     }
     
     top->u_channel_0_rsp_bus_ready = 1;
 }
 
-// 复位请求信号
+// reset request
 void reset_request_signals() {
     top->u_channel_0_req_bus_valid = 0;
     top->u_channel_0_req_bus_op = 0;
@@ -101,10 +125,13 @@ void reset_request_signals() {
     top->u_channel_0_req_bus_addr = 0;
 }
 
-// 主执行函数 - 逐行处理trace文件
+// main exec func - execute trace file per line
 void execute_trace(const char* trace_file) {
 
     FILE* file = fopen(trace_file, "r");
+#ifdef CONFIG_DIFFTEST
+    FILE* ref = fopen(trace_file, "r");
+#endif
     if (!file) {
         printf("Error: Cannot open trace file %s\n", trace_file);
         return;
@@ -112,6 +139,8 @@ void execute_trace(const char* trace_file) {
     
     char line[256];
     int line_num = 0;
+    int ref_num = 0;
+    int rsp = PASS;
     
     printf("Starting trace execution: %s\n", trace_file);
 
@@ -121,67 +150,69 @@ void execute_trace(const char* trace_file) {
         
         line_num++;
     
-        // 跳过空行和注释行
+        // skip empty line and comment line
         if (strlen(line) <= 1 || line[0] == '#') {
             continue;
         }
         
         int op_type, size_type;
         uint64_t addr, data;
-        
+        rsp = PASS;
+
         if (parse_trace_line(line, &op_type, &size_type, &addr, &data)) {
-            printf("Line %d: %s %s 0x%016lx", line_num,
-                   op_type == LOAD ? "read" : "store",
-                   size_type == BYTE ? "byte" : 
-                   size_type == HALF ? "halfword" :
-                   size_type == WORD ? "word" : "double word",
-                   addr);
-            
-            if (op_type == STORE) {
-                printf(" 0x%016lx", data);
-            }
-            printf("\n");
+#ifdef CONFIG_DEBUG
+            print_line(line_num, op_type, size_type, addr, data);
+#endif
             
             int request_sent = 0;
-            int j = 0;
-            while (!request_sent) {
-                // 发送请求
-                send_trace_request(op_type, size_type, addr, data);
-                // 等待握手
-                while (1) {
-                    if (top->u_channel_0_req_bus_valid && top->u_channel_0_req_bus_ready) {
-                        // 握手成功，延迟1拍
-                        request_sent = 1;
-                        sim_delay(2);
-                        break;
-                    } else if (j < 20){
-                        // 未握手，延迟1拍后继续尝试
-                        sim_delay(2);
-                        // printf("here we go, %d\n", j);
-                        j++;
-                        if (j == 20) {
-                            break;
-                        }
-                    }
-                }
-                if (j == 20) {
-                    break;
-                }
+            int retry_count = 0;
+
+            // send request
+            send_trace_request(op_type, size_type, addr, data);
+                        
+            while (retry_count < MAX_RETRY && !(top->u_channel_0_req_bus_valid && top->u_channel_0_req_bus_ready)) {                
+                
+                // difftest
+#ifdef CONFIG_DIFFTEST
+                rsp = handle_rsp_data(ref, &ref_num);
+                if (rsp==FAIL) {break;}
+#endif
+                // delay 1 cycle and check handshake
+                sim_delay(2);
+                retry_count++;
             }
-            if (j == 20) {
+        
+            // check if deadlock occurred
+            if (retry_count >= MAX_RETRY) {
+                printf("Error: Deadlock detected at line %d after %d retries\n", line_num, MAX_RETRY);
                 break;
             }
-            // 复位请求信号
-            // 
+// difftest
+#ifdef CONFIG_DIFFTEST
+            if (rsp==FAIL) {break;}
+            rsp = handle_rsp_data(ref, &ref_num);
+            if (rsp==FAIL) {break;}
+#endif
+
+            // delay after handshake
+            sim_delay(2);
             
         } else {
             printf("Warning: Failed to parse line %d: %s", line_num, line);
         }
     }
     reset_request_signals();
+#ifdef CONFIG_DIFFTEST
+    if (rsp == FAIL) {return;}
+    while(handle_rsp_data(ref, &ref_num)==PASS);
+#endif
     sim_delay(200);
 
     fclose(file);
+#ifdef CONFIG_DIFFTEST
+    fclose(ref);
+#endif
+
     printf(".................................................\n");
     printf("Trace execution completed. Processed %d lines.\n", line_num);
 }

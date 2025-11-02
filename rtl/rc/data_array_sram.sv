@@ -33,13 +33,14 @@ module data_array_sram
 
 logic                       [  1: 0]    cs                         ;
 logic                       [  1: 0]    we                         ;
-setWidth_t                              addr                       ;
+setWidth_t                              addr               [  1: 0];
 logic                       [127: 0]    r_data_hi                  ;
 logic                       [127: 0]    r_data_lo                  ;
 logic                       [127: 0]    w_data_hi                  ;
 logic                       [127: 0]    w_data_lo                  ;
 
-assign addr = |we ? w_addr : r_addr;
+assign addr[0] = we[0] ? w_addr : r_addr;
+assign addr[1] = we[1] ? w_addr : r_addr;
 
 assign cs = {r_en & r_mask[1] | w_en & w_mask[1], r_en & r_mask[0] | w_en & w_mask[0]};
 assign we = { w_en & w_mask[1],  w_en & w_mask[0]}; 
@@ -54,7 +55,7 @@ mpc_sram # (
     .rst_n                             (rst_n                              ),
     .cs                                (cs[0]                              ),
     .we                                (we[0]                              ),
-    .addr                              (addr                               ),
+    .addr                              (addr[0]                            ),
     .wdata                             (w_data_lo                          ),
     .rdata                             (r_data_lo                          )
 );
@@ -67,7 +68,7 @@ mpc_sram # (
     .rst_n                             (rst_n                              ),
     .cs                                (cs[1]                              ),
     .we                                (we[1]                              ),
-    .addr                              (addr                               ),
+    .addr                              (addr[1]                            ),
     .wdata                             (w_data_hi                          ),
     .rdata                             (r_data_hi                          )
 );

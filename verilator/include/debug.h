@@ -21,4 +21,17 @@
 
 #define TODO() panic("please implement me")
 
+#define PASS    0
+
+#define FAIL    1
+
+#define DONE    2
+
+int parse_trace_line(const char* line, int* op_type, int* size_type, uint64_t* addr, uint64_t* data);
+
+void print_line(int line_num, int op_type, int size_type, uint64_t addr, uint64_t data);
+
+int handle_rsp_data(FILE* ref_file, int* ref_line_num);
+
+
 #endif
