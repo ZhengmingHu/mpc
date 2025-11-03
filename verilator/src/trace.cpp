@@ -141,6 +141,7 @@ void execute_trace(const char* trace_file) {
     int line_num = 0;
     int ref_num = 0;
     int rsp = PASS;
+    bool deadlock = false;
     
     printf("Starting trace execution: %s\n", trace_file);
 
@@ -185,6 +186,7 @@ void execute_trace(const char* trace_file) {
             // check if deadlock occurred
             if (retry_count >= MAX_RETRY) {
                 printf("Error: Deadlock detected at line %d after %d retries\n", line_num, MAX_RETRY);
+                deadlock = true;
                 break;
             }
 // difftest
@@ -202,6 +204,7 @@ void execute_trace(const char* trace_file) {
         }
     }
     reset_request_signals();
+    if (deadlock) {return;}
 #ifdef CONFIG_DIFFTEST
     if (rsp == FAIL) {return;}
     while(handle_rsp_data(ref, &ref_num)==PASS);

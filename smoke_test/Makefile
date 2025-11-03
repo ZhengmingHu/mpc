@@ -4,7 +4,7 @@ ROOT ?= /home/zcy/workspace/mpc
 
 RTL_DIR := $(ROOT)/rtl
 INC_DIR := $(ROOT)/rtl/include
-TB_DIR := $(ROOT)/tb
+TB_DIR := $(ROOT)/vcs
 
 ifeq ($(FSDB),1)
 	DEFINE += +define+FSDB

@@ -264,7 +264,7 @@ generate
     end
 endgenerate
 ns_gnrl_dfflr # (Cfg.wayIndexWidth) s2_replace_way_r_dfflr (1'b1, s2_replace_way, s2_replace_way_r, clk, rst_n);
-assign s2_ref_cnt  = s1_hsked_r ? ref_cnt_rsp : s2_ref_cnt_r;
+assign s2_ref_cnt = ref_cnt_rsp;
 assign s2_replace_way = s1_hsked_r ? replace_way : s2_replace_way_r;
 assign s2_replace_way_en = s2_hit ? '0 : 1 << s2_replace_way;
 ns_1hot2bin # (Cfg.wayNum) s2_hit_way_1hot2bin (s2_hit_way_en, s2_hit_way);

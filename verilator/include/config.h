@@ -12,4 +12,4 @@
 
 #define CONFIG_DIFFTEST
 
-#define MAX_RETRY           20
+#define MAX_RETRY           1000

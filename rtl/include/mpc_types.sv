@@ -131,6 +131,8 @@ package mpc_types;
         int unsigned rfbufSize;
         //  Size of Memory Controller Queue
         int unsigned mcSize;
+        //  Access Latency for Fetching from Main Memory 
+        int unsigned mainDelay;
     } mpc_user_cfg_t;
 
     typedef struct packed {
@@ -153,6 +155,7 @@ package mpc_types;
         int unsigned rfbufWidth;
         int unsigned kobWidth;
         int unsigned mcWidth;
+        int unsigned delWidth;
     } mpc_cfg_t;
 
     function automatic mpc_cfg_t mpcBuildConfig(input mpc_user_cfg_t p);
@@ -175,6 +178,7 @@ package mpc_types;
         ret.rfbufWidth = $clog2(p.rfbufSize);
         ret.kobWidth = $clog2(p.kobSize);
         ret.mcWidth = $clog2(p.mcSize);
+        ret.delWidth = $clog2(p.mainDelay+1);
         return ret;
     endfunction
 

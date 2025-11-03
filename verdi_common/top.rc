@@ -16,19 +16,18 @@ signalSpacing 5
 
 ; windowTimeUnit is used for zoom, cursor & marker
 ; waveform viewport range
-zoom 1.000000 4335.920000
+zoom 14.472313 112.791531
 cursor 2359.000000
 marker 0.000000
 
 ; user define markers
 ; userMarker time_pos marker_name color linestyle
 userMarker 49 M1 ID_GREEN5 long_dashed
-userMarker 2609 M2 ID_GREEN5 long_dashed
 
 ; visible top row signal index
-top 12
+top 0
 ; marker line index
-markerPos 16
+markerPos 5
 
 ; event list
 ; addEvent event_name event_expression
@@ -54,10 +53,10 @@ addSignal -h 15 /TOP/mpc_wrapper/clk
 addSignal -h 15 -holdScope rst_n
 addSignal -h 15 -holdScope u_channel_0_req_bus_valid
 addSignal -h 15 -holdScope u_channel_0_req_bus_ready
+addSignal -h 15 -holdScope u_channel_0_req_bus_addr[31:0]
 addSignal -h 15 -holdScope u_channel_0_req_bus_op[2:0]
 addSignal -h 15 -holdScope u_channel_0_req_bus_size[2:0]
 addSignal -h 15 -holdScope u_channel_0_req_bus_wdata[127:0]
-addSignal -h 15 -holdScope u_channel_0_req_bus_addr[31:0]
 addSignal -h 15 -holdScope u_channel_0_rsp_bus_valid
 addSignal -h 15 -holdScope u_channel_0_rsp_bus_ready
 addSignal -h 15 -holdScope u_channel_0_rsp_bus_rdata[127:0]
@@ -65,7 +64,6 @@ addGroup "G2"
 addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_xbar_wrapper/u_rob_wrapper_ch_0/u_rob_bank_0/d_rc_valid
 addSignal -h 15 -holdScope d_rc_rob_id[1:0]
 addSignal -h 15 -holdScope d_rc_data[127:0]
-addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_mc_wrapper/\mc_queue_gen[0] /u_mc_queue/state[2:0]
 addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_xbar_wrapper/u_rtn_xbar_core/u_channel_0_rsp_valid
 addSignal -h 15 -holdScope u_channel_0_rsp_data[127:0]
 addSignal -h 15 -holdScope u_channel_0_rsp_bank_id[1:0]
@@ -167,9 +165,9 @@ SCOPE_LIST_BEGIN
 "/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[9]"
 "/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[8]"
 "/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/u_credit_manager"
-"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_mc_wrapper/\mc_queue_gen[0]"
 "/TOP/mpc_wrapper/u_mpc/u_slice_0/u_mc_wrapper"
-"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_mc_wrapper/\mc_queue_gen[0] /u_mc_queue"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_mc_wrapper/\mc_queue_gen[0]"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_mc_wrapper/\mc_queue_gen[0] "
 SCOPE_LIST_END
 
 GETSIGNALFORM_SCOPE_HIERARCHY_END

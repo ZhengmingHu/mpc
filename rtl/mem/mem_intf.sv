@@ -14,7 +14,8 @@ module memory_interface
     parameter type robWidth_t      = logic,
     parameter type lsqWidth_t      = logic,
     parameter type kobWidth_t      = logic,
-    parameter type mcWidth_t       = logic
+    parameter type mcWidth_t       = logic,
+    parameter type delWidth_t      = logic
 )(
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
@@ -65,34 +66,97 @@ module memory_interface
 
     logic         awaddr_en;
     logic [ 31:0] awaddr_nxt;
+    logic [ 31:0] awaddr_r;
     logic [ 31:0] awaddr;
 
+    logic         araddr_en;
+    logic [ 31:0] araddr_nxt;
+    logic [ 31:0] araddr_r;
+    logic [ 31:0] araddr;
+
     logic         wdata_en;
+    clWidth_t     wdata_nxt;
+    clWidth_t     wdata_r;
     clWidth_t     wdata;
 
+    logic         rid_en;
+    logic [  1:0] rid_nxt;
+    logic [  1:0] rid_r;
+    logic [  1:0] rid;
+
+    logic         bid_en;
+    logic [  1:0] bid_nxt;
+    logic [  1:0] bid_r;
+    logic [  1:0] bid;
+
     logic         read_en;
-    logic [ 31:0] araddr;
+    logic         write_en;
+
+    logic         cmd_en;
+    logic         cmd_nxt;
+    logic         cmd_r;
+    logic         cmd;
+
+    logic         delay_cnt_en;
+    delWidth_t    delay_cnt;
+    delWidth_t    delay_cnt_nxt;
+
 
     localparam bankMSB       = Cfg.u.addrWidth - Cfg.tagWidth - 1;
     localparam bankLSB       = Cfg.offsetWidth + Cfg.byteWidth + Cfg.setWidth; 
+
+    assign delay_cnt_en = (s_axi_awvalid && s_axi_awready) | (s_axi_arvalid && s_axi_arready) | (|delay_cnt);
+    assign delay_cnt_nxt = delay_cnt == (Cfg.u.mainDelay[Cfg.delWidth-1:0] - 'd1) ? 'd0 : delay_cnt + 'd1; 
+
+    assign cmd_en = (s_axi_awvalid && s_axi_awready) | (s_axi_arvalid && s_axi_arready);
+    assign cmd_nxt = s_axi_awvalid && s_axi_awready;
+    assign cmd = cmd_en ? cmd_nxt : cmd_r;
+
     assign awaddr_en  = s_axi_awvalid && s_axi_awready;
-    assign awaddr = {s_axi_awaddr[31:5], 5'b0};
+    assign awaddr_nxt = {s_axi_awaddr[31:5], 5'b0};
+    assign awaddr = s_axi_awvalid && s_axi_awready ? {s_axi_awaddr[31:5], 5'b0} : awaddr_r;
+
     assign wdata_en = s_axi_wvalid && s_axi_wready;
-    assign wdata    = s_axi_wdata;
+    assign wdata_nxt = s_axi_wdata;
+    assign wdata = s_axi_wvalid && s_axi_wready ? s_axi_wdata : wdata_r;
     
-    assign read_en = s_axi_arvalid && s_axi_arready; 
-    assign araddr = {s_axi_araddr[31:5], 5'b0};
+    assign araddr_en = s_axi_arvalid && s_axi_arready;
+    assign araddr_nxt = {s_axi_araddr[31:5], 5'b0};
+    assign araddr = s_axi_arvalid && s_axi_arready ? {s_axi_araddr[31:5], 5'b0} : araddr_r;
+
+    assign bid_en = s_axi_awvalid && s_axi_awready;
+    assign bid_nxt = s_axi_awid;
+    assign bid = s_axi_awvalid && s_axi_awready ? s_axi_awid : bid_r;
+
+    assign rid_en = s_axi_arvalid && s_axi_arready;
+    assign rid_nxt = s_axi_arid;
+    assign rid = s_axi_arvalid && s_axi_arready ? s_axi_arid : rid_r;
+
+    assign read_en = (Cfg.u.mainDelay[Cfg.delWidth-1:0] == 'd1) ? s_axi_arvalid & s_axi_arready : delay_cnt == (Cfg.u.mainDelay[Cfg.delWidth-1:0] - 'd1) & !cmd;
+    assign write_en = (Cfg.u.mainDelay[Cfg.delWidth-1:0] == 'd1) ? s_axi_awvalid & s_axi_awready : delay_cnt == (Cfg.u.mainDelay[Cfg.delWidth-1:0] - 'd1) & cmd;
+
+    ns_gnrl_dfflr # (Cfg.delWidth) delay_cnt_dfflr (delay_cnt_en, delay_cnt_nxt, delay_cnt, clk, rst_n);
+
+    ns_gnrl_dfflr # (1) cmd_dfflr (cmd_en, cmd_nxt, cmd_r, clk, rst_n); 
+
+    ns_gnrl_dfflr # (32) awaddr_dfflr (awaddr_en, awaddr_nxt, awaddr_r, clk, rst_n); 
+    ns_gnrl_dfflr # (32) araddr_dfflr (araddr_en, araddr_nxt, araddr_r, clk, rst_n);
+    ns_gnrl_dfflr # (Cfg.u.clWidth) wdata_dfflr (wdata_en, wdata_nxt, wdata_r, clk, rst_n);
+
+    ns_gnrl_dfflr # (2) bid_r_dfflr (bid_en, bid_nxt, bid_r, clk, rst_n);
+    ns_gnrl_dfflr # (2) rid_r_dfflr (rid_en, rid_nxt, rid_r, clk, rst_n); 
+
     ns_gnrl_dfflr # (1) rvalid_dfflr (1'b1, read_en, s_axi_rvalid, clk, rst_n);
     ns_gnrl_dfflr # (1) rlast_dfflr (1'b1, read_en, s_axi_rlast, clk, rst_n);
-    ns_gnrl_dfflr # (2) rid_dfflr (read_en, s_axi_arid, s_axi_rid, clk, rst_n);
+    ns_gnrl_dfflr # (2) rid_dfflr (read_en, rid, s_axi_rid, clk, rst_n);
     assign s_axi_rresp = 'd0;
 
-    ns_gnrl_dfflr # (1) bvalid_dfflr (1'b1, wdata_en, s_axi_bvalid, clk, rst_n);
-    ns_gnrl_dfflr # (2) bid_dfflr (wdata_en, s_axi_awid, s_axi_bid, clk, rst_n);
+    ns_gnrl_dfflr # (1) bvalid_dfflr (1'b1, write_en, s_axi_bvalid, clk, rst_n);
+    ns_gnrl_dfflr # (2) bid_dfflr (write_en, bid, s_axi_bid, clk, rst_n);
     assign s_axi_bresp = 'd0;
 
     always @ (posedge clk) begin
-        write_memory(awaddr, wdata, wdata_en, Cfg.u.clWidth);
+        write_memory(awaddr, wdata, write_en, Cfg.u.clWidth);
     end
 
     always @ (*)
@@ -105,9 +169,9 @@ module memory_interface
             s_axi_rdata <= temp_data;
     end
     
-    assign s_axi_awready = 1'b1;
-    assign s_axi_arready = !s_axi_awvalid & !s_axi_wvalid;
-    assign s_axi_wready = 1'b1;
+    assign s_axi_awready = ~|delay_cnt;
+    assign s_axi_arready = !s_axi_awvalid & !s_axi_wvalid & ~|delay_cnt;
+    assign s_axi_wready = ~|delay_cnt;
 
     
     // Example usage

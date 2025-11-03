@@ -16,7 +16,8 @@ module mpc_wrapper
         robSize:8,
         lsqSize:32,
         rfbufSize:16,
-        mcSize:4
+        mcSize:4,
+        mainDelay:95
     },
     parameter mpc_cfg_t Cfg = mpcBuildConfig(UserCfg),
     parameter type clWidth_t       = logic [Cfg.u.clWidth-1:0],
@@ -37,6 +38,7 @@ module mpc_wrapper
     parameter type rfbufWidth_t    = logic [Cfg.rfbufWidth-1:0],
     parameter type kobWidth_t      = logic [Cfg.kobWidth-1:0],
     parameter type mcWidth_t       = logic [Cfg.mcWidth-1:0],
+    parameter type delWidth_t      = logic [Cfg.delWidth-1:0],
 
     parameter type channel_req_t = 
         `MPC_DECL_REQ_T(
@@ -608,7 +610,8 @@ memory_interface # (
     .robWidth_t                        (robWidth_t           ),      
     .lsqWidth_t                        (lsqWidth_t           ),      
     .kobWidth_t                        (kobWidth_t           ), 
-    .mcWidth_t                         (mcWidth_t            )
+    .mcWidth_t                         (mcWidth_t            ),
+    .delWidth_t                        (delWidth_t           )
 ) u_mem_intf (
     .clk                               (clk                  ),
     .rst_n                             (rst_n                ),

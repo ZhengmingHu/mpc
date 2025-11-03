@@ -64,7 +64,7 @@ endgenerate
 
 ns_mux1h # ($clog2(SRB_DEPTH), SRB_DEPTH) btm_ptr_mux1h (btm_ptr_nxt_array, entry_valid_shifted_first, btm_ptr_nxt);
 assign btm_ptr_ena = r_req_valid & r_req_ptr == btm_ptr | r_req_valid & !entry_valid[btm_ptr];
-ns_gnrl_dfflr  # ($clog2(SRB_DEPTH)) btm_ptr_dfflr (btm_ptr_ena, btm_ptr_nxt, btm_ptr, clk, rst_n);
+ns_gnrl_dfflrs  # ($clog2(SRB_DEPTH)) btm_ptr_dfflr (btm_ptr_ena, btm_ptr_nxt, btm_ptr, clk, rst_n);
 assign bottom_ptr = btm_ptr;
 
 
