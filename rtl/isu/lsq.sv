@@ -222,7 +222,7 @@ logic            [Cfg.u.lsqSize-1:0]    entry_can_execute          ;
 
 logic                                   lsq_deq_confirm            ;
 
-assign u_htu_ready = |lsq_entry_rdy & !(lsq_w_ptr == lsq_btm_ptr);
+assign u_htu_ready = &lsq_entry_rdy | !(lsq_w_ptr == lsq_btm_ptr);
 assign u_htu_hsked = u_htu_valid & u_htu_ready;
 assign u_htu_way   = u_htu_id [wayMSB:wayLSB];
 assign u_htu_set   = u_htu_id [setMSB:setLSB];

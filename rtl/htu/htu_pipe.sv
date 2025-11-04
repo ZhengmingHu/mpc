@@ -277,7 +277,7 @@ assign s2_new_meta =           is_store(s2_bank_req.op) ? MPC_META_UNIQUE :
 assign s2_meta_wen = s2_new_meta != s2_meta[s2_way];
 
 assign s2_ref_cnt_not_ready = s2_ref_cnt_max | (!s2_hit & s2_ref_cnt_not_zero);
-assign s2_memctl_not_ready = !s2_hit & !d_memctl_awready & is_store(s2_bank_req.op) & is_unique(s2_meta[s2_way]) | !s2_hit & !d_memctl_arready & is_load(s2_bank_req.op) ;
+assign s2_memctl_not_ready = !s2_hit & !d_memctl_awready & is_unique(s2_meta[s2_way]) | !s2_hit & !d_memctl_arready;
 assign s2_ready = !s2_valid || (!s2_ref_cnt_not_ready & !s2_memctl_not_ready & d_isu_ready & tag_write_ready & meta_write_ready);
 
 /* downstream connect */
