@@ -1,6 +1,9 @@
 #ifndef __OPCODE_H__
 #define __OPCODE_H__
 
+#define INS     0
+#define DATA    1
+
 #define LOAD    0
 #define STORE   1
 

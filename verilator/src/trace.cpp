@@ -4,7 +4,7 @@
 #include <debug.h>
 
 // parse trace per line
-int parse_trace_line(const char* line, int* op_type, int* size_type, 
+int parse_trace_line(const char* line, int* req_type, int* op_type, int* size_type, 
                     uint64_t* addr, uint64_t* data) {
     char op_str[16], size_str[16];
     char addr_str[32], data_str[32];
@@ -56,6 +56,8 @@ int parse_trace_line(const char* line, int* op_type, int* size_type,
     const char* is_ins = strchr(line, '#');
     if (is_ins != NULL) {
         
+        *req_type = INS;
+
         // 1. check if it is a compress instruction
         if ((*data & 0x1) == 0) {
             *size_type = HALF;
@@ -73,8 +75,9 @@ int parse_trace_line(const char* line, int* op_type, int* size_type,
                 *data = *data & 0xFFFF;
             }
         }
+    } else {
+        *req_type = DATA;
     }
-
     
     
     
@@ -93,7 +96,103 @@ VlWide<N> create_vlwide(std::initializer_list<uint32_t> values) {
 }
 
 // send single trace request
-void send_trace_request(int op_type, int size_type, uint64_t addr, uint64_t data) {
+void send_trace_request(int req_type, int op_type, int size_type, uint64_t addr, uint64_t data) {
+#ifdef CONFIG_CPU_MULTIPORT
+    // Compute width for each addr region
+    const int OFFSET_BITS = __builtin_ctz(LINE_SIZE);  // log2(LINE_SIZE)
+    const int SET_BITS = __builtin_ctz(SET_NUM);       // log2(SET_NUM)
+    const int SLICE_BITS = 2;                          // 4个slice -> 2bit
+    
+    const int SLICE_SHIFT = OFFSET_BITS + SET_BITS + 1;
+    
+    // extract slice
+    uint64_t slice = (addr >> SLICE_SHIFT) & 0x3;
+    if (req_type == INS) {
+        top->u_channel_0_req_bus_valid = 1;
+        top->u_channel_0_req_bus_op = op_type;
+        top->u_channel_0_req_bus_size = size_type;
+        top->u_channel_0_req_bus_addr = addr;
+        top->u_channel_0_req_bus_wdata = create_vlwide<4>({0, 0, 0, 0});
+
+        top->u_channel_2_req_bus_valid = 0;
+        top->u_channel_2_req_bus_op = 0;
+        top->u_channel_2_req_bus_size = 0;
+        top->u_channel_2_req_bus_addr = 0;
+        top->u_channel_2_req_bus_wdata = create_vlwide<4>({0, 0, 0, 0});
+
+        top->u_channel_1_req_bus_valid = 0;
+        top->u_channel_1_req_bus_op = 0;
+        top->u_channel_1_req_bus_size = 0;
+        top->u_channel_1_req_bus_addr = 0;
+        top->u_channel_1_req_bus_wdata = create_vlwide<4>({0, 0, 0, 0});
+    }
+    else if (slice == 0 || slice == 2) {
+         // set basical request info
+        top->u_channel_0_req_bus_valid = 0;
+        top->u_channel_0_req_bus_op = 0;
+        top->u_channel_0_req_bus_size = 0;
+        top->u_channel_0_req_bus_addr = 0;
+        top->u_channel_0_req_bus_wdata = create_vlwide<4>({0, 0, 0, 0});
+
+        top->u_channel_2_req_bus_valid = 0;
+        top->u_channel_2_req_bus_op = 0;
+        top->u_channel_2_req_bus_size = 0;
+        top->u_channel_2_req_bus_addr = 0;
+        top->u_channel_2_req_bus_wdata = create_vlwide<4>({0, 0, 0, 0});
+
+        top->u_channel_1_req_bus_valid = 1;
+        top->u_channel_1_req_bus_op = op_type;
+        top->u_channel_1_req_bus_size = size_type;
+        top->u_channel_1_req_bus_addr = addr;
+    
+        // set wdata（for store）, default 128 bit
+        if (op_type == STORE) {
+            if (size_type == DOUBLE) {
+                uint32_t high = (uint32_t)(data >> 32);
+                uint32_t low = (uint32_t)(data & 0xFFFFFFFF);
+                top->u_channel_1_req_bus_wdata = create_vlwide<4>({0, 0, high, low});
+            } else {
+                top->u_channel_1_req_bus_wdata = create_vlwide<4>({0, 0, 0, (uint32_t)data});
+            }   
+        } else {
+            // for load op，write data is 0
+            top->u_channel_1_req_bus_wdata = create_vlwide<4>({0, 0, 0, 0});
+        }
+    }
+    else if (slice == 1 || slice == 3) {
+        // set basical request info
+        top->u_channel_0_req_bus_valid = 0;
+        top->u_channel_0_req_bus_op = 0;
+        top->u_channel_0_req_bus_size = 0;
+        top->u_channel_0_req_bus_addr = 0;
+        top->u_channel_0_req_bus_wdata = create_vlwide<4>({0, 0, 0, 0});
+
+        top->u_channel_1_req_bus_valid = 0;
+        top->u_channel_1_req_bus_op = 0;
+        top->u_channel_1_req_bus_size = 0;
+        top->u_channel_1_req_bus_addr = 0;
+        top->u_channel_1_req_bus_wdata = create_vlwide<4>({0, 0, 0, 0});
+
+        top->u_channel_2_req_bus_valid = 1;
+        top->u_channel_2_req_bus_op = op_type;
+        top->u_channel_2_req_bus_size = size_type;
+        top->u_channel_2_req_bus_addr = addr;
+    
+        // set wdata（for store）, default 128 bit
+        if (op_type == STORE) {
+            if (size_type == DOUBLE) {
+                uint32_t high = (uint32_t)(data >> 32);
+                uint32_t low = (uint32_t)(data & 0xFFFFFFFF);
+                top->u_channel_2_req_bus_wdata = create_vlwide<4>({0, 0, high, low});
+            } else {
+                top->u_channel_2_req_bus_wdata = create_vlwide<4>({0, 0, 0, (uint32_t)data});
+            }   
+        } else {
+            // for load op，write data is 0
+            top->u_channel_2_req_bus_wdata = create_vlwide<4>({0, 0, 0, 0});
+        }
+    }
+#else
     // set basical request info
     top->u_channel_0_req_bus_valid = 1;
     top->u_channel_0_req_bus_op = op_type;
@@ -113,8 +212,10 @@ void send_trace_request(int op_type, int size_type, uint64_t addr, uint64_t data
         // for load op，write data is 0
         top->u_channel_0_req_bus_wdata = create_vlwide<4>({0, 0, 0, 0});
     }
-    
+#endif    
     top->u_channel_0_rsp_bus_ready = 1;
+    top->u_channel_1_rsp_bus_ready = 1;
+    top->u_channel_2_rsp_bus_ready = 1;
 }
 
 // reset request
@@ -123,6 +224,16 @@ void reset_request_signals() {
     top->u_channel_0_req_bus_op = 0;
     top->u_channel_0_req_bus_size = 0;
     top->u_channel_0_req_bus_addr = 0;
+
+    top->u_channel_1_req_bus_valid = 0;
+    top->u_channel_1_req_bus_op = 0;
+    top->u_channel_1_req_bus_size = 0;
+    top->u_channel_1_req_bus_addr = 0;
+
+    top->u_channel_2_req_bus_valid = 0;
+    top->u_channel_2_req_bus_op = 0;
+    top->u_channel_2_req_bus_size = 0;
+    top->u_channel_2_req_bus_addr = 0;
 }
 
 // main exec func - execute trace file per line
@@ -131,6 +242,11 @@ void execute_trace(const char* trace_file) {
     FILE* file = fopen(trace_file, "r");
 #ifdef CONFIG_DIFFTEST
     FILE* ref = fopen(trace_file, "r");
+#endif
+#ifdef CONFIG_CPU_MULTIPORT
+    FILE* ch0 = fopen("ch0.trace", "w+");
+    FILE* ch1 = fopen("ch1.trace", "w+");
+    FILE* ch2 = fopen("ch2.trace", "w+");
 #endif
     if (!file) {
         printf("Error: Cannot open trace file %s\n", trace_file);
@@ -156,29 +272,36 @@ void execute_trace(const char* trace_file) {
             continue;
         }
         
-        int op_type, size_type;
+        int req_type, op_type, size_type;
         uint64_t addr, data;
         rsp = PASS;
 
-        if (parse_trace_line(line, &op_type, &size_type, &addr, &data)) {
+        if (parse_trace_line(line, &req_type, &op_type, &size_type, &addr, &data)) {
 #ifdef CONFIG_DEBUG
             print_line(line_num, op_type, size_type, addr, data);
 #endif
-            
-            int request_sent = 0;
+#ifdef CONFIG_CPU_MULTIPORT
+            cache_line(ch0, ch1, ch2, line, op_type, addr);
+#endif
             int retry_count = 0;
-
+            
             // send request
-            send_trace_request(op_type, size_type, addr, data);
-                        
-            while (retry_count < MAX_RETRY && !(top->u_channel_0_req_bus_valid && top->u_channel_0_req_bus_ready)) {                
+            send_trace_request(req_type, op_type, size_type, addr, data);                        
+            while (retry_count < MAX_RETRY && !(top->u_channel_0_req_bus_valid && top->u_channel_0_req_bus_ready ||
+                   top->u_channel_1_req_bus_valid && top->u_channel_1_req_bus_ready ||
+                   top->u_channel_2_req_bus_valid && top->u_channel_2_req_bus_ready)) {                
                 
                 // difftest
 #ifdef CONFIG_DIFFTEST
+#ifdef CONFIG_CPU_MULTIPORT
+                rsp = handle_multiport_rsp_data(ch0, ch1, ch2, &ref_num, false);
+                if (rsp==FAIL) {break;}
+#else
                 rsp = handle_rsp_data(ref, &ref_num);
                 if (rsp==FAIL) {break;}
 #endif
-                // delay 1 cycle and check handshake
+#endif
+                // delay 1 cycle when not handshake
                 sim_delay(2);
                 retry_count++;
             }
@@ -192,11 +315,15 @@ void execute_trace(const char* trace_file) {
 // difftest
 #ifdef CONFIG_DIFFTEST
             if (rsp==FAIL) {break;}
+#ifdef CONFIG_CPU_MULTIPORT
+            rsp = handle_multiport_rsp_data(ch0, ch1, ch2, &ref_num, false);
+            if (rsp==FAIL) {break;}
+#else
             rsp = handle_rsp_data(ref, &ref_num);
             if (rsp==FAIL) {break;}
 #endif
-
-            // delay after handshake
+#endif
+            // delay when handshake
             sim_delay(2);
             
         } else {
@@ -207,13 +334,23 @@ void execute_trace(const char* trace_file) {
     if (deadlock) {return;}
 #ifdef CONFIG_DIFFTEST
     if (rsp == FAIL) {return;}
+#ifdef CONFIG_CPU_MULTIPORT 
+    int i=0;
+    while(handle_multiport_rsp_data(ch0, ch1, ch2, &ref_num, true)==PASS);
+#else
     while(handle_rsp_data(ref, &ref_num)==PASS);
+#endif 
 #endif
     sim_delay(200);
 
     fclose(file);
 #ifdef CONFIG_DIFFTEST
     fclose(ref);
+#endif
+#ifdef CONFIG_CPU_MULTIPORT
+    fclose(ch0);
+    fclose(ch1);
+    fclose(ch2);
 #endif
 
     printf(".................................................\n");
