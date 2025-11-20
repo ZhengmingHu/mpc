@@ -80,6 +80,7 @@ setWidth_t                   meta_write_set                        ;
 wayNum_t                     meta_write_way_en                     ;
 metaWidth_t                  meta_write_data                       ;
 
+logic                        ref_cnt_valid                         ;
 setWidth_t                   ref_cnt_set                           ;
 logic      [  2: 0]          ref_cnt_rsp    [Cfg.wayNum-1:0]       ;
 logic                        ref_cnt_access_valid                  ;
@@ -162,6 +163,7 @@ htu_pipe # (
     .meta_write_way_en    , 
     .meta_write_data      ,
 
+    .ref_cnt_valid        ,
     .ref_cnt_set          ,
     .ref_cnt_rsp          ,   
     .ref_cnt_access_valid ,

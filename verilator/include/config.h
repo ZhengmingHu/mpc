@@ -1,6 +1,6 @@
 // Cache configuration
 
-#define SET_NUM             8
+#define SET_NUM             64
 #define LINE_SIZE           32
 
 
@@ -16,4 +16,4 @@
 // #define CONFIG_DEBUG
 #define CONFIG_DIFFTEST
 #define CONFIG_CPU_MULTIPORT
-#define MAX_RETRY           1000
+#define MAX_RETRY           10000

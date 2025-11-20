@@ -40,6 +40,13 @@ inline void sim_reset() {
     top->rst_n = 1; sim_delay(2);
 }
 
+typedef struct {
+    uint64_t cycles = 0;
+    uint64_t instr = 0;
+} perf_event_t;
+
+extern perf_event_t *event;
+
 void sim_exec();
 
 void execute_trace(const char* trace_file); 

@@ -152,7 +152,7 @@ int handle_rsp_data(FILE* ref_file, int* ref_line_num) {
     }
 }
 
-int handle_multiport_rsp_data (FILE* ch0, FILE* ch1, FILE* ch2, int* ref_line_num, bool req_end) {
+int handle_multiport_rsp_data (FILE* ch0, FILE* ch1, FILE* ch2, int* ref_line_num, int* rsp_retry_num, bool req_end) {
     // save current file pos
     long ch0_current_pos = ftell(ch0);
     long ch1_current_pos = ftell(ch1);
@@ -180,6 +180,17 @@ int handle_multiport_rsp_data (FILE* ch0, FILE* ch1, FILE* ch2, int* ref_line_nu
     } else {
         fseek(ch2, ch2_read_position, SEEK_SET);
     }
+
+    // if (!top->u_channel_0_rsp_bus_valid & !top->u_channel_1_rsp_bus_valid & !top->u_channel_2_rsp_bus_valid & req_end){
+    //     printf("here we go, retry_num:%d\n", (*rsp_retry_num));
+    //     (*rsp_retry_num)++;
+    //     if ((*rsp_retry_num) == MAX_RETRY){
+    //         return DEADLOCK;
+    //     } 
+    // }
+    // else {
+    //     (*rsp_retry_num)=0;
+    // }
 
     if (top->u_channel_0_rsp_bus_valid && top->u_channel_0_rsp_bus_ready) {
 

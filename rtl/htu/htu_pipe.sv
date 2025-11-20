@@ -78,6 +78,7 @@ module htu_pipe
     output metaWidth_t                  meta_write_data            ,
 
     // 7. reference counter
+    output logic                        ref_cnt_valid              ,
     output setWidth_t                   ref_cnt_set                ,
     input  logic      [  2: 0]          ref_cnt_rsp    [Cfg.wayNum-1:0],
 
@@ -244,7 +245,6 @@ endgenerate
 
 ns_gnrl_dfflr # (1) s1_hsked_r_dfflr (1'b1, s1_hsked, s1_hsked_r, clk, rst_n);
 
-
 /* stage 2: 
     1. get response from replacer
     2. get response from reference counter
@@ -276,7 +276,7 @@ assign s2_new_meta =           is_store(s2_bank_req.op) ? MPC_META_UNIQUE :
                      !s2_hit &  is_load(s2_bank_req.op) ? MPC_META_SHARE  : s2_meta[s2_way];
 assign s2_meta_wen = s2_new_meta != s2_meta[s2_way];
 
-assign s2_ref_cnt_not_ready = s2_ref_cnt_max | (!s2_hit & s2_ref_cnt_not_zero);
+assign s2_ref_cnt_not_ready = s2_ref_cnt_max | (!s2_hit & s2_ref_cnt_not_zero) | (s2_ref_cnt_not_zero & is_store(s2_bank_req.op));
 assign s2_memctl_not_ready = !s2_hit & !d_memctl_awready & is_unique(s2_meta[s2_way]) | !s2_hit & !d_memctl_arready;
 assign s2_ready = !s2_valid || (!s2_ref_cnt_not_ready & !s2_memctl_not_ready & d_isu_ready & tag_write_ready & meta_write_ready);
 
@@ -323,7 +323,8 @@ assign meta_write_set         = s2_set;
 assign meta_write_way_en      = s2_hit ? s2_hit_way_en : s2_replace_way_en;
 assign meta_write_data        = s2_new_meta;
 
-assign ref_cnt_set            = s1_set;
+assign ref_cnt_valid          = 'd1;
+assign ref_cnt_set            = s2_set;
 assign ref_cnt_access_valid   = s2_hsked;
 assign ref_cnt_access_set     = s2_set;
 assign ref_cnt_access_way     = s2_way;

@@ -7,7 +7,7 @@ VerilatedContext* contextp = NULL;
 VerilatedVcdC* tfp = NULL;
 Vmpc_wrapper* top;
 
-const static char *img_file = "/home/zcy/riscv-tools/riscv-tests/benchmarks/dhrystone.riscv.bin";
+const static char *img_file = "/home/zcy/ysyx/ysyx-workbench/am-kernels/benchmarks/microbench/build/microbench-riscv32-nemu.bin";
 const char *log_file = "/home/zcy/workspace/mpc/smoke_test/veri_build/mpc.log";
 
 void init_log(const char *log_file);

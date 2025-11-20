@@ -135,6 +135,8 @@ logic            [ Cfg.u.kobSize-1: 0]     ch_2_vld_nxt                    ;
 logic            [ Cfg.u.kobSize-1: 0]     ch_2_vld_r                      ;
 logic            [  1: 0]    ch_2_bank_id_entry [ Cfg.u.kobSize-1: 0]      ;
 
+localparam bankMSB       = Cfg.u.addrWidth - Cfg.tagWidth - 1;
+localparam bankLSB       = Cfg.offsetWidth + Cfg.byteWidth + Cfg.setWidth; 
 
 assign u_ch_0_req_hsked = u_channel_0_req_bus_valid & u_channel_0_req_bus_ready;
 assign u_ch_1_req_hsked = u_channel_1_req_bus_valid & u_channel_1_req_bus_ready;
@@ -144,9 +146,9 @@ assign ch_0_kob_wen   = u_ch_0_req_hsked & is_load(u_channel_0_req_bus.op);
 assign ch_1_kob_wen   = u_ch_1_req_hsked & is_load(u_channel_1_req_bus.op);
 assign ch_2_kob_wen   = u_ch_2_req_hsked & is_load(u_channel_2_req_bus.op);
 
-assign ch_0_kob_wdata = u_channel_0_req_bus.addr[9:8];
-assign ch_1_kob_wdata = u_channel_1_req_bus.addr[9:8];
-assign ch_2_kob_wdata = u_channel_2_req_bus.addr[9:8];
+assign ch_0_kob_wdata = u_channel_0_req_bus.addr[bankMSB:bankLSB];
+assign ch_1_kob_wdata = u_channel_1_req_bus.addr[bankMSB:bankLSB];
+assign ch_2_kob_wdata = u_channel_2_req_bus.addr[bankMSB:bankLSB];
 
 assign ch_0_alc_ptr_flg_ena = (ch_0_alc_ptr_r == '1) & ch_0_alc_ptr_ena;
 assign ch_0_alc_ptr_flg_nxt = ~ch_0_alc_ptr_flg_r;

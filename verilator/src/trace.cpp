@@ -3,6 +3,16 @@
 #include <sim.h>
 #include <debug.h>
 
+perf_event_t *event = NULL;
+
+void perf_event_init() {
+    if (event == NULL) {
+        event = (perf_event_t *)malloc(sizeof(perf_event_t));
+        event->cycles = 0;
+        event->instr = 0;
+    }
+}
+
 // parse trace per line
 int parse_trace_line(const char* line, int* req_type, int* op_type, int* size_type, 
                     uint64_t* addr, uint64_t* data) {
@@ -216,6 +226,7 @@ void send_trace_request(int req_type, int op_type, int size_type, uint64_t addr,
     top->u_channel_0_rsp_bus_ready = 1;
     top->u_channel_1_rsp_bus_ready = 1;
     top->u_channel_2_rsp_bus_ready = 1;
+    event->instr++;
 }
 
 // reset request
@@ -256,10 +267,13 @@ void execute_trace(const char* trace_file) {
     char line[256];
     int line_num = 0;
     int ref_num = 0;
+    int rsp_retry_num = 0;
     int rsp = PASS;
     bool deadlock = false;
     
     printf("Starting trace execution: %s\n", trace_file);
+
+    perf_event_init();
 
     sim_delay(2);
     
@@ -294,7 +308,7 @@ void execute_trace(const char* trace_file) {
                 // difftest
 #ifdef CONFIG_DIFFTEST
 #ifdef CONFIG_CPU_MULTIPORT
-                rsp = handle_multiport_rsp_data(ch0, ch1, ch2, &ref_num, false);
+                rsp = handle_multiport_rsp_data(ch0, ch1, ch2, &ref_num, &rsp_retry_num, false);
                 if (rsp==FAIL) {break;}
 #else
                 rsp = handle_rsp_data(ref, &ref_num);
@@ -303,6 +317,7 @@ void execute_trace(const char* trace_file) {
 #endif
                 // delay 1 cycle when not handshake
                 sim_delay(2);
+                event->cycles++;
                 retry_count++;
             }
         
@@ -316,7 +331,7 @@ void execute_trace(const char* trace_file) {
 #ifdef CONFIG_DIFFTEST
             if (rsp==FAIL) {break;}
 #ifdef CONFIG_CPU_MULTIPORT
-            rsp = handle_multiport_rsp_data(ch0, ch1, ch2, &ref_num, false);
+            rsp = handle_multiport_rsp_data(ch0, ch1, ch2, &ref_num, &rsp_retry_num, false);
             if (rsp==FAIL) {break;}
 #else
             rsp = handle_rsp_data(ref, &ref_num);
@@ -325,22 +340,72 @@ void execute_trace(const char* trace_file) {
 #endif
             // delay when handshake
             sim_delay(2);
-            
+            event->cycles++;
         } else {
             printf("Warning: Failed to parse line %d: %s", line_num, line);
         }
     }
     reset_request_signals();
-    if (deadlock) {return;}
+    if (deadlock) {
+        printf("\n%s%s%s\n", COLOR_RED, SEPARATOR, COLOR_RESET);
+        printf("%sDEADLOCK%s\n", COLOR_RED, COLOR_RESET);
+        printf("%s%s%s\n", COLOR_RED, SEPARATOR, COLOR_RESET);
+        printf("%sTrace execution failed due to deadlock!%s\n", COLOR_CYAN, COLOR_RESET);
+        printf("%sProcessed lines: %s%d%s\n", COLOR_YELLOW, COLOR_CYAN, line_num, COLOR_RESET);
+        printf("\n");
+        return;
+    }
 #ifdef CONFIG_DIFFTEST
-    if (rsp == FAIL) {return;}
+    if (rsp == FAIL) {
+        printf("\n%s%s%s\n", COLOR_RED, SEPARATOR, COLOR_RESET);
+        printf("%sFAIL%s\n", COLOR_RED, COLOR_RESET);
+        printf("%s%s%s\n", COLOR_RED, SEPARATOR, COLOR_RESET);
+        printf("%sTrace execution failed due to response error!%s\n", COLOR_CYAN, COLOR_RESET);
+        printf("%sProcessed lines: %s%d%s\n", COLOR_YELLOW, COLOR_CYAN, line_num, COLOR_RESET);
+        printf("\n");
+        return;
+    }
 #ifdef CONFIG_CPU_MULTIPORT 
     int i=0;
-    while(handle_multiport_rsp_data(ch0, ch1, ch2, &ref_num, true)==PASS);
+    while(rsp == PASS){
+        rsp = handle_multiport_rsp_data(ch0, ch1, ch2, &ref_num,  &rsp_retry_num, true);
+        sim_delay(2);
+        event->cycles++;
+    };
 #else
     while(handle_rsp_data(ref, &ref_num)==PASS);
 #endif 
 #endif
+    if (rsp == DONE) {
+        printf("\n%s%s%s\n", COLOR_GREEN, SEPARATOR, COLOR_RESET);
+        printf("%s✓ PASS%s\n", COLOR_GREEN, COLOR_RESET);
+        printf("%s%s%s\n", COLOR_GREEN, SEPARATOR, COLOR_RESET);
+        printf("%sTrace execution completed successfully!%s\n", COLOR_CYAN, COLOR_RESET);
+        printf("%s[perf] Total Cycle: %ld%s\n", COLOR_CYAN, event->cycles, COLOR_RESET);
+        printf("%s[perf] Total Instr: %ld%s\n", COLOR_CYAN, event->instr, COLOR_RESET);
+        printf("%s[perf] Total CPI: %f%s\n", COLOR_CYAN, (double)(event->cycles/event->instr), COLOR_RESET);
+        printf("%sProcessed lines: %s%d%s\n", COLOR_YELLOW, COLOR_CYAN, line_num, COLOR_RESET);
+        printf("\n");
+    }
+    if (rsp == DEADLOCK) {
+        printf("\n%s%s%s\n", COLOR_RED, SEPARATOR, COLOR_RESET);
+        printf("%sDEADLOCK%s\n", COLOR_RED, COLOR_RESET);
+        printf("%s%s%s\n", COLOR_RED, SEPARATOR, COLOR_RESET);
+        printf("%sTrace execution failed due to deadlock!%s\n", COLOR_CYAN, COLOR_RESET);
+        printf("%sProcessed lines: %s%d%s\n", COLOR_YELLOW, COLOR_CYAN, line_num, COLOR_RESET);
+        printf("\n");
+        return;
+    }
+    else if (rsp == FAIL) {
+        printf("\n%s%s%s\n", COLOR_RED, SEPARATOR, COLOR_RESET);
+        printf("%s✓ FAIL%s\n", COLOR_RED, COLOR_RESET);
+        printf("%s%s%s\n", COLOR_RED, SEPARATOR, COLOR_RESET);
+        printf("%sTrace execution failed due to response errror!%s\n", COLOR_CYAN, COLOR_RESET);
+        printf("%sProcessed lines: %s%d%s\n", COLOR_YELLOW, COLOR_CYAN, line_num, COLOR_RESET);
+        printf("\n");
+        return;
+    }
+    
     sim_delay(200);
 
     fclose(file);
@@ -354,5 +419,4 @@ void execute_trace(const char* trace_file) {
 #endif
 
     printf(".................................................\n");
-    printf("Trace execution completed. Processed %d lines.\n", line_num);
 }

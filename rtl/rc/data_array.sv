@@ -39,7 +39,7 @@ logic           r_en_q;
 wayIndexWidth_t r_way_q;
 
 ns_gnrl_dfflr # (1) r_en_dfflr (1'b1, r_en, r_en_q, clk, rst_n);
-ns_gnrl_dfflr # (Cfg.wayIndexWidth) r_way_dfflr (1'b1, r_way, r_way_q, clk, rst_n);
+ns_gnrl_dfflr # (Cfg.wayIndexWidth) r_way_dfflr (r_en, r_way, r_way_q, clk, rst_n);
 
 assign r_data = r_way_data[r_way_q];
 
