@@ -130,7 +130,7 @@ logic             [  1: 0]              s1_wmask;
 logic s0_s1_conflict;
 logic s0_s1_write_conflict;
 assign s0_s1_conflict = s0_way == s1_way && s1_valid && s1_wmask[s0_offset];
-assign s0_s1_write_conflict = s0_way == s1_way && s1_valid && |s1_wmask;
+assign s0_s1_write_conflict = (s0_way == s1_way && s1_valid && |s1_wmask) | (s0_read_with_linefill && s1_valid && |s1_wmask);
 
 assign s0_valid              = u_isu_valid;
 assign s0_ready              =  s0_read_with_linefill && u_bank_rsp_ready || 

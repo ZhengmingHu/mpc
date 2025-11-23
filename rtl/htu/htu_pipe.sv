@@ -324,7 +324,7 @@ assign meta_write_way_en      = s2_hit ? s2_hit_way_en : s2_replace_way_en;
 assign meta_write_data        = s2_new_meta;
 
 assign ref_cnt_valid          = 'd1;
-assign ref_cnt_set            = s2_set;
+assign ref_cnt_set            = s1_hsked ? s1_set : s2_set;
 assign ref_cnt_access_valid   = s2_hsked;
 assign ref_cnt_access_set     = s2_set;
 assign ref_cnt_access_way     = s2_way;

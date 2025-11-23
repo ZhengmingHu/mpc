@@ -49,6 +49,8 @@ extern perf_event_t *event;
 
 void sim_exec();
 
+void execute_trace_npu(const char* trace_file); 
+
 void execute_trace(const char* trace_file); 
 
 #endif

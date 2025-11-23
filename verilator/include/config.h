@@ -12,8 +12,9 @@
 
 // Emulator configuration
 
-#define CONFIG_WAVETRACE
+// #define CONFIG_WAVETRACE
 // #define CONFIG_DEBUG
+#define CONFIG_CPU_NPU
 #define CONFIG_DIFFTEST
 #define CONFIG_CPU_MULTIPORT
 #define MAX_RETRY           10000

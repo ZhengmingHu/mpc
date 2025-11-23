@@ -16,7 +16,7 @@ signalSpacing 5
 
 ; windowTimeUnit is used for zoom, cursor & marker
 ; waveform viewport range
-zoom 1293301.161480 1293312.248385
+zoom 2254105.231003 2254142.302632
 cursor 2359.000000
 marker 0.000000
 
@@ -27,7 +27,7 @@ userMarker 49 M1 ID_GREEN5 long_dashed
 ; visible top row signal index
 top 0
 ; marker line index
-markerPos 11
+markerPos 8
 
 ; event list
 ; addEvent event_name event_expression
@@ -54,6 +54,10 @@ addSignal -h 15 -holdScope rst_n
 addSignal -h 15 -holdScope u_channel_0_req_bus_valid
 addSignal -h 15 -holdScope u_channel_0_req_bus_ready
 addSignal -h 15 -holdScope u_channel_0_req_bus_addr[31:0]
+addSignal -h 15 -holdScope u_channel_1_req_bus_valid
+addSignal -h 15 -holdScope u_channel_1_req_bus_ready
+addSignal -h 15 -holdScope u_channel_1_req_bus_addr[31:0]
+addSignal -h 15 -holdScope u_channel_1_req_bus_wdata[127:0]
 addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_channel_1_rsp_bus_valid
 addSignal -h 15 -holdScope u_channel_1_rsp_bus_ready
 addSignal -h 15 -holdScope u_channel_1_rsp_bus_rdata[127:0]

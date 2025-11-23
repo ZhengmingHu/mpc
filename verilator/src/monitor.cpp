@@ -7,7 +7,7 @@ VerilatedContext* contextp = NULL;
 VerilatedVcdC* tfp = NULL;
 Vmpc_wrapper* top;
 
-const static char *img_file = "/home/zcy/ysyx/ysyx-workbench/am-kernels/benchmarks/microbench/build/microbench-riscv32-nemu.bin";
+const static char *img_file = "/home/zcy/workspace/chipyard/generators/gemmini/software/gemmini-rocc-tests/build/bareMetalC/mvin_mvout_acc_stride-baremetal.riscv";
 const char *log_file = "/home/zcy/workspace/mpc/smoke_test/veri_build/mpc.log";
 
 void init_log(const char *log_file);
@@ -37,6 +37,7 @@ static long init_pmem() {
         fclose(fp);
         return -1;
     }
+    
     Log("Finish loading image: %s, size = %ld", img_file, size);
     fseek(fp, 0, SEEK_SET);
     int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);

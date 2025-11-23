@@ -64,7 +64,7 @@ endgenerate
 generate
     for (genvar way_w = 0; way_w < int'(Cfg.wayNum); way_w++)
     begin : ref_cnt_rsp_way_gen
-        assign ref_cnt_rsp[way_w] = ref_cnt[way_w][ref_cnt_set];
+        ns_gnrl_dfflr # (3) ref_cnt_rsp_dfflr (1'b1, ref_cnt[way_w][ref_cnt_set], ref_cnt_rsp[way_w], clk, rst_n); 
     end
 endgenerate
 

@@ -39,14 +39,23 @@
 
 int parse_trace_line(const char* line, int* req_type, int* op_type, int* size_type, uint64_t* addr, uint64_t* data);
 
+int parse_trace_line_npu(const char* line, int* req_type, int* op_type, int* size_type, uint64_t* addr, uint64_t* data_low, uint64_t* data_high);
+
 void print_line(int line_num, int op_type, int size_type, uint64_t addr, uint64_t data);
 
+void print_line_npu(int line_num, int op_type, int size_type, uint64_t addr, uint64_t data_low, uint64_t data_high);
+
 int handle_rsp_data(FILE* ref_file, int* ref_line_num);
+
 int handle_multiport_rsp_data(FILE* ch0, FILE* ch1, FILE *ch2, int* ref_num, int* rsp_retry_num, bool req_end);
 
-#ifdef CONFIG_CPU_MULTIPORT
+int handle_multiport_rsp_data_npu(FILE* ch0, FILE* ch1, FILE *ch2, int* ref_num, int* rsp_retry_num, bool req_end);
+
+#ifdef CONFIG_DIFFTEST
 
 void cache_line(FILE* ch0, FILE* ch1, FILE* ch2, const char* line, int op_type, uint64_t addr);
+
+void cache_line_npu(FILE* ch0, FILE* ch1, FILE* ch2, const char* line, int op_type, int size_type, uint64_t addr);
 
 void test_read_cache_line(FILE* cache_file);
 
