@@ -61,7 +61,10 @@ module isu_wrapper
 
     // 6. return credit for reference counter
     output logic                        u_htu_crdt_valid           ,
-    output nlineWidth_t                 u_htu_crdt_way_set          
+    output nlineWidth_t                 u_htu_crdt_way_set         ,
+
+    // 7. for pmu
+    output logic            [Cfg.u.lsqSize-1:0] pmu_lsq_busy 
 
 );
 
@@ -153,7 +156,8 @@ lsq # (
     .d_rc_way                          (d_rc_way                           ),
     .d_rc_offset                       (d_rc_offset                        ),
     .d_rc_byte                         (d_rc_byte                          ),
-    .d_rc_wbuf_id                      (d_rc_wbuf_id                       )
+    .d_rc_wbuf_id                      (d_rc_wbuf_id                       ),
+    .pmu_lsq_busy                      (pmu_lsq_busy                       )
 );
 
 refill_buffer # (

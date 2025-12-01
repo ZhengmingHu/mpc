@@ -167,7 +167,7 @@ module lsq
     input  nlineWidth_t                 memctl_refill_id           ,
     // 6. to refill buffer
     output logic                        refill_buf_confirm         ,
-    // 6. to sram controller interface
+    // 7. to sram controller interface
     output logic                        d_rc_valid                 ,
     input  logic                        d_rc_ready                 ,
     output logic            [  2: 0]    d_rc_channel_1hot_id       ,
@@ -178,7 +178,9 @@ module lsq
     output offsetWidth_t                d_rc_offset                ,
     output byteWidth_t                  d_rc_byte                  ,
     output wayIndexWidth_t              d_rc_way                   ,
-    output wbufWidth_t                  d_rc_wbuf_id         
+    output wbufWidth_t                  d_rc_wbuf_id               ,
+
+    output logic            [Cfg.u.lsqSize-1:0] pmu_lsq_busy
       
 );
 
@@ -206,6 +208,7 @@ logic            [Cfg.u.lsqSize-1:0]    lsq_entry_rdy              ;
 logic            [              1:0]    lsq_entry_channel_id [Cfg.u.lsqSize-1:0];
 
 logic            [Cfg.u.lsqSize-1:0]    lsq_deq_vld                ;
+logic            [Cfg.u.lsqSize-1:0]    lsq_deq_sel                ;
 logic            [Cfg.u.lsqSize-1:0]    lsq_deq_real_valid         ;
 logic            [Cfg.u.lsqSize-1:0]    lsq_deq_real_sel           ;
 logic            [  2: 0]               lsq_deq_channel_1hot_id [Cfg.u.lsqSize-1:0];
@@ -235,7 +238,7 @@ assign rob_id_gen_valid = u_htu_valid & u_htu_ready & (is_load(u_htu_op) | is_ra
 assign lsq_deq_confirm = |lsq_deq_real_sel & d_rc_ready;
 assign refill_buf_confirm = |lsq_deq_real_sel;
 
-assign d_rc_valid = |lsq_deq_vld;
+assign d_rc_valid = |lsq_deq_sel;
 assign d_rc_channel_1hot_id = lsq_deq_channel_1hot_id[lsq_r_ptr];
 assign d_rc_rob_id = lsq_deq_rob_id[lsq_r_ptr];
 assign d_rc_op = lsq_deq_op[lsq_r_ptr];
@@ -249,10 +252,19 @@ assign d_rc_wbuf_id = lsq_deq_wbuf_id[lsq_r_ptr];
 assign u_htu_crdt_valid = lsq_deq_confirm;
 assign u_htu_crdt_id = {d_rc_way, d_rc_set};
 
+assign pmu_lsq_busy = ~lsq_entry_rdy;
+
 generate
     for (genvar i = 0; i < int'(Cfg.u.lsqSize);i++)
     begin: lsq_deq_real_sel_gen
         assign lsq_deq_real_sel[i] = lsq_deq_real_valid[i] & lsq_r_ptr == i;
+    end
+endgenerate
+
+generate
+    for (genvar i = 0; i < int'(Cfg.u.lsqSize);i++)
+    begin: lsq_deq_sel_gen
+        assign lsq_deq_sel[i] = lsq_deq_vld[i] & lsq_r_ptr == i;
     end
 endgenerate
 

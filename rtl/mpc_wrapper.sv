@@ -15,7 +15,7 @@ module mpc_wrapper
         wbufSize:16,
         robSize:8,
         lsqSize:32,
-        rfbufSize:16,
+        rfbufSize:32,
         mcSize:4,
         mainDelay:95
     },
@@ -94,7 +94,13 @@ module mpc_wrapper
 
     output logic                        u_channel_2_rsp_bus_valid  ,
     input  logic                        u_channel_2_rsp_bus_ready  ,
-    output dataWidth_t                  u_channel_2_rsp_bus_rdata  
+    output dataWidth_t                  u_channel_2_rsp_bus_rdata  ,
+
+    // for pmu
+    output logic           [Cfg.u.lsqSize-1:0]  slice_0_pmu_lsq_busy,
+    output logic           [Cfg.u.lsqSize-1:0]  slice_1_pmu_lsq_busy,
+    output logic           [Cfg.u.lsqSize-1:0]  slice_2_pmu_lsq_busy,
+    output logic           [Cfg.u.lsqSize-1:0]  slice_3_pmu_lsq_busy  
 );
 
 channel_req_t                u_channel_0_req_bus ;
@@ -427,7 +433,11 @@ mpc # (
     .slice_3_m_axi_rid         (slice_3_axi_rid          ),
     .slice_3_m_axi_rdata       (slice_3_axi_rdata        ),
     .slice_3_m_axi_rresp       (slice_3_axi_rresp        ),
-    .slice_3_m_axi_rlast       (slice_3_axi_rlast        )
+    .slice_3_m_axi_rlast       (slice_3_axi_rlast        ),
+    .slice_0_pmu_lsq_busy      (slice_0_pmu_lsq_busy     ),
+    .slice_1_pmu_lsq_busy      (slice_1_pmu_lsq_busy     ),
+    .slice_2_pmu_lsq_busy      (slice_2_pmu_lsq_busy     ),
+    .slice_3_pmu_lsq_busy      (slice_3_pmu_lsq_busy     )
 );
 
 mem_intf_arbiter # (

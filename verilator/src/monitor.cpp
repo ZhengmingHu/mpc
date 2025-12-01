@@ -2,12 +2,13 @@
 #include <config.h>
 #include <paddr.h>
 #include <debug.h>
+#include <sim.h>
 
 VerilatedContext* contextp = NULL;
 VerilatedVcdC* tfp = NULL;
 Vmpc_wrapper* top;
 
-const static char *img_file = "/home/zcy/workspace/chipyard/generators/gemmini/software/gemmini-rocc-tests/build/bareMetalC/mvin_mvout_acc_stride-baremetal.riscv";
+const static char *img_file = "/home/zcy/ysyx/rt-thread-am/bsp/abstract-machine/build/rtthread-riscv32-nemu.bin";
 const char *log_file = "/home/zcy/workspace/mpc/smoke_test/veri_build/mpc.log";
 
 void init_log(const char *log_file);
@@ -18,6 +19,11 @@ void init_sim(){
   tfp = new VerilatedVcdC;
   top = new Vmpc_wrapper;
 #ifdef CONFIG_WAVETRACE  
+  contextp->traceEverOn(true);
+  top->trace(tfp, 0);
+  tfp->open("waveform.vcd");
+#endif
+#ifdef CONFIG_WAVETRACE_PTL
   contextp->traceEverOn(true);
   top->trace(tfp, 0);
   tfp->open("waveform.vcd");
@@ -46,6 +52,13 @@ static long init_pmem() {
     return size;
 }
 
+void init_event() {
+    if (event == NULL) {
+        event = (perf_event_t *)malloc(sizeof(perf_event_t));
+        memset(event, 0, sizeof(perf_event_t));
+    }
+}
+
 void init_monitor(int argc, char** argv) {
 
     init_sim();
@@ -53,6 +66,8 @@ void init_monitor(int argc, char** argv) {
     init_log(log_file);
 
     long img_size = init_pmem();
+
+    init_event();
 
     memory_dump(0x80000000, 64);
 

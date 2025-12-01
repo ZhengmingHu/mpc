@@ -3,14 +3,6 @@
 #include <sim.h>
 #include <debug.h>
 
-void perf_event_init_npu() {
-    if (event == NULL) {
-        event = (perf_event_t *)malloc(sizeof(perf_event_t));
-        event->cycles = 0;
-        event->instr = 0;
-    }
-}
-
 // parse trace per line
 int parse_trace_line_npu(const char* line, int* req_type, int* op_type, int* size_type, 
                     uint64_t* addr, uint64_t* data_low, uint64_t* data_high) {
@@ -240,6 +232,50 @@ void reset_request_signals_npu() {
     top->u_channel_2_req_bus_addr = 0;
 }
 
+void update_mshr_stat_npu(uint64_t slice0, uint64_t slice1, uint64_t slice2, uint64_t slice3) {
+    
+    int busy_slice0 = count_bits_builtin(slice0);
+    int busy_slice1 = count_bits_builtin(slice1);
+    int busy_slice2 = count_bits_builtin(slice1);
+    int busy_slice3 = count_bits_builtin(slice3);
+
+    int max_busy_count = max(busy_slice0, busy_slice1, busy_slice2, busy_slice3);
+    event->lsq_max_busy_count[max_busy_count]++;
+}
+
+void print_perf_stats_npu(const perf_event_t* event, int line_num) {
+
+    printf("%s[perf] Total Cycle: %ld%s\n", COLOR_CYAN, event->cycles, COLOR_RESET);
+    printf("%s[perf] Total Instr: %ld%s\n", COLOR_CYAN, event->instr, COLOR_RESET);
+    printf("%s[perf] Total CPI: %f%s\n", COLOR_CYAN, (double)((double)event->cycles/(double)event->instr), COLOR_RESET);
+    printf("%sProcessed lines: %s%d%s\n", COLOR_YELLOW, COLOR_CYAN, line_num, COLOR_RESET);
+    
+    printf("\n%s=== LSQ Max Busy Table Entry Statistics ===%s\n", COLOR_CYAN, COLOR_RESET);
+    printf("%sNote: Statistics show the maximum busy entries among 4 slices%s\n", COLOR_YELLOW, COLOR_RESET);
+    printf("%sMax Busy Count | Cycles | Percentage%s\n", COLOR_CYAN, COLOR_RESET);
+    printf("%s-------------------------------------%s\n", COLOR_CYAN, COLOR_RESET);
+    
+    for (int i = 0; i < MSHR_SIZE; i++) {
+        double percentage = (double)event->lsq_max_busy_count[i] / event->cycles * 100.0;
+        printf("%s%2d entries    | %6lu | %6.2f%%%s\n", COLOR_CYAN, i, event->lsq_max_busy_count[i], percentage, COLOR_RESET);
+    }
+    
+    uint64_t total_weighted_cycles = 0;
+    for (int i = 0; i < MSHR_SIZE; i++) {
+        total_weighted_cycles += i * event->lsq_max_busy_count[i];
+    }
+    
+    double avg_max_busy = (double)total_weighted_cycles / event->cycles;
+    printf("%s\nAverage max busy entries per cycle: %.2f%s\n", COLOR_CYAN, avg_max_busy, COLOR_RESET);
+    
+    uint64_t peak_usage_cycles = 0;
+    for (int i = (3*(MSHR_SIZE))/4; i < MSHR_SIZE; i++) { 
+        peak_usage_cycles += event->lsq_max_busy_count[i];
+    }
+    double peak_usage_percentage = (double)peak_usage_cycles / event->cycles * 100.0;
+    printf("%sPeak usage (>=%d entries): %.2f%% of cycles%s\n", COLOR_CYAN, (3*(MSHR_SIZE))/4, peak_usage_percentage, COLOR_RESET);
+}
+
 // main exec func - execute trace file per line
 void execute_trace_npu(const char* trace_file) {
 
@@ -264,8 +300,6 @@ void execute_trace_npu(const char* trace_file) {
     bool deadlock = false;
     
     printf("Starting trace execution: %s\n", trace_file);
-
-    perf_event_init_npu();
 
     sim_delay(2);
     
@@ -305,6 +339,7 @@ void execute_trace_npu(const char* trace_file) {
                 // delay 1 cycle when not handshake
                 sim_delay(2);
                 event->cycles++;
+                update_mshr_stat_npu(top->slice_0_pmu_lsq_busy, top->slice_1_pmu_lsq_busy, top->slice_2_pmu_lsq_busy, top->slice_3_pmu_lsq_busy);
                 retry_count++;
             }
         
@@ -323,6 +358,7 @@ void execute_trace_npu(const char* trace_file) {
             // delay when handshake
             sim_delay(2);
             event->cycles++;
+            update_mshr_stat_npu(top->slice_0_pmu_lsq_busy, top->slice_1_pmu_lsq_busy, top->slice_2_pmu_lsq_busy, top->slice_3_pmu_lsq_busy);
         } else {
             printf("Warning: Failed to parse line %d: %s", line_num, line);
         }
@@ -352,6 +388,7 @@ void execute_trace_npu(const char* trace_file) {
         rsp = handle_multiport_rsp_data(ch0, ch1, ch2, &ref_num,  &rsp_retry_num, true);
         sim_delay(2);
         event->cycles++;
+        update_mshr_stat_npu(top->slice_0_pmu_lsq_busy, top->slice_1_pmu_lsq_busy, top->slice_2_pmu_lsq_busy, top->slice_3_pmu_lsq_busy);
     };
 #endif
     if (rsp == DONE) {
@@ -359,9 +396,7 @@ void execute_trace_npu(const char* trace_file) {
         printf("%s✓ PASS%s\n", COLOR_GREEN, COLOR_RESET);
         printf("%s%s%s\n", COLOR_GREEN, SEPARATOR, COLOR_RESET);
         printf("%sTrace execution completed successfully!%s\n", COLOR_CYAN, COLOR_RESET);
-        printf("%s[perf] Total Cycle: %ld%s\n", COLOR_CYAN, event->cycles, COLOR_RESET);
-        printf("%s[perf] Total Instr: %ld%s\n", COLOR_CYAN, event->instr, COLOR_RESET);
-        printf("%s[perf] Total CPI: %f%s\n", COLOR_CYAN, (double)(event->cycles/event->instr), COLOR_RESET);
+        print_perf_stats_npu(event, line_num);
         printf("%sProcessed lines: %s%d%s\n", COLOR_YELLOW, COLOR_CYAN, line_num, COLOR_RESET);
         printf("\n");
     }

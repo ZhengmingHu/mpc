@@ -20,4 +20,16 @@
 #define PG_ALIGN __attribute((aligned(4096)))
 #define ARRLEN(arr) (int)(sizeof(arr) / sizeof(arr[0]))
 
+inline int count_bits_builtin(uint64_t value) {
+    return __builtin_popcountll(value);
+}
+
+inline int max(int a, int b, int c, int d) {
+    int max_val = a;
+    if (b > max_val) max_val = b;
+    if (c > max_val) max_val = c;
+    if (d > max_val) max_val = d;
+    return max_val;
+}
+
 #endif

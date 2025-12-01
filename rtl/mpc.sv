@@ -190,7 +190,12 @@ module mpc
     input  logic           [  1: 0]     slice_3_m_axi_rid          ,
     input  logic           [255: 0]     slice_3_m_axi_rdata        ,
     input  logic           [  1: 0]     slice_3_m_axi_rresp        ,
-    input  logic                        slice_3_m_axi_rlast        
+    input  logic                        slice_3_m_axi_rlast        ,
+
+    output logic           [Cfg.u.lsqSize-1:0]  slice_0_pmu_lsq_busy,
+    output logic           [Cfg.u.lsqSize-1:0]  slice_1_pmu_lsq_busy,
+    output logic           [Cfg.u.lsqSize-1:0]  slice_2_pmu_lsq_busy,
+    output logic           [Cfg.u.lsqSize-1:0]  slice_3_pmu_lsq_busy
 
 );
 
@@ -417,7 +422,8 @@ slice # (
     .m_axi_rid                      (slice_0_m_axi_rid          ),  
     .m_axi_rdata                    (slice_0_m_axi_rdata        ),  
     .m_axi_rresp                    (slice_0_m_axi_rresp        ),  
-    .m_axi_rlast                    (slice_0_m_axi_rlast        )  
+    .m_axi_rlast                    (slice_0_m_axi_rlast        ),
+    .pmu_lsq_busy                   (slice_0_pmu_lsq_busy       )  
 );
 
 slice # (
@@ -488,7 +494,8 @@ slice # (
     .m_axi_rid                      (slice_1_m_axi_rid          ),
     .m_axi_rdata                    (slice_1_m_axi_rdata        ),
     .m_axi_rresp                    (slice_1_m_axi_rresp        ),
-    .m_axi_rlast                    (slice_1_m_axi_rlast        )
+    .m_axi_rlast                    (slice_1_m_axi_rlast        ),
+    .pmu_lsq_busy                   (slice_1_pmu_lsq_busy       )
 );
 
 slice # (
@@ -559,7 +566,8 @@ slice # (
     .m_axi_rid                      (slice_2_m_axi_rid          ),
     .m_axi_rdata                    (slice_2_m_axi_rdata        ),
     .m_axi_rresp                    (slice_2_m_axi_rresp        ),
-    .m_axi_rlast                    (slice_2_m_axi_rlast        )
+    .m_axi_rlast                    (slice_2_m_axi_rlast        ),
+    .pmu_lsq_busy                   (slice_2_pmu_lsq_busy       )
 );
 
 slice # (
@@ -630,7 +638,8 @@ slice # (
     .m_axi_rid                      (slice_3_m_axi_rid          ),
     .m_axi_rdata                    (slice_3_m_axi_rdata        ),
     .m_axi_rresp                    (slice_3_m_axi_rresp        ),
-    .m_axi_rlast                    (slice_3_m_axi_rlast        )
+    .m_axi_rlast                    (slice_3_m_axi_rlast        ),
+    .pmu_lsq_busy                   (slice_3_pmu_lsq_busy       )
 );
 
 endmodule

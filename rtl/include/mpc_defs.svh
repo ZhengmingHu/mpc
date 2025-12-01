@@ -20,3 +20,5 @@
         __wbuf_t                         wbuf_id; \
         __data_t                         wdata; \
     }
+
+// `define FPGA_7100
