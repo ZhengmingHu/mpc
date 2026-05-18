@@ -84,7 +84,10 @@ module slice
     input  logic           [  1: 0]     m_axi_rid                  ,           
     input  logic           [255: 0]     m_axi_rdata                ,           
     input  logic           [  1: 0]     m_axi_rresp                ,           
-    input  logic                        m_axi_rlast                            
+    input  logic                        m_axi_rlast                ,
+
+    // 8. for pmu
+    output logic           [Cfg.u.lsqSize-1:0]  pmu_lsq_busy            
 
 );
 
@@ -239,7 +242,8 @@ isu_wrapper # (
     .d_rc_wbuf_id            (rc_wbuf_id            ),
     .d_rc_refill_data        (rc_refill_data        ),
     .u_htu_crdt_valid        (isu_crdt_valid        ),
-    .u_htu_crdt_way_set      (isu_crdt_way_set      )
+    .u_htu_crdt_way_set      (isu_crdt_way_set      ),
+    .pmu_lsq_busy            (pmu_lsq_busy          )
 );
 
 rc_wrapper # (

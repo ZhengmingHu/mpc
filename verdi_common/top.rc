@@ -16,16 +16,18 @@ signalSpacing 5
 
 ; windowTimeUnit is used for zoom, cursor & marker
 ; waveform viewport range
-zoom 0.000000 228.260000
-cursor 43.000000
+zoom 2254105.231003 2254142.302632
+cursor 2359.000000
 marker 0.000000
 
 ; user define markers
 ; userMarker time_pos marker_name color linestyle
+userMarker 49 M1 ID_GREEN5 long_dashed
+
 ; visible top row signal index
 top 0
 ; marker line index
-markerPos 16
+markerPos 8
 
 ; event list
 ; addEvent event_name event_expression
@@ -42,7 +44,7 @@ COMPLEX_EVENT_END
 
 ; toolbar current search type
 ; curSTATUS search_type
-curSTATUS ByChange
+curSTATUS ByValue
 
 
 addGroup "G1"
@@ -51,20 +53,133 @@ addSignal -h 15 /TOP/mpc_wrapper/clk
 addSignal -h 15 -holdScope rst_n
 addSignal -h 15 -holdScope u_channel_0_req_bus_valid
 addSignal -h 15 -holdScope u_channel_0_req_bus_ready
-addSignal -h 15 -holdScope u_channel_0_req_bus_op[2:0]
+addSignal -h 15 -holdScope u_channel_0_req_bus_addr[31:0]
+addSignal -h 15 -holdScope u_channel_1_req_bus_valid
+addSignal -h 15 -holdScope u_channel_1_req_bus_ready
+addSignal -h 15 -holdScope u_channel_1_req_bus_addr[31:0]
+addSignal -h 15 -holdScope u_channel_1_req_bus_wdata[127:0]
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_channel_1_rsp_bus_valid
+addSignal -h 15 -holdScope u_channel_1_rsp_bus_ready
+addSignal -h 15 -holdScope u_channel_1_rsp_bus_rdata[127:0]
+addSignal -h 15 -holdScope u_channel_2_rsp_bus_valid
+addSignal -h 15 -holdScope u_channel_2_rsp_bus_ready
+addSignal -h 15 -holdScope u_channel_2_rsp_bus_rdata[127:0]
+addSignal -h 15 /TOP/mpc_wrapper/u_channel_0_req_bus_op[2:0]
 addSignal -h 15 -holdScope u_channel_0_req_bus_size[2:0]
 addSignal -h 15 -holdScope u_channel_0_req_bus_wdata[127:0]
-addSignal -h 15 -holdScope u_channel_0_req_bus_addr[31:0]
 addSignal -h 15 -holdScope u_channel_0_rsp_bus_valid
 addSignal -h 15 -holdScope u_channel_0_rsp_bus_ready
 addSignal -h 15 -holdScope u_channel_0_rsp_bus_rdata[127:0]
 addGroup "G2"
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_xbar_wrapper/u_rob_wrapper_ch_0/u_rob_bank_0/d_rc_valid
+addSignal -h 15 -holdScope d_rc_rob_id[1:0]
+addSignal -h 15 -holdScope d_rc_data[127:0]
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_xbar_wrapper/u_rtn_xbar_core/u_channel_0_rsp_valid
+addSignal -h 15 -holdScope u_channel_0_rsp_data[127:0]
+addSignal -h 15 -holdScope u_channel_0_rsp_bank_id[1:0]
 addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_rc_wrapper/u_bank_rsp_valid
 addSignal -h 15 -holdScope u_bank_rsp_ready
 addSignal -h 15 -holdScope u_bank_rsp_data[127:0]
-addSignal -h 15 -holdScope u_bank_rsp_channel_id[1:0]
+addSignal -h 15 -holdScope s1_rdata[127:0]
+addSignal -h 15 -holdScope s1_refill_data[255:0]
+addSignal -h 15 -holdScope s1_ready
+addSignal -h 15 -holdScope s0_s1_hsked
+addSignal -h 15 -holdScope s1_byte[3:0]
+addSignal -h 15 -holdScope s1_rdata_ext[255:0]
+addSignal -h 15 -holdScope s1_read_with_linefill
+addSignal -h 15 -holdScope s1_read
+addSignal -h 15 -holdScope s1_data_array_rsp_data[255:0]
+addSignal -h 15 -holdScope s1_op[2:0]
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_rc_wrapper/u_data_array/r_en_q
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_rc_wrapper/s0_read
+addSignal -h 15 -holdScope s0_s1_hsked
+addSignal -h 15 -holdScope s0_size[2:0]
+addSignal -h 15 -holdScope s0_byte[3:0]
+addSignal -h 15 -holdScope u_bank_rsp_ready
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_xbar_wrapper/u_rtn_xbar_core/u_rtn_xbar_ptr_gen/u_bank_0_xbar_sub_ptr_gen/used_entry[2:0]
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_rc_wrapper/u_bank_rsp_channel_id[1:0]
 addGroup "G3"
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_bank_req_valid
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_xbar_wrapper/u_xbar_core/u_xbar_matrix/\xbar_valid_matrix[0][0] [7:0]
+addSignal -h 15 -holdScope \xbar_valid_matrix_ival[0][0] [7:0]
+addSignal -h 15 -holdScope bank_0_ch_1hot_id[2:0]
+addSignal -h 15 -holdScope d_bank_0_req_hsked
+addGroup "G4"
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_rc_wrapper/u_isu_valid
+addSignal -h 15 -holdScope u_isu_set[2:0]
+addSignal -h 15 -holdScope u_isu_way[1:0]
+addSignal -h 15 -holdScope u_isu_refill_data[255:0]
+addSignal -h 15 -holdScope u_isu_offset[0:0]
+addSignal -h 15 -holdScope u_isu_byte[3:0]
+addGroup "G5"
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[0] /u_lsq_entry/enq_valid
+addSignal -h 15 -holdScope entry_can_execute
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[1] /u_lsq_entry/enq_valid
+addSignal -h 15 -holdScope entry_can_execute
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[2] /u_lsq_entry/enq_valid
+addSignal -h 15 -holdScope entry_can_execute
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[3] /u_lsq_entry/enq_valid
+addSignal -h 15 -holdScope entry_can_execute
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[5] /u_lsq_entry/enq_valid
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[4] /u_lsq_entry/entry_can_execute
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[6] /u_lsq_entry/enq_valid
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[5] /u_lsq_entry/entry_can_execute
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[7] /u_lsq_entry/enq_valid
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[6] /u_lsq_entry/entry_can_execute
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[8] /u_lsq_entry/enq_valid
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[7] /u_lsq_entry/entry_can_execute
+addGroup "G6"
+addSignal -h 15 /TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/u_credit_manager/entry_can_execute[31:0]
+addSignal -h 15 -holdScope \n_remain_crdt_cnt_decouple[0] [1:0]
+addSignal -h 15 -holdScope \remain_crdt_cnt_decouple[0] [1:0]
+addSignal -h 15 -holdScope u_xbar_crdt_rtn[2:0]
+addGroup "G7"
 
 ; getSignalForm Scope Hierarchy Status
 ; active file of getSignalForm
+activeDirFile "" "/home/zcy/workspace/mpc/smoke_test/waveform.vcd.fsdb"
+
+GETSIGNALFORM_SCOPE_HIERARCHY_BEGIN
+getSignalForm close
+
+"/TOP"
+"/TOP/mpc_wrapper"
+"/TOP/mpc_wrapper/u_mpc"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_htu_wrapper"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_mc_wrapper"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_mc_wrapper/\mc_queue_gen[0] "
+"/TOP/mpc_wrapper/u_mpc/u_xbar_wrapper"
+
+SCOPE_LIST_BEGIN
+"/TOP"
+"/TOP/mpc_wrapper"
+"/TOP/mpc_wrapper/u_mpc"
+"/TOP/mpc_wrapper/u_mpc/u_xbar_wrapper"
+"/TOP/mpc_wrapper/u_mpc/u_xbar_wrapper/u_xbar_core"
+"/TOP/mpc_wrapper/u_mpc/u_xbar_wrapper/u_xbar_core/u_xbar_matrix"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_htu_wrapper"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_htu_wrapper/u_htu_pipe"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[0]"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[1]"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[2]"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[3]"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[4]"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[5]"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[6]"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[7]"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[9]"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/\lsq_entry_gen[8]"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_isu_wrapper/u_lsq/u_credit_manager"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_mc_wrapper"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_mc_wrapper/\mc_queue_gen[0]"
+"/TOP/mpc_wrapper/u_mpc/u_slice_0/u_mc_wrapper/\mc_queue_gen[0] "
+SCOPE_LIST_END
+
+GETSIGNALFORM_SCOPE_HIERARCHY_END
+
 

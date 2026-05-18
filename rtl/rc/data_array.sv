@@ -39,9 +39,34 @@ logic           r_en_q;
 wayIndexWidth_t r_way_q;
 
 ns_gnrl_dfflr # (1) r_en_dfflr (1'b1, r_en, r_en_q, clk, rst_n);
-ns_gnrl_dfflr # (Cfg.wayIndexWidth) r_way_dfflr (1'b1, r_way, r_way_q, clk, rst_n);
+ns_gnrl_dfflr # (Cfg.wayIndexWidth) r_way_dfflr (r_en, r_way, r_way_q, clk, rst_n);
 
-assign r_data = r_en_q ? r_way_data[r_way_q] : 'd0;
+assign r_data = r_way_data[r_way_q];
+
+// logic                w_en_way_0, w_en_way_1, w_en_way_2, w_en_way_3;
+// setWidth_t           w_set_way_0, w_set_way_1, w_set_way_2, w_set_way_3;
+// logic       [  1: 0] w_mask_way_0, w_mask_way_1, w_mask_way_2, w_mask_way_3;
+// logic       [255: 0] w_data_way_0, w_data_way_1, w_data_way_2, w_data_way_3;
+
+// assign w_en_way_0 = (w_en[0] & (w_way[0] == 'd0)) | (w_en[1] & (w_way[1] == 'd0));
+// assign w_en_way_1 = (w_en[0] & (w_way[0] == 'd1)) | (w_en[1] & (w_way[1] == 'd1));
+// assign w_en_way_2 = (w_en[0] & (w_way[0] == 'd2)) | (w_en[1] & (w_way[1] == 'd2));
+// assign w_en_way_3 = (w_en[0] & (w_way[0] == 'd3)) | (w_en[1] & (w_way[1] == 'd3));
+
+// assign w_set_way_0 = (w_en[0] & (w_way[0] == 'd0)) ? w_set[0] : w_set[1];
+// assign w_set_way_1 = (w_en[0] & (w_way[0] == 'd1)) ? w_set[0] : w_set[1];
+// assign w_set_way_2 = (w_en[0] & (w_way[0] == 'd2)) ? w_set[0] : w_set[1];
+// assign w_set_way_3 = (w_en[0] & (w_way[0] == 'd3)) ? w_set[0] : w_set[1];
+
+// assign w_mask_way_0 = (w_en[0] & (w_way[0] == 'd0)) ? w_mask[0] : w_mask[1];
+// assign w_mask_way_1 = (w_en[0] & (w_way[0] == 'd1)) ? w_mask[0] : w_mask[1];
+// assign w_mask_way_2 = (w_en[0] & (w_way[0] == 'd2)) ? w_mask[0] : w_mask[1];
+// assign w_mask_way_3 = (w_en[0] & (w_way[0] == 'd3)) ? w_mask[0] : w_mask[1];
+
+// assign w_data_way_0 = (w_en[0] & (w_way[0] == 'd0)) ? w_data[0] : w_data[1];
+// assign w_data_way_1 = (w_en[0] & (w_way[0] == 'd1)) ? w_data[0] : w_data[1];
+// assign w_data_way_2 = (w_en[0] & (w_way[0] == 'd2)) ? w_data[0] : w_data[1];
+// assign w_data_way_3 = (w_en[0] & (w_way[0] == 'd3)) ? w_data[0] : w_data[1];
 
 // generate
 //     for (genvar i = 0; i < int'(Cfg.u.ways); i++) 

@@ -72,7 +72,8 @@ module mc_queue
     // 9. Entry State
     output logic                        entry_valid                 ,
     output nlineWidth_t                 cacheline_id                ,
-    output logic           [  2: 0]     entry_state
+    output logic           [  2: 0]     entry_state                 ,
+    output logic                        entry_replace
 );
 
     parameter S_IDLE = 'd0, S_WAIT_DAT = 'd1, S_SEND_REQ = 'd2, S_WAIT_RESP = 'd3, S_SEND_RESP = 'd4;
@@ -95,9 +96,17 @@ module mc_queue
     clWidth_t                           entry_data_nxt              ;
     wire                                entry_data_en               ;
 
-    addrWidth_t                         entry_addr                  ;
-    addrWidth_t                         entry_addr_nxt              ;
-    wire                                entry_addr_en               ;
+    addrWidth_t                         entry_awaddr                ;
+    addrWidth_t                         entry_awaddr_nxt            ;
+    wire                                entry_awaddr_en             ;
+
+    addrWidth_t                         entry_araddr                ;
+    addrWidth_t                         entry_araddr_nxt            ;
+    wire                                entry_araddr_en             ;
+
+    reg                                 replace_flag                ;
+    wire                                replace_flag_nxt            ;
+    wire                                replace_flag_en             ;                
 
     logic                               s_aw_hsked;
     logic                               s_w_hsked;  
@@ -125,11 +134,11 @@ module mc_queue
     (state == S_WAIT_DAT)  ? (s_w_hsked ? S_SEND_REQ : S_WAIT_DAT) :
     (state == S_SEND_REQ)  ? ((m_ar_hsked | m_aw_hsked) ? S_WAIT_RESP : S_SEND_REQ) :
     (state == S_WAIT_RESP) ? (m_b_hsked ? S_IDLE : (m_r_hsked ? S_SEND_RESP : S_WAIT_RESP)) :
-    (state == S_SEND_RESP) ? (s_r_hsked ? S_IDLE : S_SEND_RESP) :
+    (state == S_SEND_RESP) ? (s_r_hsked ? (replace_flag ? S_WAIT_DAT : S_IDLE) : S_SEND_RESP) :
                              S_IDLE;
 
-    assign entry_cmd_nxt = s_aw_hsked;
-    assign entry_cmd_en  = s_aw_hsked | s_ar_hsked;
+    assign entry_cmd_nxt = s_w_hsked;
+    assign entry_cmd_en  = s_w_hsked | s_ar_hsked;
 
     assign entry_cacheline_id_nxt = s_aw_hsked ? s_awid : s_arid;
     assign entry_cacheline_id_en = s_aw_hsked | s_ar_hsked;
@@ -137,22 +146,23 @@ module mc_queue
     assign entry_data_nxt = s_w_hsked ? s_wdata : m_rdata;
     assign entry_data_en = s_w_hsked | m_r_hsked;
 
-    assign entry_addr_nxt = s_aw_hsked ? s_awaddr : s_araddr;
-    assign entry_addr_en = s_aw_hsked | s_ar_hsked;
+    assign entry_araddr_nxt = s_araddr;
+    assign entry_araddr_en = s_ar_hsked;
+
+    assign entry_awaddr_nxt = s_awaddr;
+    assign entry_awaddr_en = s_aw_hsked;
+
+    assign replace_flag_nxt = s_aw_hsked & s_ar_hsked;
+    assign replace_flag_en = (s_aw_hsked & s_ar_hsked) | (m_b_hsked);
 
     ns_gnrl_dfflr # (3) entry_state_dfflr (1'b1, state_nxt, state, clk, rst_n);
     ns_gnrl_dfflr # (1) entry_cmd_dfflr (entry_cmd_en, entry_cmd_nxt, entry_cmd, clk, rst_n);
     ns_gnrl_dfflr # (2) entry_bank_id_dfflr (1'b1, entry_bank_id_nxt, entry_bank_id, clk, rst_n);
     ns_gnrl_dfflr # (Cfg.nlineWidth) entry_cacheline_id_dfflr (entry_cacheline_id_en, entry_cacheline_id_nxt, entry_cacheline_id, clk, rst_n);
-    // ns_gnrl_dfflr # (Cfg.u.clWidth) entry_data_dfflr (entry_data_en, entry_data_nxt, entry_data, clk, rst_n);
-    ns_gnrl_dfflr # (Cfg.u.addrWidth) entry_addr_dfflr (entry_addr_en, entry_addr_nxt, entry_addr, clk, rst_n);    
-
-    always @ (posedge clk or negedge rst_n) begin
-        if (!rst_n)
-            entry_data <= 'd0;
-        else if (entry_data_en)
-            entry_data <= #1 entry_data_nxt;
-    end
+    ns_gnrl_dfflr # (Cfg.u.clWidth) entry_data_dfflr (entry_data_en, entry_data_nxt, entry_data, clk, rst_n);
+    ns_gnrl_dfflr # (Cfg.u.addrWidth) entry_araddr_dfflr (entry_araddr_en, entry_araddr_nxt, entry_araddr, clk, rst_n);  
+    ns_gnrl_dfflr # (Cfg.u.addrWidth) entry_awaddr_dfflr (entry_awaddr_en, entry_awaddr_nxt, entry_awaddr, clk, rst_n);
+    ns_gnrl_dfflr # (1) replace_flag_dfflr (replace_flag_en, replace_flag_nxt, replace_flag, clk, rst_n);
 
 
     assign s_awready = state == S_IDLE;
@@ -164,20 +174,20 @@ module mc_queue
     assign s_rdata   = entry_data;
 
     assign m_awvalid = state == S_SEND_REQ & entry_cmd == $bits(entry_cmd)'(MEM_OP_STORE);
-    assign m_awaddr  = entry_addr;
+    assign m_awaddr  = entry_awaddr;
     assign m_wvalid  = state == S_SEND_REQ & entry_cmd == $bits(entry_cmd)'(MEM_OP_STORE);
     assign m_wdata   = entry_data;
 
     assign m_arvalid = state == S_SEND_REQ & entry_cmd == $bits(entry_cmd)'(MEM_OP_LOAD);
-    assign m_araddr  = entry_addr;
+    assign m_araddr  = entry_araddr;
     assign m_rready  = state == S_WAIT_RESP & entry_cmd == $bits(entry_cmd)'(MEM_OP_LOAD);
-
 
     assign m_bready  = state == S_WAIT_RESP & entry_cmd == $bits(entry_cmd)'(MEM_OP_STORE);
 
     assign entry_valid  = state != S_IDLE;
     assign cacheline_id = entry_cacheline_id;
     assign entry_state  = state;
+    assign entry_replace = replace_flag;
 
 endmodule
 
@@ -296,6 +306,8 @@ logic [Cfg.u.mcSize-1:0] entry_rready;
 
 logic [Cfg.u.mcSize-1:0] entry_bready;
 
+logic [Cfg.u.mcSize-1:0] entry_replace;
+
 logic [             2:0] entry_state  [Cfg.u.mcSize-1:0];
 
 
@@ -312,7 +324,7 @@ assign w_ptr_v = w_ptr[$clog2(Cfg.u.mcSize)-1:0];
 assign r_ptr_v = r_ptr[$clog2(Cfg.u.mcSize)-1:0];
 
 assign w_ptr_nxt = w_ptr + {{($bits(w_ptr)-1){1'b0}}, (s_axi_awready & s_axi_awvalid) | (s_axi_arready & s_axi_arvalid)};
-assign r_ptr_nxt = r_ptr + {{($bits(r_ptr)-1){1'b0}}, (m_axi_bready & m_axi_bvalid) | (s_axi_rvalid & s_axi_rready)};
+assign r_ptr_nxt = r_ptr + {{($bits(r_ptr)-1){1'b0}}, (m_axi_bready & m_axi_bvalid) | (s_axi_rvalid & s_axi_rready & !entry_replace[r_ptr_v])};
 
 ns_gnrl_dfflr # ($bits(w_ptr)) w_ptr_dfflr (1'b1, w_ptr_nxt, w_ptr, clk, rst_n);
 ns_gnrl_dfflr # ($bits(r_ptr)) r_ptr_dfflr (1'b1, r_ptr_nxt, r_ptr, clk, rst_n);
@@ -383,7 +395,8 @@ for (genvar i = 0; i < int'(Cfg.u.mcSize); i = i + 1) begin: mc_queue_gen
 
         .entry_valid    (entry_valid[i]                         ),
         .cacheline_id   (entry_cacheline_id[i]                  ),
-        .entry_state    (entry_state[i]                         )   
+        .entry_state    (entry_state[i]                         ),
+        .entry_replace  (entry_replace[i]                       )   
     );
 end
 

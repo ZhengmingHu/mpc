@@ -14,7 +14,8 @@ module tb_mem_intf_arbiter;
      robSize:16,
      lsqSize:32,
      rfbufSize:16,
-     mcSize:4
+     mcSize:4,
+     mainDelay:90
  };
 
 parameter mpc_cfg_t Cfg = mpcBuildConfig(UserCfg);
@@ -33,6 +34,7 @@ parameter type lsqWidth_t      = logic [Cfg.lsqWidth-1:0];
 parameter type rfbufWidth_t    = logic [Cfg.rfbufWidth-1:0];
 parameter type kobWidth_t      = logic [Cfg.kobWidth-1:0];
 parameter type mcWidth_t       = logic [Cfg.mcWidth-1:0];
+parameter type delWidth_t      = logic [Cfg.delWidth-1:0];
 
 
 logic                        clk                   ;
@@ -305,6 +307,8 @@ initial begin
     slice_0_s_axi_wvalid  = 'd0;
     slice_0_s_axi_wdata   = 'd0;
 
+    #1800;
+
     @(posedge clk) // GNT_0 -> IDLE
 
     @(posedge clk) // IDLE -> GNT_1
@@ -313,6 +317,8 @@ initial begin
     slice_1_s_axi_arvalid = 'd0;
     slice_1_s_axi_arid    = 'd0;
     slice_1_s_axi_araddr  = 'd0;
+
+    #1800;
 
     @(posedge clk) // GNT_1 -> IDLE
     slice_0_s_axi_awvalid = 'd1;
@@ -336,6 +342,8 @@ initial begin
     slice_2_s_axi_wvalid  = 'd0;
     slice_2_s_axi_wdata   = 'd0;
 
+    #1800;
+
     @(posedge clk) // GNT_2 -> IDLE
     slice_3_s_axi_arvalid = 'd1;
     slice_3_s_axi_arid    = 'd1;
@@ -347,6 +355,8 @@ initial begin
     slice_3_s_axi_arvalid = 'd0;
     slice_3_s_axi_arid    = 'd0;
     slice_3_s_axi_araddr  = 'd0;
+
+    #1800;
 
     @(posedge clk) // GNT_3 -> IDLE
     
@@ -427,7 +437,8 @@ memory_interface # (
     .robWidth_t                         (robWidth_t                ),
     .lsqWidth_t                         (lsqWidth_t                ),
     .kobWidth_t                         (kobWidth_t                ),
-    .mcWidth_t                          (mcWidth_t                 )
+    .mcWidth_t                          (mcWidth_t                 ),
+    .delWidth_t                         (delWidth_t                )
 ) u_mem_intf (
     .clk                                (clk                       ),
     .rst_n                              (rst_n                     ),

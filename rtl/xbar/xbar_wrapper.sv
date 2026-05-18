@@ -310,7 +310,7 @@ assign d_bank_0_req_hsked = d_bank_0_req_ready & d_bank_0_htu_valid;
 
 assign d_bank_1_req_ready = d_bank_1_htu_ready & d_bank_1_wbuf_req_ready;
 assign d_bank_1_htu_valid = d_bank_1_req_valid & d_bank_1_wbuf_req_ready;
-assign d_bank_1_req_hsked = d_bank_1_req_ready & d_bank_0_htu_valid;
+assign d_bank_1_req_hsked = d_bank_1_req_ready & d_bank_1_htu_valid;
 
 assign d_bank_2_req_ready = d_bank_2_htu_ready & d_bank_2_wbuf_req_ready;
 assign d_bank_2_htu_valid = d_bank_2_req_valid & d_bank_2_wbuf_req_ready;
@@ -330,10 +330,10 @@ assign d_bank_1_htu_req_wbuf_id = d_bank_1_req_wbuf_id;
 assign d_bank_2_htu_req_wbuf_id = d_bank_2_req_wbuf_id;
 assign d_bank_3_htu_req_wbuf_id = d_bank_3_req_wbuf_id;
 
-assign d_bank_0_wbuf_req_valid = d_bank_0_req_valid & d_bank_0_req_ready;
-assign d_bank_1_wbuf_req_valid = d_bank_1_req_valid & d_bank_1_req_ready;
-assign d_bank_2_wbuf_req_valid = d_bank_2_req_valid & d_bank_2_req_ready;
-assign d_bank_3_wbuf_req_valid = d_bank_3_req_valid & d_bank_3_req_ready;
+assign d_bank_0_wbuf_req_valid = d_bank_0_req_valid & d_bank_0_req_ready & is_store(d_bank_0_req.op);
+assign d_bank_1_wbuf_req_valid = d_bank_1_req_valid & d_bank_1_req_ready & is_store(d_bank_1_req.op);
+assign d_bank_2_wbuf_req_valid = d_bank_2_req_valid & d_bank_2_req_ready & is_store(d_bank_2_req.op);
+assign d_bank_3_wbuf_req_valid = d_bank_3_req_valid & d_bank_3_req_ready & is_store(d_bank_3_req.op);
 
 assign d_bank_0_wbuf_req.wbuf_id = d_bank_0_req_wbuf_id;
 assign d_bank_1_wbuf_req.wbuf_id = d_bank_1_req_wbuf_id;

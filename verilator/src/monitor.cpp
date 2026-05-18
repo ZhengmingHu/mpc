@@ -2,12 +2,13 @@
 #include <config.h>
 #include <paddr.h>
 #include <debug.h>
+#include <sim.h>
 
 VerilatedContext* contextp = NULL;
 VerilatedVcdC* tfp = NULL;
 Vmpc_wrapper* top;
 
-const static char *img_file = "/home/zcy/riscv-tools/riscv-tests/benchmarks/dhrystone.riscv.bin";
+const static char *img_file = "/home/zcy/ysyx/rt-thread-am/bsp/abstract-machine/build/rtthread-riscv32-nemu.bin";
 const char *log_file = "/home/zcy/workspace/mpc/smoke_test/veri_build/mpc.log";
 
 void init_log(const char *log_file);
@@ -18,6 +19,11 @@ void init_sim(){
   tfp = new VerilatedVcdC;
   top = new Vmpc_wrapper;
 #ifdef CONFIG_WAVETRACE  
+  contextp->traceEverOn(true);
+  top->trace(tfp, 0);
+  tfp->open("waveform.vcd");
+#endif
+#ifdef CONFIG_WAVETRACE_PTL
   contextp->traceEverOn(true);
   top->trace(tfp, 0);
   tfp->open("waveform.vcd");
@@ -37,12 +43,20 @@ static long init_pmem() {
         fclose(fp);
         return -1;
     }
+    
     Log("Finish loading image: %s, size = %ld", img_file, size);
     fseek(fp, 0, SEEK_SET);
     int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
     assert(ret == 1);
     fclose(fp);
     return size;
+}
+
+void init_event() {
+    if (event == NULL) {
+        event = (perf_event_t *)malloc(sizeof(perf_event_t));
+        memset(event, 0, sizeof(perf_event_t));
+    }
 }
 
 void init_monitor(int argc, char** argv) {
@@ -53,6 +67,8 @@ void init_monitor(int argc, char** argv) {
 
     long img_size = init_pmem();
 
-    memory_dump(0x80000000, 64);
+    init_event();
+
+    memory_dump(RESET_VECTOR, 64);
 
 }

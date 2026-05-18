@@ -15,6 +15,7 @@ module reference_counter
     input  logic                        clk                        ,
     input  logic                        rst_n                      ,
 
+    input  logic                        ref_cnt_valid              ,
     input  setWidth_t                   ref_cnt_set                ,
     output logic        [  2: 0]        ref_cnt_rsp  [Cfg.wayNum-1:0],
 
@@ -63,7 +64,7 @@ endgenerate
 generate
     for (genvar way_w = 0; way_w < int'(Cfg.wayNum); way_w++)
     begin : ref_cnt_rsp_way_gen
-        ns_gnrl_dfflr # (3) ref_cnt_rsp_dfflr (1'b1, ref_cnt[way_w][ref_cnt_set], ref_cnt_rsp[way_w], clk, rst_n);    
+        ns_gnrl_dfflr # (3) ref_cnt_rsp_dfflr (1'b1, ref_cnt[way_w][ref_cnt_set], ref_cnt_rsp[way_w], clk, rst_n); 
     end
 endgenerate
 

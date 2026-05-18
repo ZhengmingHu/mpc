@@ -133,6 +133,33 @@ assign grt_id = grt_id_sft + ref_weight;
 
 endmodule
 
+module ns_gnrl_weight_with_ref_pipe # (
+  parameter ARBT_NUM = 4
+)
+(
+  input                               clk                        ,
+  input                               rst_n                      ,
+
+  output     [$clog2(ARBT_NUM)-1: 0]  grt_id                     ,
+  input              [ARBT_NUM-1: 0]  req_vec                    ,
+
+  input      [$clog2(ARBT_NUM)-1: 0]  ref_weight        
+);
+
+logic [        ARBT_NUM-1:0] req_vec_circular_sft;
+logic [$clog2(ARBT_NUM)-1:0] grt_id_sft; 
+logic [$clog2(ARBT_NUM)-1:0] grt_id_nxt;
+
+assign req_vec_circular_sft = (req_vec >> ref_weight) | (req_vec << ($bits(ref_weight)'(ARBT_NUM) - ref_weight));
+
+priority_encoder # (ARBT_NUM) req_vec_priority_encoder (req_vec_circular_sft, grt_id_sft);
+
+assign grt_id_nxt = grt_id_sft + ref_weight;
+
+ns_gnrl_dfflr # ($clog2(ARBT_NUM)) grt_id_dfflr (1'b1, grt_id_nxt, grt_id, clk, rst_n);
+
+endmodule
+
 module ns_gnrl_weight_with_ref_one_hot # (
   parameter ARBT_NUM = 4
 )

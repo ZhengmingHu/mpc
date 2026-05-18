@@ -12,9 +12,12 @@ module tb_extmem;
      robSize:16,
      lsqSize:32,
      rfbufSize:16,
-     mcSize:4
+     mcSize:4,
+     mainDelay:1
  };
 parameter mpc_cfg_t Cfg = mpcBuildConfig(UserCfg);
+parameter type clWidth_t       = logic [Cfg.clWidth-1:0];
+parameter type addrWidth_t     = logic [Cfg.addrWidth-1:0];
 parameter type setWidth_t      = logic [Cfg.setWidth-1:0];
 parameter type tagWidth_t      = logic [Cfg.tagWidth-1:0];
 parameter type wayIndexWidth_t = logic [Cfg.wayIndexWidth-1:0];
@@ -28,6 +31,7 @@ parameter type lsqWidth_t      = logic [Cfg.lsqWidth-1:0];
 parameter type rfbufWidth_t    = logic [Cfg.rfbufWidth-1:0];
 parameter type kobWidth_t      = logic [Cfg.kobWidth-1:0];
 parameter type mcWidth_t       = logic [Cfg.mcWidth-1:0];
+parameter type delWidth        = logic [Cfg.delWidth-1:0];
 
 logic                        clk                        ;
 logic                        rst_n                      ;
@@ -166,7 +170,9 @@ initial begin
 end
 
 mc_wrapper # (
-    .Cfg                               (Cfg                ),      
+    .Cfg                               (Cfg                ),
+    .clWidth_t                         (clWidth_t          ),
+    .addrWidth_t                       (addrWidth_t        ),      
     .setWidth_t                        (setWidth_t         ),      
     .tagWidth_t                        (tagWidth_t         ),      
     .wayIndexWidth_t                   (wayIndexWidth_t    ),      
@@ -182,23 +188,23 @@ mc_wrapper # (
 ) u_mc_wrapper (
     .clk                (clk        ),
     .rst_n              (rst_n      ),
-    
-    .awvalid            (awvalid    ),    
-    .awready            (awready    ),
-    .awid               (awid       ),    
-    .awaddr             (awaddr     ),
-    .wvalid             (wvalid     ),
-    .wready             (wready     ),
-    .wid                (wid        ),                       
-    .wdata              (wdata      ),    
-    .arvalid            (arvalid    ),
-    .arready            (arready    ),
-    .arid               (arid       ),              
-    .araddr             (araddr     ),            
-    .rvalid             (rvalid     ),           
-    .rready             (rready     ),        
-    .rid                (rid        ),         
-    .rdata              (rdata      ),              
+    .bank_id            ('d0),
+    .s_axi_awvalid            (awvalid    ),    
+    .s_axi_awready            (awready    ),
+    .s_axi_awid               (awid       ),    
+    .s_axi_awaddr             (awaddr     ),
+    .s_axi_wvalid             (wvalid     ),
+    .s_axi_wready             (wready     ),
+    .s_axi_wid                (wid        ),                       
+    .s_axi_wdata              (wdata      ),    
+    .s_axi_arvalid            (arvalid    ),
+    .s_axi_arready            (arready    ),
+    .s_axi_arid               (arid       ),              
+    .s_axi_araddr             (araddr     ),            
+    .s_axi_rvalid             (rvalid     ),           
+    .s_axi_rready             (rready     ),        
+    .s_axi_rid                (rid        ),         
+    .s_axi_rdata              (rdata      ),              
     .m_axi_awready      (axi_awready),
     .m_axi_awvalid      (axi_awvalid),
     .m_axi_awid         (axi_awid   ),
@@ -232,7 +238,8 @@ mc_wrapper # (
 );
 
 memory_interface # (
-    .Cfg                               (Cfg                ),      
+    .Cfg                               (Cfg                ),
+    .clWidth_t                         (clWidth_t          ),      
     .setWidth_t                        (setWidth_t         ),      
     .tagWidth_t                        (tagWidth_t         ),      
     .wayIndexWidth_t                   (wayIndexWidth_t    ),      
@@ -244,7 +251,8 @@ memory_interface # (
     .robWidth_t                        (robWidth_t         ),      
     .lsqWidth_t                        (lsqWidth_t         ),      
     .kobWidth_t                        (kobWidth_t         ), 
-    .mcWidth_t                         (mcWidth_t          )
+    .mcWidth_t                         (mcWidth_t          ),
+    .delWidth_t                        (delWidth_t         )
 ) u_mem_intf (
     .clk                (clk        ),
     .rst_n              (rst_n      ),

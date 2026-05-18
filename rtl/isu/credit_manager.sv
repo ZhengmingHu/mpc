@@ -43,8 +43,8 @@ logic [Cfg.u.lsqSize-1:0]                          n_entry_can_execute;
 logic [Cfg.u.lsqSize-1:0]                          pending_entry              ;
 logic [Cfg.u.lsqSize-1:0]                          pending_entry_decouple [  2: 0];
 
-lsqWidth_t                                         pending_entry_cnt_decouple [  2: 0];
-lsqWidth_t                                         n_pending_entry_cnt_decouple [  2: 0];
+logic [   Cfg.lsqWidth:0]                          pending_entry_cnt_decouple [  2: 0];
+logic [   Cfg.lsqWidth:0]                          n_pending_entry_cnt_decouple [  2: 0];
 robWidth_t                                         remain_crdt_cnt_decouple [  2: 0];
 robWidth_t                                         n_remain_crdt_cnt_decouple [  2: 0];
 
@@ -214,8 +214,8 @@ generate
                 remain_crdt_cnt_decouple[i] <= {{Cfg.robWidth{1'b1}}};
             end
             else begin
-                pending_entry_cnt_decouple[i] <= n_pending_entry_cnt_decouple[i] + {{($bits(n_pending_entry_cnt_decouple[i])-1){1'b0}}, u_xbar_crdt_rtn[i]};
-                remain_crdt_cnt_decouple[i] <= n_remain_crdt_cnt_decouple[i];
+                pending_entry_cnt_decouple[i] <= n_pending_entry_cnt_decouple[i];
+                remain_crdt_cnt_decouple[i] <= n_remain_crdt_cnt_decouple[i] + {{($bits(n_remain_crdt_cnt_decouple[i])-1){1'b0}}, u_xbar_crdt_rtn[i]};
             end
         end
     end

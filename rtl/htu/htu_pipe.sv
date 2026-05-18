@@ -78,6 +78,7 @@ module htu_pipe
     output metaWidth_t                  meta_write_data            ,
 
     // 7. reference counter
+    output logic                        ref_cnt_valid              ,
     output setWidth_t                   ref_cnt_set                ,
     input  logic      [  2: 0]          ref_cnt_rsp    [Cfg.wayNum-1:0],
 
@@ -153,6 +154,7 @@ wayIndexWidth_t                         s2_way;
 logic                                   s2_hit;
 setWidth_t                              s2_set;
 tagWidth_t                              s2_tag;
+tagWidth_t                              s2_tag_rsp [Cfg.wayNum-1:0];
 metaWidth_t                             s2_meta [Cfg.wayNum-1:0];
 metaWidth_t                             s2_new_meta;
 logic                                   s2_meta_wen;                                   
@@ -233,8 +235,15 @@ generate
         ns_gnrl_dfflr # (Cfg.metaWidth) s2_meta_dfflr (s1_hsked, s1_meta_rsp[i], s2_meta[i], clk, rst_n);
     end
 endgenerate
-ns_gnrl_dfflr # (1) s1_hsked_r_dfflr (1'b1, s1_hsked, s1_hsked_r, clk, rst_n);
 
+generate
+    for (genvar i = 0; i < int'(Cfg.wayNum); i++)
+    begin
+        ns_gnrl_dfflr # (Cfg.tagWidth) s2_tag_rsp_dfflr (s1_hsked, s1_tag_rsp[i], s2_tag_rsp[i], clk, rst_n);
+    end
+endgenerate
+
+ns_gnrl_dfflr # (1) s1_hsked_r_dfflr (1'b1, s1_hsked, s1_hsked_r, clk, rst_n);
 
 /* stage 2: 
     1. get response from replacer
@@ -255,7 +264,7 @@ generate
     end
 endgenerate
 ns_gnrl_dfflr # (Cfg.wayIndexWidth) s2_replace_way_r_dfflr (1'b1, s2_replace_way, s2_replace_way_r, clk, rst_n);
-assign s2_ref_cnt  = s1_hsked_r ? ref_cnt_rsp : s2_ref_cnt_r;
+assign s2_ref_cnt = ref_cnt_rsp;
 assign s2_replace_way = s1_hsked_r ? replace_way : s2_replace_way_r;
 assign s2_replace_way_en = s2_hit ? '0 : 1 << s2_replace_way;
 ns_1hot2bin # (Cfg.wayNum) s2_hit_way_1hot2bin (s2_hit_way_en, s2_hit_way);
@@ -267,8 +276,8 @@ assign s2_new_meta =           is_store(s2_bank_req.op) ? MPC_META_UNIQUE :
                      !s2_hit &  is_load(s2_bank_req.op) ? MPC_META_SHARE  : s2_meta[s2_way];
 assign s2_meta_wen = s2_new_meta != s2_meta[s2_way];
 
-assign s2_ref_cnt_not_ready = s2_ref_cnt_max | (!s2_hit & s2_ref_cnt_not_zero);
-assign s2_memctl_not_ready = !s2_hit & !d_memctl_awready & is_store(s2_bank_req.op) & is_unique(s2_meta[s2_way]) | !s2_hit & !d_memctl_arready & is_load(s2_bank_req.op) ;
+assign s2_ref_cnt_not_ready = s2_ref_cnt_max | (!s2_hit & s2_ref_cnt_not_zero) | (s2_ref_cnt_not_zero & is_store(s2_bank_req.op));
+assign s2_memctl_not_ready = !s2_hit & !d_memctl_awready & is_unique(s2_meta[s2_way]) | !s2_hit & !d_memctl_arready;
 assign s2_ready = !s2_valid || (!s2_ref_cnt_not_ready & !s2_memctl_not_ready & d_isu_ready & tag_write_ready & meta_write_ready);
 
 /* downstream connect */
@@ -290,8 +299,8 @@ assign d_isu_refill_valid     = s2_hsked & !s2_hit;
 assign d_isu_refill_set       = s2_set;
 assign d_isu_refill_way       = s2_way;
 
-assign d_memctl_awvalid       = s2_hsked & !s2_hit & is_store(s2_bank_req.op) & is_unique(s2_meta[s2_way]);
-assign d_memctl_awaddr        = s2_bank_req.addr;
+assign d_memctl_awvalid       = s2_hsked & !s2_hit & is_unique(s2_meta[s2_way]);
+assign d_memctl_awaddr        = {s2_tag_rsp[s2_way], s2_bank_req.addr[tagLSB-1:0]};
 assign d_memctl_awid          = {s2_way, s2_set};
 
 assign d_memctl_arvalid       = s2_hsked & !s2_hit;
@@ -314,7 +323,8 @@ assign meta_write_set         = s2_set;
 assign meta_write_way_en      = s2_hit ? s2_hit_way_en : s2_replace_way_en;
 assign meta_write_data        = s2_new_meta;
 
-assign ref_cnt_set            = s1_set;
+assign ref_cnt_valid          = 'd1;
+assign ref_cnt_set            = s1_hsked ? s1_set : s2_set;
 assign ref_cnt_access_valid   = s2_hsked;
 assign ref_cnt_access_set     = s2_set;
 assign ref_cnt_access_way     = s2_way;

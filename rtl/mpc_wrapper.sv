@@ -8,15 +8,16 @@ module mpc_wrapper
         clWidth:256,
         clWordWidth:128,
         addrWidth:32,
-        sets:8,
+        sets:64,
         banks:4,
         ways:4,
-        kobSize:16,
+        kobSize:64,
         wbufSize:16,
-        robSize:16,
+        robSize:8,
         lsqSize:32,
-        rfbufSize:16,
-        mcSize:4
+        rfbufSize:32,
+        mcSize:4,
+        mainDelay:95
     },
     parameter mpc_cfg_t Cfg = mpcBuildConfig(UserCfg),
     parameter type clWidth_t       = logic [Cfg.u.clWidth-1:0],
@@ -37,6 +38,7 @@ module mpc_wrapper
     parameter type rfbufWidth_t    = logic [Cfg.rfbufWidth-1:0],
     parameter type kobWidth_t      = logic [Cfg.kobWidth-1:0],
     parameter type mcWidth_t       = logic [Cfg.mcWidth-1:0],
+    parameter type delWidth_t      = logic [Cfg.delWidth-1:0],
 
     parameter type channel_req_t = 
         `MPC_DECL_REQ_T(
@@ -92,7 +94,13 @@ module mpc_wrapper
 
     output logic                        u_channel_2_rsp_bus_valid  ,
     input  logic                        u_channel_2_rsp_bus_ready  ,
-    output dataWidth_t                  u_channel_2_rsp_bus_rdata  
+    output dataWidth_t                  u_channel_2_rsp_bus_rdata  ,
+
+    // for pmu
+    output logic           [Cfg.u.lsqSize-1:0]  slice_0_pmu_lsq_busy,
+    output logic           [Cfg.u.lsqSize-1:0]  slice_1_pmu_lsq_busy,
+    output logic           [Cfg.u.lsqSize-1:0]  slice_2_pmu_lsq_busy,
+    output logic           [Cfg.u.lsqSize-1:0]  slice_3_pmu_lsq_busy  
 );
 
 channel_req_t                u_channel_0_req_bus ;
@@ -425,7 +433,11 @@ mpc # (
     .slice_3_m_axi_rid         (slice_3_axi_rid          ),
     .slice_3_m_axi_rdata       (slice_3_axi_rdata        ),
     .slice_3_m_axi_rresp       (slice_3_axi_rresp        ),
-    .slice_3_m_axi_rlast       (slice_3_axi_rlast        )
+    .slice_3_m_axi_rlast       (slice_3_axi_rlast        ),
+    .slice_0_pmu_lsq_busy      (slice_0_pmu_lsq_busy     ),
+    .slice_1_pmu_lsq_busy      (slice_1_pmu_lsq_busy     ),
+    .slice_2_pmu_lsq_busy      (slice_2_pmu_lsq_busy     ),
+    .slice_3_pmu_lsq_busy      (slice_3_pmu_lsq_busy     )
 );
 
 mem_intf_arbiter # (
@@ -608,7 +620,8 @@ memory_interface # (
     .robWidth_t                        (robWidth_t           ),      
     .lsqWidth_t                        (lsqWidth_t           ),      
     .kobWidth_t                        (kobWidth_t           ), 
-    .mcWidth_t                         (mcWidth_t            )
+    .mcWidth_t                         (mcWidth_t            ),
+    .delWidth_t                        (delWidth_t           )
 ) u_mem_intf (
     .clk                               (clk                  ),
     .rst_n                             (rst_n                ),
