@@ -16,11 +16,11 @@ int parse_trace_line_npu(const char* line, int* req_type, int* op_type, int* siz
     }
     
     // parse op type
-    if (strcmp(op_str, "read") == 0) {
+    if (strcmp(op_str, "read") == 0 || strcmp(op_str, "load") == 0 ) {
         *op_type = LOAD;
     } else if (strcmp(op_str, "store") == 0) {
         *op_type = STORE;
-    } else if (strcmp(op_str, "read_simd") == 0) {
+    } else if (strcmp(op_str, "read_simd") == 0 || strcmp(op_str, "load_simd") == 0 ) {
         *op_type = LOAD;
     } else if (strcmp(op_str, "store_simd") == 0) {
         *op_type = STORE;
@@ -390,6 +390,8 @@ void execute_trace_npu(const char* trace_file) {
         event->cycles++;
         update_mshr_stat_npu(top->slice_0_pmu_lsq_busy, top->slice_1_pmu_lsq_busy, top->slice_2_pmu_lsq_busy, top->slice_3_pmu_lsq_busy);
     };
+#else
+    rsp = DONE;
 #endif
     if (rsp == DONE) {
         printf("\n%s%s%s\n", COLOR_GREEN, SEPARATOR, COLOR_RESET);
@@ -413,7 +415,7 @@ void execute_trace_npu(const char* trace_file) {
         printf("\n%s%s%s\n", COLOR_RED, SEPARATOR, COLOR_RESET);
         printf("%s✓ FAIL%s\n", COLOR_RED, COLOR_RESET);
         printf("%s%s%s\n", COLOR_RED, SEPARATOR, COLOR_RESET);
-        printf("%sTrace execution failed due to response errror!%s\n", COLOR_CYAN, COLOR_RESET);
+        printf("%sTrace execution failed due to response error!%s\n", COLOR_CYAN, COLOR_RESET);
         printf("%sProcessed lines: %s%d%s\n", COLOR_YELLOW, COLOR_CYAN, line_num, COLOR_RESET);
         printf("\n");
         return;

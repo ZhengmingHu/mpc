@@ -69,6 +69,6 @@ void init_monitor(int argc, char** argv) {
 
     init_event();
 
-    memory_dump(0x80000000, 64);
+    memory_dump(RESET_VECTOR, 64);
 
 }

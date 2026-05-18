@@ -252,10 +252,10 @@ void update_mshr_stat(uint64_t slice0, uint64_t slice1, uint64_t slice2, uint64_
 
 void print_perf_stats(const perf_event_t* event, int line_num) {
 
+    printf("%sProcessed lines: %s%d%s\n\n", COLOR_YELLOW, COLOR_CYAN, line_num, COLOR_RESET);
     printf("%s[perf] Total Cycle: %ld%s\n", COLOR_CYAN, event->cycles, COLOR_RESET);
     printf("%s[perf] Total Instr: %ld%s\n", COLOR_CYAN, event->instr, COLOR_RESET);
     printf("%s[perf] Total CPI: %f%s\n", COLOR_CYAN, (double)((double)event->cycles/(double)event->instr), COLOR_RESET);
-    printf("%sProcessed lines: %s%d%s\n", COLOR_YELLOW, COLOR_CYAN, line_num, COLOR_RESET);
     
     printf("\n%s=== MSHR Max Busy Table Entry Statistics ===%s\n", COLOR_CYAN, COLOR_RESET);
     printf("%sNote: Statistics show the maximum busy entries among 4 slices%s\n", COLOR_YELLOW, COLOR_RESET);
@@ -328,7 +328,7 @@ void execute_trace(const char* trace_file) {
 #ifdef CONFIG_DEBUG
             print_line(line_num, op_type, size_type, addr, data);
 #endif
-#ifdef CONFIG_CPU_MULTIPORT
+#ifdef CONFIG_DIFFTEST
             cache_line(ch0, ch1, ch2, line, op_type, addr);
 #endif
             int retry_count = 0;
@@ -383,6 +383,7 @@ void execute_trace(const char* trace_file) {
             printf("Warning: Failed to parse line %d: %s", line_num, line);
         }
     }
+    rsp = DONE;
     reset_request_signals();
     if (deadlock) {
         printf("\n%s%s%s\n", COLOR_RED, SEPARATOR, COLOR_RESET);
@@ -436,7 +437,7 @@ void execute_trace(const char* trace_file) {
         printf("\n%s%s%s\n", COLOR_RED, SEPARATOR, COLOR_RESET);
         printf("%s✓ FAIL%s\n", COLOR_RED, COLOR_RESET);
         printf("%s%s%s\n", COLOR_RED, SEPARATOR, COLOR_RESET);
-        printf("%sTrace execution failed due to response errror!%s\n", COLOR_CYAN, COLOR_RESET);
+        printf("%sTrace execution failed due to response error!%s\n", COLOR_CYAN, COLOR_RESET);
         printf("%sProcessed lines: %s%d%s\n", COLOR_YELLOW, COLOR_CYAN, line_num, COLOR_RESET);
         printf("\n");
         return;
